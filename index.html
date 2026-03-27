@@ -273,4 +273,296 @@ function openDashboard(){
 </script>
 
 </body>
+</html>  </div>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "ISI_API_KEY",
+  authDomain: "ISI_DOMAIN",
+  projectId: "ISI_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentCollection = "anggota";
+let semuaData = [];
+
+// LOGIN
+function login(){
+  auth.signInWithEmailAndPassword(email.value, password.value);
+}
+
+// REGISTER
+function register(){
+  auth.createUserWithEmailAndPassword(email.value, password.value)
+  .then((res)=>{
+    db.collection("users").doc(res.user.uid).set({
+      nama: namaUser.value,
+      role: "anggota"
+    });
+    alert("Register berhasil");
+  });
+}
+
+// CEK LOGIN
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("app").style.display="block";
+  }
+});
+
+// LOAD DATA
+function loadData(col){
+  currentCollection = col;
+
+  db.collection(col).onSnapshot(snap=>{
+    semuaData=[];
+    snap.forEach(doc=>{
+      semuaData.push({
+        id: doc.id,
+        isi: doc.data().isi
+      });
+    });
+    tampilkan(semuaData);
+  });
+}
+
+// TAMPILKAN
+function tampilkan(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    list.innerHTML+=`<li>${d.isi}</li>`;
+  });
+}
+
+// TAMBAH
+function tambahData(){
+  db.collection(currentCollection).add({
+    isi: inputData.value
+  });
+}
+
+// SEARCH
+function cariAnggota(){
+  let k = search.value.toLowerCase();
+  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
+  tampilkan(hasil);
+}
+</script>
+
+</body>
+</html>
+  db.collection(col).onSnapshot(snap=>{
+    semuaData=[];
+    snap.forEach(doc=>{
+      semuaData.push({
+        id: doc.id,
+        isi: doc.data().isi,
+        foto: doc.data().foto
+      });
+    });
+    tampilkan(semuaData);
+  });
+}
+
+// TAMPILKAN
+function tampilkan(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    list.innerHTML+=`
+    <li>
+      ${d.isi}<br>
+      <img src="${d.foto||''}" width="50"><br>
+      <button onclick="hapus('${d.id}')">Hapus</button>
+    </li>`;
+  });
+}
+
+// HAPUS
+function hapus(id){
+  if(userRole !== "admin"){
+    alert("Admin saja!");
+    return;
+  }
+  db.collection(currentCollection).doc(id).delete();
+}
+
+// SEARCH
+function cariAnggota(){
+  let k = search.value.toLowerCase();
+  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
+  tampilkan(hasil);
+}
+
+// PROFIL
+function simpanProfil(){
+  let user = auth.currentUser;
+  let file = fotoProfil.files[0];
+
+  if(file){
+    uploadFoto(file).then(url=>{
+      db.collection("users").doc(user.uid).update({
+        nama: namaProfil.value,
+        foto: url
+      });
+    });
+  }
+}
+
+// DASHBOARD
+function openDashboard(){
+  if(userRole !== "admin"){
+    alert("Akses ditolak");
+    return;
+  }
+
+  dashboard.style.display="block";
+
+  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
+  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
+  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
+}
+</script>
+
+</body>
+    </html>    db.collection("users").doc(res.user.uid).set({
+      nama: namaUser.value,
+      role: "anggota"
+    });
+    alert("Register berhasil");
+  });
+}
+
+// CEK LOGIN
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("app").style.display="block";
+  }
+});
+
+// LOAD DATA
+function loadData(col){
+  currentCollection = col;
+
+  db.collection(col).onSnapshot(snap=>{
+    semuaData=[];
+    snap.forEach(doc=>{
+      semuaData.push({
+        id: doc.id,
+        isi: doc.data().isi
+      });
+    });
+    tampilkan(semuaData);
+  });
+}
+
+// TAMPILKAN
+function tampilkan(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    list.innerHTML+=`<li>${d.isi}</li>`;
+  });
+}
+
+// TAMBAH
+function tambahData(){
+  db.collection(currentCollection).add({
+    isi: inputData.value
+  });
+}
+
+// SEARCH
+function cariAnggota(){
+  let k = search.value.toLowerCase();
+  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
+  tampilkan(hasil);
+}
+</script>
+
+</body>
+</html>
+  db.collection(col).onSnapshot(snap=>{
+    semuaData=[];
+    snap.forEach(doc=>{
+      semuaData.push({
+        id: doc.id,
+        isi: doc.data().isi,
+        foto: doc.data().foto
+      });
+    });
+    tampilkan(semuaData);
+  });
+}
+
+// TAMPILKAN
+function tampilkan(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    list.innerHTML+=`
+    <li>
+      ${d.isi}<br>
+      <img src="${d.foto||''}" width="50"><br>
+      <button onclick="hapus('${d.id}')">Hapus</button>
+    </li>`;
+  });
+}
+
+// HAPUS
+function hapus(id){
+  if(userRole !== "admin"){
+    alert("Admin saja!");
+    return;
+  }
+  db.collection(currentCollection).doc(id).delete();
+}
+
+// SEARCH
+function cariAnggota(){
+  let k = search.value.toLowerCase();
+  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
+  tampilkan(hasil);
+}
+
+// PROFIL
+function simpanProfil(){
+  let user = auth.currentUser;
+  let file = fotoProfil.files[0];
+
+  if(file){
+    uploadFoto(file).then(url=>{
+      db.collection("users").doc(user.uid).update({
+        nama: namaProfil.value,
+        foto: url
+      });
+    });
+  }
+}
+
+// DASHBOARD
+function openDashboard(){
+  if(userRole !== "admin"){
+    alert("Akses ditolak");
+    return;
+  }
+
+  dashboard.style.display="block";
+
+  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
+  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
+  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
+}
+</script>
+
+</body>
     </html>
