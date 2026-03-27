@@ -38,6 +38,7 @@
       background:#0b6623;
       color:white;
       font-weight:bold;
+      cursor:pointer;
     }
 
     .hidden {
@@ -55,6 +56,11 @@
     .search-box input {
       width:80%;
     }
+
+    img {
+      margin-top:5px;
+      border-radius:8px;
+    }
   </style>
 </head>
 
@@ -62,18 +68,15 @@
 
 <div class="container">
 
-  <!-- LOGO -->
-  <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="100">
   <h1>HMI</h1>
 
-  <!-- CERITA / DESKRIPSI -->
   <p>
     Himpunan Mahasiswa Islam adalah organisasi yang bertujuan 
     membina mahasiswa menjadi insan akademis, pencipta, pengabdi 
     yang bernafaskan Islam.
   </p>
 
-  <!-- LOGIN REGISTER -->
+  <!-- AUTH -->
   <div class="card" id="auth">
     <h2>Login / Register</h2>
     <input id="namaUser" placeholder="Nama"><br>
@@ -83,15 +86,15 @@
     <button onclick="register()">Register</button>
   </div>
 
-  <!-- HALAMAN UTAMA (SETELAH LOGIN) -->
+  <!-- APP -->
   <div id="app" class="hidden">
 
-    <!-- SEARCH -->
+    <button onclick="logout()">Logout</button>
+
     <div class="search-box">
-      🔍 <input id="search" placeholder="Cari..." onkeyup="cariAnggota()">
+      🔍 <input id="search" placeholder="Cari..." onkeyup="cariData()">
     </div>
 
-    <!-- MENU -->
     <div class="card">
       <button onclick="loadData('anggota')">Anggota</button>
       <button onclick="loadData('agenda')">Agenda</button>
@@ -100,13 +103,11 @@
       <button onclick="loadData('notulen')">Notulen</button>
     </div>
 
-    <!-- TAMBAH DATA -->
     <div class="card">
       <input id="inputData" placeholder="Tambah data">
       <button onclick="tambahData()">Tambah</button>
     </div>
 
-    <!-- LIST -->
     <div class="card">
       <ul id="list"></ul>
     </div>
@@ -115,10 +116,10 @@
 
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+<!-- FIREBASE (COMPAT) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -128,27 +129,44 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// DOM
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const namaUser = document.getElementById("namaUser");
+const list = document.getElementById("list");
+const search = document.getElementById("search");
+const inputData = document.getElementById("inputData");
+
 let currentCollection = "anggota";
 let semuaData = [];
+let userRole = "anggota";
 
 // LOGIN
 function login(){
-  auth.signInWithEmailAndPassword(email.value, password.value);
+  auth.signInWithEmailAndPassword(email.value, password.value)
+  .catch(err => alert(err.message));
 }
 
 // REGISTER
 function register(){
   auth.createUserWithEmailAndPassword(email.value, password.value)
-  .then((res)=>{
+  .then(res=>{
     db.collection("users").doc(res.user.uid).set({
       nama: namaUser.value,
       role: "anggota"
     });
     alert("Register berhasil");
-  });
+  })
+  .catch(err => alert(err.message));
+}
+
+// LOGOUT
+function logout(){
+  auth.signOut();
 }
 
 // CEK LOGIN
@@ -156,6 +174,17 @@ auth.onAuthStateChanged(user=>{
   if(user){
     document.getElementById("auth").style.display="none";
     document.getElementById("app").style.display="block";
+
+    // ambil role user
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      if(doc.exists){
+        userRole = doc.data().role;
+      }
+    });
+
+  } else {
+    document.getElementById("auth").style.display="block";
+    document.getElementById("app").style.display="none";
   }
 });
 
@@ -164,11 +193,11 @@ function loadData(col){
   currentCollection = col;
 
   db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
+    semuaData = [];
     snap.forEach(doc=>{
       semuaData.push({
         id: doc.id,
-        isi: doc.data().isi
+        isi: doc.data().isi || ""
       });
     });
     tampilkan(semuaData);
@@ -177,53 +206,38 @@ function loadData(col){
 
 // TAMPILKAN
 function tampilkan(data){
-  list.innerHTML="";
+  list.innerHTML = "";
+
   data.forEach(d=>{
-    list.innerHTML+=`<li>${d.isi}</li>`;
+    let li = document.createElement("li");
+
+    let text = document.createElement("span");
+    text.textContent = d.isi;
+
+    li.appendChild(text);
+
+    // tombol hapus (admin saja)
+    if(userRole === "admin"){
+      let btn = document.createElement("button");
+      btn.textContent = "Hapus";
+      btn.onclick = ()=>hapus(d.id);
+      li.appendChild(document.createElement("br"));
+      li.appendChild(btn);
+    }
+
+    list.appendChild(li);
   });
 }
 
 // TAMBAH
 function tambahData(){
+  if(inputData.value.trim() === "") return;
+
   db.collection(currentCollection).add({
     isi: inputData.value
   });
-}
 
-// SEARCH
-function cariAnggota(){
-  let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
-  tampilkan(hasil);
-}
-</script>
-
-</body>
-</html>
-  db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
-    snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi,
-        foto: doc.data().foto
-      });
-    });
-    tampilkan(semuaData);
-  });
-}
-
-// TAMPILKAN
-function tampilkan(data){
-  list.innerHTML="";
-  data.forEach(d=>{
-    list.innerHTML+=`
-    <li>
-      ${d.isi}<br>
-      <img src="${d.foto||''}" width="50"><br>
-      <button onclick="hapus('${d.id}')">Hapus</button>
-    </li>`;
-  });
+  inputData.value = "";
 }
 
 // HAPUS
@@ -232,337 +246,21 @@ function hapus(id){
     alert("Admin saja!");
     return;
   }
+
   db.collection(currentCollection).doc(id).delete();
 }
 
 // SEARCH
-function cariAnggota(){
+function cariData(){
   let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
-  tampilkan(hasil);
-}
 
-// PROFIL
-function simpanProfil(){
-  let user = auth.currentUser;
-  let file = fotoProfil.files[0];
+  let hasil = semuaData.filter(d =>
+    d.isi.toLowerCase().includes(k)
+  );
 
-  if(file){
-    uploadFoto(file).then(url=>{
-      db.collection("users").doc(user.uid).update({
-        nama: namaProfil.value,
-        foto: url
-      });
-    });
-  }
-}
-
-// DASHBOARD
-function openDashboard(){
-  if(userRole !== "admin"){
-    alert("Akses ditolak");
-    return;
-  }
-
-  dashboard.style.display="block";
-
-  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
-  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
-  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
-}
-</script>
-
-</body>
-</html>  </div>
-
-</div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_DOMAIN",
-  projectId: "ISI_PROJECT_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentCollection = "anggota";
-let semuaData = [];
-
-// LOGIN
-function login(){
-  auth.signInWithEmailAndPassword(email.value, password.value);
-}
-
-// REGISTER
-function register(){
-  auth.createUserWithEmailAndPassword(email.value, password.value)
-  .then((res)=>{
-    db.collection("users").doc(res.user.uid).set({
-      nama: namaUser.value,
-      role: "anggota"
-    });
-    alert("Register berhasil");
-  });
-}
-
-// CEK LOGIN
-auth.onAuthStateChanged(user=>{
-  if(user){
-    document.getElementById("auth").style.display="none";
-    document.getElementById("app").style.display="block";
-  }
-});
-
-// LOAD DATA
-function loadData(col){
-  currentCollection = col;
-
-  db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
-    snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi
-      });
-    });
-    tampilkan(semuaData);
-  });
-}
-
-// TAMPILKAN
-function tampilkan(data){
-  list.innerHTML="";
-  data.forEach(d=>{
-    list.innerHTML+=`<li>${d.isi}</li>`;
-  });
-}
-
-// TAMBAH
-function tambahData(){
-  db.collection(currentCollection).add({
-    isi: inputData.value
-  });
-}
-
-// SEARCH
-function cariAnggota(){
-  let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
   tampilkan(hasil);
 }
 </script>
 
 </body>
 </html>
-  db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
-    snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi,
-        foto: doc.data().foto
-      });
-    });
-    tampilkan(semuaData);
-  });
-}
-
-// TAMPILKAN
-function tampilkan(data){
-  list.innerHTML="";
-  data.forEach(d=>{
-    list.innerHTML+=`
-    <li>
-      ${d.isi}<br>
-      <img src="${d.foto||''}" width="50"><br>
-      <button onclick="hapus('${d.id}')">Hapus</button>
-    </li>`;
-  });
-}
-
-// HAPUS
-function hapus(id){
-  if(userRole !== "admin"){
-    alert("Admin saja!");
-    return;
-  }
-  db.collection(currentCollection).doc(id).delete();
-}
-
-// SEARCH
-function cariAnggota(){
-  let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
-  tampilkan(hasil);
-}
-
-// PROFIL
-function simpanProfil(){
-  let user = auth.currentUser;
-  let file = fotoProfil.files[0];
-
-  if(file){
-    uploadFoto(file).then(url=>{
-      db.collection("users").doc(user.uid).update({
-        nama: namaProfil.value,
-        foto: url
-      });
-    });
-  }
-}
-
-// DASHBOARD
-function openDashboard(){
-  if(userRole !== "admin"){
-    alert("Akses ditolak");
-    return;
-  }
-
-  dashboard.style.display="block";
-
-  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
-  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
-  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
-}
-</script>
-
-</body>
-    </html>    db.collection("users").doc(res.user.uid).set({
-      nama: namaUser.value,
-      role: "anggota"
-    });
-    alert("Register berhasil");
-  });
-}
-
-// CEK LOGIN
-auth.onAuthStateChanged(user=>{
-  if(user){
-    document.getElementById("auth").style.display="none";
-    document.getElementById("app").style.display="block";
-  }
-});
-
-// LOAD DATA
-function loadData(col){
-  currentCollection = col;
-
-  db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
-    snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi
-      });
-    });
-    tampilkan(semuaData);
-  });
-}
-
-// TAMPILKAN
-function tampilkan(data){
-  list.innerHTML="";
-  data.forEach(d=>{
-    list.innerHTML+=`<li>${d.isi}</li>`;
-  });
-}
-
-// TAMBAH
-function tambahData(){
-  db.collection(currentCollection).add({
-    isi: inputData.value
-  });
-}
-
-// SEARCH
-function cariAnggota(){
-  let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
-  tampilkan(hasil);
-}
-</script>
-
-</body>
-</html>
-  db.collection(col).onSnapshot(snap=>{
-    semuaData=[];
-    snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi,
-        foto: doc.data().foto
-      });
-    });
-    tampilkan(semuaData);
-  });
-}
-
-// TAMPILKAN
-function tampilkan(data){
-  list.innerHTML="";
-  data.forEach(d=>{
-    list.innerHTML+=`
-    <li>
-      ${d.isi}<br>
-      <img src="${d.foto||''}" width="50"><br>
-      <button onclick="hapus('${d.id}')">Hapus</button>
-    </li>`;
-  });
-}
-
-// HAPUS
-function hapus(id){
-  if(userRole !== "admin"){
-    alert("Admin saja!");
-    return;
-  }
-  db.collection(currentCollection).doc(id).delete();
-}
-
-// SEARCH
-function cariAnggota(){
-  let k = search.value.toLowerCase();
-  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
-  tampilkan(hasil);
-}
-
-// PROFIL
-function simpanProfil(){
-  let user = auth.currentUser;
-  let file = fotoProfil.files[0];
-
-  if(file){
-    uploadFoto(file).then(url=>{
-      db.collection("users").doc(user.uid).update({
-        nama: namaProfil.value,
-        foto: url
-      });
-    });
-  }
-}
-
-// DASHBOARD
-function openDashboard(){
-  if(userRole !== "admin"){
-    alert("Akses ditolak");
-    return;
-  }
-
-  dashboard.style.display="block";
-
-  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
-  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
-  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
-}
-</script>
-
-</body>
-    </html>
