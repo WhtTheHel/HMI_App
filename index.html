@@ -168,27 +168,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
   authDomain: "hmi-app-ac76d.firebaseapp.com",
   projectId: "hmi-app-ac76d",
-  storageBucket: "hmi-app-ac76d.firebasestorage.app",
-  messagingSenderId: "985813799742",
-  appId: "1:985813799742:web:69778efc39f2ab6deb126f",
-  measurementId: "G-PS4WCCN9FE"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // DOM
 const email = document.getElementById("email");
