@@ -250,6 +250,38 @@ function loadData(col){
   });
 }
 
+// BUKA DASHBOARD
+function openDashboard(){
+  if(userRole !== "admin"){
+    alert("Akses ditolak!");
+    return;
+  }
+
+  document.getElementById("dashboard").classList.remove("hidden");
+
+  // ambil statistik
+  db.collection("anggota").onSnapshot(s=>{
+    totalAnggota.innerText = s.size;
+  });
+
+  db.collection("agenda").onSnapshot(s=>{
+    totalAgenda.innerText = s.size;
+  });
+
+  db.collection("keuangan").onSnapshot(s=>{
+    totalKeuangan.innerText = s.size;
+  });
+
+  db.collection("pengumuman").onSnapshot(s=>{
+    totalPengumuman.innerText = s.size;
+  });
+}
+
+// TUTUP DASHBOARD
+function closeDashboard(){
+  document.getElementById("dashboard").classList.add("hidden");
+}
+  
 // TAMPILKAN
 function tampilkan(data){
   list.innerHTML = "";
@@ -275,6 +307,7 @@ function tampilkan(data){
   });
 }
 
+  
 // TAMBAH
 function tambahData(){
   if(inputData.value.trim() === "") return;
