@@ -86,6 +86,52 @@
     <button onclick="register()">Register</button>
   </div>
 
+
+  <div id="app" class="hidden">
+
+  <div class="topbar">
+    <strong>Dashboard</strong>
+    <div>
+      <button onclick="openDashboard()">Admin</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="dashboard" class="card hidden">
+    <h3>Admin Dashboard</h3>
+
+    <p>Total Anggota: <b id="totalAnggota">0</b></p>
+    <p>Total Agenda: <b id="totalAgenda">0</b></p>
+    <p>Total Keuangan: <b id="totalKeuangan">0</b></p>
+    <p>Total Pengumuman: <b id="totalPengumuman">0</b></p>
+
+    <button onclick="closeDashboard()">Tutup</button>
+  </div>
+
+  <div class="card search-box">
+    <input id="search" placeholder="Cari..." onkeyup="cariData()">
+  </div>
+
+  <div class="card menu">
+    <button onclick="loadData('anggota')">Anggota</button>
+    <button onclick="loadData('agenda')">Agenda</button>
+    <button onclick="loadData('keuangan')">Keuangan</button>
+    <button onclick="loadData('pengumuman')">Pengumuman</button>
+    <button onclick="loadData('notulen')">Notulen</button>
+  </div>
+
+  <div class="card">
+    <input id="inputData" placeholder="Tambah data">
+    <button onclick="tambahData()">Tambah</button>
+  </div>
+
+  <div class="card">
+    <ul id="list"></ul>
+  </div>
+
+  </div>
+  
   <!-- APP -->
   <div id="app" class="hidden">
 
