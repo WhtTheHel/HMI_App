@@ -182,16 +182,13 @@ const firebaseConfig = {
   projectId: "hmi-app-ac76d",
   storageBucket: "hmi-app-ac76d.firebasestorage.app",
   messagingSenderId: "985813799742",
-  appId: "1:985813799742:web:1ac0aae6dc43d9a3eb126f",
-  measurementId: "G-60Q8Z4XVXT"
+  appId: "1:985813799742:web:69778efc39f2ab6deb126f",
+  measurementId: "G-PS4WCCN9FE"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
 
 // DOM
 const email = document.getElementById("email");
