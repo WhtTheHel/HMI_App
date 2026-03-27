@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HMI App</title>
+  <style>
+    body { font-family: Arial; background: #0b6623; color: white; text-align:center; }
+    .card { background: white; color:black; padding:20px; margin:10px; border-radius:10px; }
+    input, button { padding:10px; margin:5px; width:80%; }
+    button { background: green; color:white; border:none; }
+  </style>
+</head>
+<body>
+
+<img src="logo.png" width="100">
+<h1>HIMPUNAN MAHASISWA ISLAM</h1>
+
+<div class="card">
+  <h2>Login / Register</h2>
+  <input id="namaUser" placeholder="Nama"><br>
+  <input id="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+</div>
+
+<div class="card">
+  <h2>Menu</h2>
+  <button onclick="loadData('anggota')">Anggota</button>
+  <button onclick="loadData('agenda')">Agenda</button>
+  <button onclick="loadData('keuangan')">Keuangan</button>
+  <button onclick="loadData('pengumuman')">Pengumuman</button>
+  <button onclick="loadData('notulen')">Notulen</button>
+  <button onclick="openDashboard()">Dashboard</button>
+</div>
+
+<div class="card">
+  <h2>Profil Saya</h2>
+  <input id="namaProfil" placeholder="Nama">
+  <input type="file" id="fotoProfil">
+  <button onclick="simpanProfil()">Simpan</button><br>
+  <img id="previewFoto" width="80">
+</div>
+
+<div class="card">
+  <h2>Tambah Data</h2>
+  <input id="inputData" placeholder="Isi data">
+  <input type="file" id="foto">
+  <button onclick="tambahData()">Tambah</button>
+</div>
+
+<div class="card">
+  <input id="search" placeholder="Cari anggota..." onkeyup="cariAnggota()">
+  <ul id="list"></ul>
+</div>
+
+<div class="card" id="dashboard" style="display:none;">
+  <h2>Dashboard Admin</h2>
+  <p>Anggota: <span id="totalAnggota"></span></p>
+  <p>Agenda: <span id="totalAgenda"></span></p>
+  <p>Keuangan: <span id="totalKeuangan"></span></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "ISI_API_KEY",
+  authDomain: "ISI_DOMAIN",
+  projectId: "ISI_PROJECT_ID",
+  storageBucket: "ISI_STORAGE"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentCollection = "anggota";
+let userRole = "anggota";
+let semuaData = [];
+
+// LOGIN
+function login(){
+  auth.signInWithEmailAndPassword(email.value, password.value);
+}
+
+// REGISTER
+function register(){
+  auth.createUserWithEmailAndPassword(email.value, password.value)
+  .then((res)=>{
+    db.collection("users").doc(res.user.uid).set({
+      nama: namaUser.value,
+      email: email.value,
+      role: "anggota"
+    });
+    alert("Register berhasil");
+  });
+}
+
+// ROLE + PROFIL
+auth.onAuthStateChanged(user=>{
+  if(user){
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      let data = doc.data();
+      userRole = data.role;
+      namaProfil.value = data.nama || "";
+      previewFoto.src = data.foto || "";
+    });
+  }
+});
+
+// UPLOAD FOTO
+function uploadFoto(file){
+  let ref = firebase.storage().ref("foto/"+file.name);
+  return ref.put(file).then(()=>ref.getDownloadURL());
+}
+
+// TAMBAH DATA
+function tambahData(){
+  if(userRole !== "admin"){
+    alert("Hanya admin!");
+    return;
+  }
+
+  let file = foto.files[0];
+
+  if(file){
+    uploadFoto(file).then(url=>{
+      db.collection(currentCollection).add({
+        isi: inputData.value,
+        foto: url
+      });
+    });
+  } else {
+    db.collection(currentCollection).add({
+      isi: inputData.value
+    });
+  }
+}
+
+// LOAD DATA
+function loadData(col){
+  currentCollection = col;
+
+  db.collection(col).onSnapshot(snap=>{
+    semuaData=[];
+    snap.forEach(doc=>{
+      semuaData.push({
+        id: doc.id,
+        isi: doc.data().isi,
+        foto: doc.data().foto
+      });
+    });
+    tampilkan(semuaData);
+  });
+}
+
+// TAMPILKAN
+function tampilkan(data){
+  list.innerHTML="";
+  data.forEach(d=>{
+    list.innerHTML+=`
+    <li>
+      ${d.isi}<br>
+      <img src="${d.foto||''}" width="50"><br>
+      <button onclick="hapus('${d.id}')">Hapus</button>
+    </li>`;
+  });
+}
+
+// HAPUS
+function hapus(id){
+  if(userRole !== "admin"){
+    alert("Admin saja!");
+    return;
+  }
+  db.collection(currentCollection).doc(id).delete();
+}
+
+// SEARCH
+function cariAnggota(){
+  let k = search.value.toLowerCase();
+  let hasil = semuaData.filter(d=>d.isi.toLowerCase().includes(k));
+  tampilkan(hasil);
+}
+
+// PROFIL
+function simpanProfil(){
+  let user = auth.currentUser;
+  let file = fotoProfil.files[0];
+
+  if(file){
+    uploadFoto(file).then(url=>{
+      db.collection("users").doc(user.uid).update({
+        nama: namaProfil.value,
+        foto: url
+      });
+    });
+  }
+}
+
+// DASHBOARD
+function openDashboard(){
+  if(userRole !== "admin"){
+    alert("Akses ditolak");
+    return;
+  }
+
+  dashboard.style.display="block";
+
+  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
+  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
+  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
+}
+</script>
+
+</body>
+    </html>
