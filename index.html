@@ -1,121 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HMI App</title>
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #0b6623, #000);
-      color:white;
-      text-align:center;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMI App</title>
 
-    .container {
-      padding:20px;
-    }
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+  background: linear-gradient(135deg,#0b6623,#000);
+  color:white;
+}
 
-    .card {
-      background:white;
-      color:black;
-      padding:20px;
-      margin:20px auto;
-      border-radius:15px;
-      width:90%;
-      max-width:400px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.3);
-    }
+/* HEADER */
+.header {
+  display:flex;
+  align-items:center;
+  padding:10px;
+  background:#0b6623;
+}
 
-    input, button {
-      padding:12px;
-      margin:5px;
-      width:90%;
-      border-radius:8px;
-      border:none;
-    }
+.menu-btn {
+  font-size:24px;
+  cursor:pointer;
+  margin-right:10px;
+}
 
-    button {
-      background:#0b6623;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-    }
+/* SIDEBAR */
+.sidebar {
+  position:fixed;
+  top:0;
+  left:-250px;
+  width:250px;
+  height:100%;
+  background:#111;
+  padding:20px;
+  transition:0.3s;
+}
 
-    .hidden {
-      display:none;
-    }
+.sidebar button {
+  width:100%;
+  margin:5px 0;
+}
 
-    .search-box {
-      background:white;
-      padding:10px;
-      border-radius:10px;
-      margin:10px;
-      color:black;
-    }
+/* CONTENT */
+.container {
+  padding:15px;
+}
 
-    .search-box input {
-      width:80%;
-    }
+/* CARD */
+.card {
+  background:white;
+  color:black;
+  padding:15px;
+  margin:10px 0;
+  border-radius:12px;
+}
 
-    img {
-      margin-top:5px;
-      border-radius:8px;
-    }
-  </style>
+/* INPUT */
+input, button {
+  padding:10px;
+  margin:5px 0;
+  width:100%;
+  border-radius:8px;
+  border:none;
+}
+
+button {
+  background:#0b6623;
+  color:white;
+}
+
+/* LIST */
+li {
+  margin:10px 0;
+}
+
+/* HIDDEN */
+.hidden {
+  display:none;
+}
+</style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <h3>Menu</h3>
+  <button onclick="loadData('anggota');closeMenu()">Anggota</button>
+  <button onclick="loadData('agenda');closeMenu()">Agenda</button>
+  <button onclick="loadData('keuangan');closeMenu()">Keuangan</button>
+  <button onclick="loadData('pengumuman');closeMenu()">Pengumuman</button>
+  <button onclick="loadData('notulen');closeMenu()">Notulen</button>
+  <hr>
+  <button onclick="openDashboard()">Admin</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- HEADER -->
+<div class="header hidden" id="header">
+  <span class="menu-btn" onclick="openMenu()">☰</span>
+  <h3>HMI App</h3>
+</div>
+
 <div class="container">
 
-  <h1>HMI</h1>
+<!-- LOGIN -->
+<div class="card" id="auth">
+  <h2>Login / Register</h2>
+  <input id="namaUser" placeholder="Nama">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+</div>
 
-  <p>
-    Himpunan Mahasiswa Islam adalah organisasi yang bertujuan 
-    membina mahasiswa menjadi insan akademis, pencipta, pengabdi 
-    yang bernafaskan Islam.
-  </p>
-  <!-- AUTH -->
-  <div class="card" id="auth">
-    <h2>Login / Register</h2>
-    <input id="namaUser" placeholder="Nama"><br>
-    <input id="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Password"><br>
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
-  </div>
+<!-- APP -->
+<div id="app" class="hidden">
 
-  <div id="app" class="hidden">
-
-  <div class="topbar">
-    <strong>Dashboard</strong>
-    <div>
-      <button onclick="openDashboard()">Admin</button>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
-  <!-- ADMIN DASHBOARD -->
-  <div id="dashboard" class="card hidden">
-    <h3>Admin Dashboard</h3>
-
-    <p>Total Anggota: <b id="totalAnggota">0</b></p>
-    <p>Total Agenda: <b id="totalAgenda">0</b></p>
-    <p>Total Keuangan: <b id="totalKeuangan">0</b></p>
-    <p>Total Pengumuman: <b id="totalPengumuman">0</b></p>
-
-    <button onclick="closeDashboard()">Tutup</button>
-  </div>
-
-  <div class="card search-box">
+  <div class="card">
     <input id="search" placeholder="Cari..." onkeyup="cariData()">
-  </div>
-
-  <div class="card menu">
-    <button onclick="loadData('anggota')">Anggota</button>
-    <button onclick="loadData('agenda')">Agenda</button>
-    <button onclick="loadData('keuangan')">Keuangan</button>
-    <button onclick="loadData('pengumuman')">Pengumuman</button>
-    <button onclick="loadData('notulen')">Notulen</button>
   </div>
 
   <div class="card">
@@ -126,174 +131,109 @@
   <div class="card">
     <ul id="list"></ul>
   </div>
-  <!-- APP -->
 
-    <button onclick="logout()">Logout</button>
-
-    <div class="search-box">
-      🔍 <input id="search" placeholder="Cari..." onkeyup="cariData()">
-    </div>
-
-    <div class="card">
-      <button onclick="loadData('anggota')">Anggota</button>
-      <button onclick="loadData('agenda')">Agenda</button>
-      <button onclick="loadData('keuangan')">Keuangan</button>
-      <button onclick="loadData('pengumuman')">Pengumuman</button>
-      <button onclick="loadData('notulen')">Notulen</button>
-    </div>
-
-    <div class="card">
-      <input id="inputData" placeholder="Tambah data">
-      <button onclick="tambahData()">Tambahtton>
-    </div>
-
-    <div class="card">
-      <ul id="list"></ul>
-    </div>
-
+  <!-- DASHBOARD -->
+  <div class="card hidden" id="dashboard">
+    <h3>Dashboard</h3>
+    <p>Anggota: <span id="totalAnggota">0</span></p>
+    <p>Agenda: <span id="totalAgenda">0</span></p>
+    <p>Keuangan: <span id="totalKeuangan">0</span></p>
+    <p>Pengumuman: <span id="totalPengumuman">0</span></p>
+    <button onclick="closeDashboard()">Tutup</button>
   </div>
 
 </div>
 
-<!-- FIREBASE (COMPAT) -->
+</div>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
-  authDomain: "hmi-app-ac76d.firebaseapp.com",
-  projectId: "hmi-app-ac76d",
+  apiKey: "ISI_PUNYA_KAMU",
+  authDomain: "ISI_PUNYA_KAMU",
+  projectId: "ISI_PUNYA_KAMU"
 };
 
-// WAJIB ADA INI
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const namaUser = document.getElementById("namaUser");
-const list = document.getElementById("list");
-const search = document.getElementById("search");
-const inputData = document.getElementById("inputData");
-
 let currentCollection = "anggota";
 let semuaData = [];
 let userRole = "anggota";
 
+// MENU
+function openMenu(){ sidebar.style.left="0"; }
+function closeMenu(){ sidebar.style.left="-250px"; }
+
 // LOGIN
 function login(){
-  auth.signInWithEmailAndPassword(email.value, password.value)
-  .catch(err => alert(err.message));
+  auth.signInWithEmailAndPassword(email.value,password.value)
+  .catch(e=>alert(e.message));
 }
 
 // REGISTER
 function register(){
-  auth.createUserWithEmailAndPassword(email.value, password.value)
+  auth.createUserWithEmailAndPassword(email.value,password.value)
   .then(res=>{
     db.collection("users").doc(res.user.uid).set({
-      nama: namaUser.value,
-      role: "anggota"
+      nama:namaUser.value,
+      role:"anggota"
     });
     alert("Register berhasil");
-  })
-  .catch(err => alert(err.message));
+  });
 }
 
 // LOGOUT
-function logout(){
-  auth.signOut();
-}
+function logout(){ auth.signOut(); }
 
-// CEK LOGIN
+// AUTH CHECK
 auth.onAuthStateChanged(user=>{
   if(user){
-    document.getElementById("auth").style.display="none";
-    document.getElementById("app").style.display="block";
+    authBox.style.display="none";
+    app.style.display="block";
+    header.classList.remove("hidden");
 
-    // ambil role user
     db.collection("users").doc(user.uid).get().then(doc=>{
-      if(doc.exists){
-        userRole = doc.data().role;
-      }
+      userRole = doc.data()?.role || "anggota";
     });
 
   } else {
-    document.getElementById("auth").style.display="block";
-    document.getElementById("app").style.display="none";
+    authBox.style.display="block";
+    app.style.display="none";
+    header.classList.add("hidden");
   }
 });
 
 // LOAD DATA
 function loadData(col){
-  currentCollection = col;
+  currentCollection=col;
 
   db.collection(col).onSnapshot(snap=>{
-    semuaData = [];
+    semuaData=[];
     snap.forEach(doc=>{
-      semuaData.push({
-        id: doc.id,
-        isi: doc.data().isi || ""
-      });
+      semuaData.push({id:doc.id, isi:doc.data().isi});
     });
     tampilkan(semuaData);
   });
 }
 
-// BUKA DASHBOARD
-function openDashboard(){
-  if(userRole !== "admin"){
-    alert("Akses ditolak!");
-    return;
-  }
-
-  document.getElementById("dashboard").classList.remove("hidden");
-
-  // ambil statistik
-  db.collection("anggota").onSnapshot(s=>{
-    totalAnggota.innerText = s.size;
-  });
-
-  db.collection("agenda").onSnapshot(s=>{
-    totalAgenda.innerText = s.size;
-  });
-
-  db.collection("keuangan").onSnapshot(s=>{
-    totalKeuangan.innerText = s.size;
-  });
-
-  db.collection("pengumuman").onSnapshot(s=>{
-    totalPengumuman.innerText = s.size;
-  });
-}
-
-// TUTUP DASHBOARD
-function closeDashboard(){
-  document.getElementById("dashboard").classList.add("hidden");
-}
-  
 // TAMPILKAN
 function tampilkan(data){
-  list.innerHTML = "";
-
+  list.innerHTML="";
   data.forEach(d=>{
-    let li = document.createElement("li");
+    let li=document.createElement("li");
+    li.innerHTML=d.isi;
 
-    let text = document.createElement("span");
-    text.textContent = d.isi;
-
-    li.appendChild(text);
-
-    // tombol hapus (admin saja)
-    if(userRole === "admin"){
-      let btn = document.createElement("button");
-      btn.textContent = "Hapus";
-      btn.onclick = ()=>hapus(d.id);
-      li.appendChild(document.createElement("br"));
+    if(userRole==="admin"){
+      let btn=document.createElement("button");
+      btn.textContent="Hapus";
+      btn.onclick=()=>hapus(d.id);
       li.appendChild(btn);
     }
 
@@ -301,37 +241,38 @@ function tampilkan(data){
   });
 }
 
-  
 // TAMBAH
 function tambahData(){
-  if(inputData.value.trim() === "") return;
-
-  db.collection(currentCollection).add({
-    isi: inputData.value
-  });
-
-  inputData.value = "";
+  if(!inputData.value) return;
+  db.collection(currentCollection).add({isi:inputData.value});
+  inputData.value="";
 }
 
 // HAPUS
 function hapus(id){
-  if(userRole !== "admin"){
-    alert("Admin saja!");
-    return;
-  }
-
   db.collection(currentCollection).doc(id).delete();
 }
 
 // SEARCH
 function cariData(){
-  let k = search.value.toLowerCase();
+  let k=search.value.toLowerCase();
+  tampilkan(semuaData.filter(d=>d.isi.toLowerCase().includes(k)));
+}
 
-  let hasil = semuaData.filter(d =>
-    d.isi.toLowerCase().includes(k)
-  );
+// DASHBOARD
+function openDashboard(){
+  if(userRole!=="admin") return alert("Admin saja");
 
-  tampilkan(hasil);
+  dashboard.classList.remove("hidden");
+
+  db.collection("anggota").get().then(s=>totalAnggota.innerText=s.size);
+  db.collection("agenda").get().then(s=>totalAgenda.innerText=s.size);
+  db.collection("keuangan").get().then(s=>totalKeuangan.innerText=s.size);
+  db.collection("pengumuman").get().then(s=>totalPengumuman.innerText=s.size);
+}
+
+function closeDashboard(){
+  dashboard.classList.add("hidden");
 }
 </script>
 
