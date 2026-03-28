@@ -129,11 +129,7 @@
   <div class="card">
     <ul id="list"></ul>
   </div>
-
-  </div>
-  
   <!-- APP -->
-  <div id="app" class="hidden">
 
     <button onclick="logout()">Logout</button>
 
@@ -151,7 +147,7 @@
 
     <div class="card">
       <input id="inputData" placeholder="Tambah data">
-      <button onclick="tambahData()">Tambah</button>
+      <button onclick="tambahData()">Tambahtton>
     </div>
 
     <div class="card">
@@ -173,6 +169,10 @@ const firebaseConfig = {
   authDomain: "hmi-app-ac76d.firebaseapp.com",
   projectId: "hmi-app-ac76d",
 };
+
+// WAJIB ADA INI
+firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
