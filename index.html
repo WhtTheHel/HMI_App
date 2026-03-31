@@ -226,7 +226,7 @@
             <button class="btn-outline" onclick="window.scrollToView('adminPanel')">📋 Kelola Anggota</button>
         </div>
         
-        <button class="btn-outline" onclick="logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
+        <button class="btn-outline" onclick="window.logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
     <div class="card">
@@ -243,8 +243,7 @@
 
     <div class="card" id="adminPanel" style="display:none;">
         <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px; margin-top:0; color: #0b6623;">👥 Manajemen Anggota</h4>
-        <div id="userList">
-            </div>
+        <div id="userList"></div>
     </div>
 </div>
 
@@ -256,6 +255,37 @@
 </div>
 
 <script type="module" src="app.js"></script>
+
+<script>
+    // Fungsi ini harus tersedia secara global (window) agar onclick di HTML jalan
+    window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    };
+
+    window.closeAll = () => {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('overlay').classList.remove('active');
+        const modal = document.getElementById('groupModal');
+        if(modal) modal.style.display = 'none';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+    };
+
+    window.openModal = (id) => {
+        document.getElementById(id).style.display = 'block';
+        document.getElementById('overlay').classList.add('active');
+    };
+
+    window.scrollToView = (id) => {
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({ behavior: 'smooth' });
+        window.closeAll();
+    };
+
+    // Fungsi placeholder sebelum app.js dimuat sepenuhnya
+    window.handleLogin = window.handleLogin || (() => {});
+    window.logout = window.logout || (() => {});
+</script>
 
 </body>
 </html>
