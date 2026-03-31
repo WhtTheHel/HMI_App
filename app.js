@@ -12,6 +12,87 @@ const firebaseConfig = {
     projectId: "hmi-app-ac76d"
 };
 
+let currentGroupId = null; // Menyimpan ID grup yang sedang dibuka
+let chatListener = null;   // Menyimpan listener pesan agar bisa dimatikan saat pindah grup
+
+// --- FUNGSI BUKA CHAT ---
+window.openChat = (groupId, groupName) => {
+    currentGroupId = groupId;
+    document.getElementById('groupListView').style.display = 'none';
+    document.getElementById('chatView').style.display = 'flex';
+    document.getElementById('chatGroupName').innerText = "💬 " + groupName;
+    
+    loadMessages(groupId);
+};
+
+window.backToGroups = () => {
+    if(chatListener) chatListener(); // Matikan listener chat sebelumnya
+    document.getElementById('groupListView').style.display = 'block';
+    document.getElementById('chatView').style.display = 'none';
+};
+
+// --- LOAD PESAN REAL-TIME ---
+function loadMessages(groupId) {
+    const container = document.getElementById('messagesContainer');
+    
+    // Query ke sub-koleksi 'messages' di dalam dokumen grup
+    const msgQuery = collection(db, "groups", groupId, "messages");
+    
+    // Gunakan onSnapshot agar pesan muncul otomatis saat ada kiriman baru
+    chatListener = onSnapshot(msgQuery, (snap) => {
+        container.innerHTML = "";
+        
+        // Urutkan pesan berdasarkan waktu (jika ada timestamp)
+        const docs = snap.docs.sort((a, b) => a.data().time - b.data().time);
+        
+        docs.forEach(doc => {
+            const m = doc.data();
+            const isMe = m.senderId === auth.currentUser.uid;
+            
+            const div = document.createElement('div');
+            div.style = `
+                max-width: 80%;
+                padding: 10px;
+                border-radius: 15px;
+                font-size: 13px;
+                align-self: ${isMe ? 'flex-end' : 'flex-start'};
+                background: ${isMe ? '#0b6623' : '#eee'};
+                color: ${isMe ? 'white' : 'black'};
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            `;
+            div.innerHTML = `
+                <small style="display:block; font-weight:bold; font-size:10px; margin-bottom:3px;">${m.senderName}</small>
+                ${m.text}
+            `;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight; // Scroll ke bawah otomatis
+    });
+}
+
+// --- KIRIM PESAN ---
+window.sendMessage = async () => {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if(!text || !currentGroupId) return;
+
+    try {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+
+        await addDoc(collection(db, "groups", currentGroupId, "messages"), {
+            text: text,
+            senderId: auth.currentUser.uid,
+            senderName: userData.nama || auth.currentUser.email,
+            time: Date.now() // Gunakan timestamp sederhana
+        });
+        input.value = "";
+    } catch (e) {
+        alert("Gagal mengirim pesan.");
+    }
+};
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
