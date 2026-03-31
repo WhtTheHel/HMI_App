@@ -2,85 +2,87 @@
 <html>
 <head>
 <title>HMI Super App</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-* {box-sizing: border-box;}
+* {box-sizing: border-box; -webkit-tap-highlight-color: transparent;}
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
     color: white;
     min-height: 100vh;
-    padding: 20px;
+    padding: 10px;
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
 }
 
 .login-container {
     max-width: 400px;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
+    margin: 20px auto;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border-radius: 20px;
-    padding: 40px 30px;
+    padding: 30px 25px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.25);
 }
 
 .logo {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     margin: 0 auto 20px;
     background: linear-gradient(45deg, #0b6623, #228B22);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 40px;
+    font-size: 32px;
     font-weight: bold;
-    box-shadow: 0 10px 30px rgba(11,102,35,0.5);
+    box-shadow: 0 10px 30px rgba(11,102,35,0.6);
+    line-height: 1;
 }
 
 .app-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
 }
 
 .info-section {
     background: rgba(255,255,255,0.1);
     border-radius: 15px;
-    padding: 20px;
-    margin: 25px 0;
-    font-size: 14px;
-}
-
-.info-section h4 {
-    margin: 0 0 10px 0;
-    color: #90EE90;
+    padding: 15px;
+    margin: 20px 0;
+    font-size: 13px;
 }
 
 input {
     width: 100%;
     padding: 15px;
-    margin: 10px 0;
+    margin: 8px 0;
     border: none;
     border-radius: 12px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     font-size: 16px;
     color: #333;
+    -webkit-appearance: none;
 }
 
 input:focus {
     outline: none;
     background: white;
-    box-shadow: 0 0 0 3px rgba(11,102,35,0.3);
+    box-shadow: 0 0 0 3px rgba(11,102,35,0.4);
 }
 
 button {
     width: 100%;
     padding: 15px;
-    margin: 10px 0;
+    margin: 8px 0;
     border: none;
     border-radius: 12px;
     background: #0b6623;
@@ -88,23 +90,23 @@ button {
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    -webkit-appearance: none;
 }
 
-button:hover {
+button:active {
+    transform: scale(0.98);
     background: #1a5f2e;
-    transform: translateY(-2px);
 }
 
-.google-btn {
-    background: #4285F4 !important;
-}
+.google-btn {background: #4285F4 !important;}
 
 .or-divider {
     display: flex;
     align-items: center;
     margin: 20px 0;
     color: #aaa;
+    font-size: 14px;
 }
 
 .or-divider::before,
@@ -117,32 +119,102 @@ button:hover {
 
 .or-divider span {
     padding: 0 15px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.15);
 }
 
-/* App Styles */
 #app {display: none;}
-.topbar{background:#0b6623;padding:12px;display:flex;justify-content:space-between;align-items:center}
-.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100vh;background:#000;padding:15px;transition:.3s;overflow:auto;z-index:1000}
-.sidebar.active{left:0}
-.card{background:white;color:black;margin:20px;padding:20px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
-.dark{background:#111;color:white}
-.dark .card{background:#222;color:white}
-#chatList{height:400px;overflow:auto;margin-bottom:15px}
-#chatList div{margin:10px 0;padding:15px;border-radius:10px;background:#f0f0f0}
-.me{background:#0b6623 !important;color:white !important}
-.preview img,.preview video{width:80px;margin:5px;border-radius:6px}
-#typingStatus{padding:10px;color:#0b6623;font-style:italic}
-@media (max-width: 768px) {
-    .login-container {margin:10px;padding:30px 20px;}
-    .logo {width:100px;height:100px;font-size:32px;}
-    .app-title {font-size:24px;}
-    #chatList {height:300px;}
+.topbar {
+    background: #0b6623;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: #000;
+    padding: 15px;
+    transition: left 0.3s ease;
+    overflow: auto;
+    z-index: 1001;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+}
+.sidebar.active {left: 0;}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+}
+.overlay.active {display: block;}
+.card {
+    background: white;
+    color: black;
+    margin: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.dark .card {background: #222; color: white;}
+#chatList {
+    height: 400px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding-right: 5px;
+}
+#chatList div {
+    margin: 12px 0;
+    padding: 15px;
+    border-radius: 15px;
+    background: #f5f5f5;
+    word-wrap: break-word;
+}
+.me {
+    background: #0b6623 !important;
+    color: white !important;
+    margin-left: 20%;
+}
+.preview img,.preview video {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin: 5px;
+    border-radius: 8px;
+}
+#typingStatus {
+    padding: 10px;
+    color: #0b6623;
+    font-style: italic;
+    font-size: 14px;
+}
+
+@media (max-width: 480px) {
+    body {padding: 5px;}
+    .login-container {margin: 10px; padding: 25px 20px;}
+    .logo {width: 80px; height: 80px; font-size: 28px;}
+    .app-title {font-size: 20px;}
+    #chatList {height: 300px;}
+    .sidebar {width: 260px;}
+    .card {margin: 10px; padding: 15px;}
 }
 </style>
 </head>
 
 <body>
+
+<!-- OVERLAY -->
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-container">
@@ -150,34 +222,34 @@ button:hover {
     <div class="app-title">HMI SUPER APP</div>
     
     <div class="info-section">
-        <h4>ℹ️ Tentang Aplikasi</h4>
+        <h4 style="margin: 0 0 10px 0; color: #90EE90;">ℹ️ Tentang Aplikasi</h4>
         <p><strong>Pendiri:</strong> Tim Developer HMI</p>
         <p><strong>Dibuat:</strong> Desember 2024</p>
-        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Version:</strong> 1.0.1</p>
     </div>
 
-    <input id="namaUser" placeholder="Nama Lengkap (untuk registrasi)" style="display:none">
-    <input id="email" placeholder="📧 Email">
-    <input id="password" type="password" placeholder="🔒 Password">
+    <input id="namaUser" placeholder="Nama Lengkap" style="display:none">
+    <input id="email" placeholder="📧 Email" autocomplete="email">
+    <input id="password" type="password" placeholder="🔒 Password" autocomplete="current-password">
     
     <button onclick="login()">🚀 Masuk</button>
-    <button class="google-btn" onclick="loginGoogle()">🔗 Login dengan Google</button>
+    <button class="google-btn" onclick="loginGoogle()">🔗 Login Google</button>
     <button onclick="showRegister()">📝 Daftar Akun Baru</button>
 </div>
 
 <!-- APP SCREEN -->
 <div id="app">
     <div class="topbar">
-        <span onclick="toggleMenu()" style="font-size:24px;cursor:pointer">☰</span>
+        <span onclick="toggleMenu()" style="font-size:24px;cursor:pointer;padding:5px;">☰</span>
         <b>HMI SUPER APP</b>
-        <span></span>
+        <span style="font-size:20px;">💬</span>
     </div>
 
     <!-- SIDEBAR -->
     <div id="sidebar" class="sidebar">
-        <h3>Menu</h3>
+        <h3 style="margin-top:0;">Menu</h3>
         <img id="profilePic" src="https://via.placeholder.com/70/0b6623/ffffff?text=👤" width="70" style="border-radius:50%;display:block;margin:10px auto">
-        <p id="namaDisplay" style="font-weight:bold;text-align:center">Loading...</p>
+        <p id="namaDisplay" style="font-weight:bold;text-align:center;margin:5px 0;">Loading...</p>
         <input type="file" id="editFoto" accept="image/*" style="width:100%;margin:10px 0">
         <button onclick="updateFoto()">📸 Ganti Foto</button>
         <button onclick="toggleDark()">🌙 Dark Mode</button>
@@ -189,276 +261,15 @@ button:hover {
     <div class="card">
         <div id="chatList"></div>
         <div id="typingStatus"></div>
-        <input id="chatInput" placeholder="Ketik pesan..." style="margin-bottom:10px">
-        <input type="file" id="multiFile" multiple accept="image/*,video/*">
-        <div id="preview"></div>
+        <div style="position:relative;">
+            <input id="chatInput" placeholder="Ketik pesan..." style="margin-bottom:10px">
+            <input type="file" id="multiFile" multiple accept="image/*,video/*" style="display:none">
+        </div>
+        <div id="preview" style="display:flex;flex-wrap:wrap;"></div>
         <button onclick="sendChat()">📤 Kirim</button>
     </div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
-    authDomain: "hmi-app-ac76d.firebaseapp.com",
-    projectId: "hmi-app-ac76d"
-};
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-let selectedFiles = [];
-let uploadTasks = {};
-let replyData = null;
-let unsubscribeChat = null;
-let unsubscribeTyping = null;
-
-// DOM Elements
-const loginScreen = document.getElementById('loginScreen');
-const app = document.getElementById('app');
-const namaUser = document.getElementById('namaUser');
-const email = document.getElementById('email');
-const password = document.getElementById('password');
-const chatInput = document.getElementById('chatInput');
-const chatList = document.getElementById('chatList');
-const typingStatus = document.getElementById('typingStatus');
-const preview = document.getElementById('preview');
-const multiFile = document.getElementById('multiFile');
-const sidebar = document.getElementById('sidebar');
-const profilePic = document.getElementById('profilePic');
-const namaDisplay = document.getElementById('namaDisplay');
-
-/* ================= AUTH ================= */
-function login() {
-    if (!email.value || !password.value) {
-        alert('Mohon isi email dan password!');
-        return;
-    }
-    
-    auth.signInWithEmailAndPassword(email.value, password.value)
-        .catch(error => {
-            if (error.code === 'auth/user-not-found') {
-                alert('Akun belum terdaftar. Silakan daftar dulu!');
-            } else {
-                alert('Login gagal: ' + error.message);
-            }
-        });
-}
-
-function showRegister() {
-    namaUser.style.display = namaUser.style.display === 'none' ? 'block' : 'none';
-}
-
-function register() {
-    if (!email.value || !password.value || !namaUser.value) {
-        alert('Mohon isi semua field!');
-        return;
-    }
-    
-    auth.createUserWithEmailAndPassword(email.value, password.value)
-        .then(userCredential => {
-            const user = userCredential.user;
-            return db.collection("users").doc(user.uid).set({
-                nama: namaUser.value,
-                foto: "",
-                role: "anggota",
-                online: true
-            });
-        })
-        .then(() => {
-            alert('Registrasi berhasil! Silakan login.');
-            namaUser.style.display = 'none';
-        })
-        .catch(error => {
-            alert('Registrasi gagal: ' + error.message);
-        });
-}
-
-function loginGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(error => {
-        alert('Google login gagal: ' + error.message);
-    });
-}
-
-/* ================= AUTH STATE ================= */
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // User logged in
-        loginScreen.style.display = 'none';
-        app.style.display = 'block';
-        
-        // Load user data
-        const doc = await db.collection("users").doc(user.uid).get();
-        if (!doc.exists) {
-            await db.collection("users").doc(user.uid).set({
-                nama: user.displayName || namaUser.value || 'User',
-                foto: user.photoURL || "",
-                role: "anggota",
-                online: true
-            });
-        }
-        
-        const userData = doc.exists ? doc.data() : {nama: user.displayName || 'User'};
-        namaDisplay.textContent = userData.nama;
-        if (userData.foto) profilePic.src = userData.foto;
-        
-        setOnline(true);
-        initChat();
-    } else {
-        // No user
-        loginScreen.style.display = 'block';
-        app.style.display = 'none';
-        if (unsubscribeChat) unsubscribeChat();
-        if (unsubscribeTyping) unsubscribeTyping();
-    }
-});
-
-/* ================= UI ================= */
-function toggleMenu() {
-    sidebar.classList.toggle("active");
-}
-
-function toggleDark() {
-    document.body.classList.toggle("dark");
-}
-
-function openGroup() {
-    alert('Fitur Chat Grup segera hadir!');
-}
-
-/* ================= ONLINE STATUS ================= */
-function setOnline(val) {
-    const user = auth.currentUser;
-    if (user) {
-        db.collection("users").doc(user.uid).update({online: val}).catch(() => {});
-    }
-}
-
-window.addEventListener('beforeunload', () => setOnline(false));
-
-/* ================= PROFILE ================= */
-function updateFoto() {
-    const file = document.getElementById('editFoto').files[0];
-    const user = auth.currentUser;
-    if (!file || !user) return;
-
-    const ref = storage.ref("profile/" + user.uid);
-    ref.put(file).then(() => {
-        ref.getDownloadURL().then(url => {
-            db.collection("users").doc(user.uid).update({foto: url});
-            profilePic.src = url;
-        });
-    }).catch(error => {
-        alert('Upload foto gagal: ' + error.message);
-    });
-}
-
-/* ================= FILE PREVIEW ================= */
-multiFile.onchange = () => {
-    preview.innerHTML = "";
-    selectedFiles = Array.from(multiFile.files);
-    
-    selectedFiles.forEach(f => {
-        const el = f.type.startsWith("image/") ? 
-            document.createElement("img") : 
-            document.createElement("video");
-        if (el.tagName === 'VIDEO') el.controls = true;
-        el.src = URL.createObjectURL(f);
-        el.style.maxWidth = '100px';
-        preview.appendChild(el);
-    });
-};
-
-/* ================= CHAT FUNCTIONS ================= */
-function initChat() {
-    // Chat listener
-    unsubscribeChat = db.collection("chat").orderBy("waktu", "desc").limit(50).onSnapshot(snap => {
-        chatList.innerHTML = "";
-        snap.forEach(doc => {
-            const d = doc.data();
-            const div = document.createElement("div");
-            if (d.uid === auth.currentUser.uid) div.classList.add("me");
-            
-            div.innerHTML = `
-                <div style="margin-bottom:5px">
-                    <b>${d.nama}</b> 
-                    <small style="opacity:0.7">${d.waktu?.toDate ? d.waktu.toDate().toLocaleTimeString() : ''}</small>
-                </div>
-                ${d.reply ? `<i style="color:#888;font-size:12px">Reply: ${d.reply}</i><br>` : ''}
-                ${d.pesan}<br>
-                <small>${d.status === "failed" ? "❌" : d.read ? "✔✔" : "✔"}</small>
-            `;
-            
-            if (d.files) {
-                d.files.forEach(f => {
-                    if (f.url) {
-                        if (f.type === "img") {
-                            div.innerHTML += `<br><img src="${f.url}" style="max-width:200px;border-radius:8px;margin-top:5px">`;
-                        } else if (f.type === "video") {
-                            div.innerHTML += `<br><video controls style="max-width:200px;border-radius:8px;margin-top:5px"><source src="${f.url}"></video>`;
-                        }
-                    } else if (f.uploading) {
-                        div.innerHTML += `<br><small>Uploading ${f.progress || 0}%</small>`;
-                    }
-                });
-            }
-            
-            chatList.appendChild(div);
-        });
-        chatList.scrollTop = 0;
-    });
-
-    // Typing listener
-    unsubscribeTyping = db.collection("typing").doc("global").onSnapshot(doc => {
-        const d = doc.data();
-        if (d?.uid && d.uid !== auth.currentUser?.uid) {
-            typingStatus.textContent = "Sedang mengetik...";
-        } else {
-            typingStatus.textContent = "";
-        }
-    });
-}
-
-function sendChat() {
-    if (!auth.currentUser || !chatInput.value.trim()) return;
-    
-    db.collection("chat").add({
-        nama: namaDisplay.textContent,
-        pesan: chatInput.value.trim(),
-        uid: auth.currentUser.uid,
-        waktu: firebase.firestore.Timestamp.now(),
-        read: false,
-        status: "sent"
-    }).then(() => {
-        chatInput.value = "";
-    });
-    
-    // Typing indicator
-    db.collection("typing").doc("global").set({uid: auth.currentUser.uid});
-    setTimeout(() => {
-        db.collection("typing").doc("global").set({uid: ""});
-    }, 1500);
-}
-
-chatInput.oninput = () => {
-    if (auth.currentUser) {
-        db.collection("typing").doc("global").set({uid: auth.currentUser.uid});
-    }
-};
-
-/* ================= LOGOUT ================= */
-function logout() {
-    auth.signOut();
-}
-</script>
-
+<script type="module" src="app.js"></script>
 </body>
 </html>
