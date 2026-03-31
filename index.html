@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Super App</title>
+    <title>HMI Super App - Pusat Koordinasi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -122,8 +122,8 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- ADMIN & LISTS --- */
-        .user-item, .group-item {
+        /* --- LIST ITEMS --- */
+        .item-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -143,7 +143,7 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             z-index: 10;
             border-radius: 12px;
-            min-width: 160px;
+            min-width: 170px;
             overflow: hidden;
         }
         .dropdown-content button {
@@ -171,7 +171,7 @@
 </head>
 <body>
 
-<div id="overlay" class="overlay" onclick="closeAll()"></div>
+<div id="overlay" class="overlay" onclick="window.closeAll()"></div>
 
 <div id="loginScreen">
     <div class="login-container">
@@ -207,7 +207,7 @@
 
 <div id="app">
     <div class="topbar">
-        <div onclick="toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
+        <div onclick="window.toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
         <b>HMI SUPER APP</b>
         <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ADMIN</div>
     </div>
@@ -217,27 +217,27 @@
         <hr style="border: 0.5px solid #333;">
         <p id="userNameDisplay" style="font-weight:bold; color:#90EE90; margin-bottom: 20px;">Memuat...</p>
         
-        <button class="btn-outline" onclick="scrollToView('homeView')">🏠 Beranda</button>
-        <button class="btn-outline" onclick="scrollToView('groupListView')">📂 Daftar Grup</button>
+        <button class="btn-outline" onclick="window.scrollToView('app')">🏠 Beranda</button>
+        <button class="btn-outline" onclick="window.scrollToView('groupListView')">📂 Daftar Grup</button>
         
-        <div id="adminMenuSection" style="display:none; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+        <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 10px; padding-top: 10px;">
             <small style="color: #888;">ADMIN PANEL</small>
-            <button class="btn-outline" onclick="openModal('groupModal')">➕ Buat Grup Baru</button>
-            <button class="btn-outline" onclick="scrollToView('adminPanel')">📋 Kelola Anggota</button>
+            <button class="btn-outline" onclick="window.openModal('groupModal')">➕ Buat Grup Baru</button>
+            <button class="btn-outline" onclick="window.scrollToView('adminPanel')">📋 Kelola Anggota</button>
         </div>
         
         <button class="btn-outline" onclick="logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
-    <div id="homeView" class="card">
+    <div class="card">
         <h4 style="margin-top:0; color: #0b6623;">📢 Beranda</h4>
-        <p style="font-size:14px; line-height:1.5;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat silaturahmi dan koordinasi antar komisariat.</p>
+        <p style="font-size:14px; line-height:1.5;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat koordinasi antar komisariat.</p>
     </div>
 
     <div id="groupListView" class="card">
-        <h4 style="margin-top:0; color: #0b6623;">📂 Grup & Komisariat</h4>
-        <div id="groupContainer">
-            <p style="font-size: 12px; color: #999;">Memuat grup...</p>
+        <h4 style="margin:0; border-bottom: 2px solid #0b6623; padding-bottom: 8px; color: #0b6623;">📂 Grup & Komisariat</h4>
+        <div id="groupContainer" style="margin-top:10px; font-size:14px; color:#333;">
+            Memuat data grup...
         </div>
     </div>
 
@@ -251,45 +251,9 @@
 <div id="groupModal" class="modal">
     <h4 style="margin-top:0;">Buat Grup Komisariat</h4>
     <input type="text" id="newGroupName" placeholder="Masukkan Nama Grup/Komisariat">
-    <button class="btn-main" onclick="submitGroup()">✅ Buat Sekarang</button>
-    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="closeAll()">Batal</button>
+    <button class="btn-main" onclick="submitGroup()">✅ Simpan Grup</button>
+    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="window.closeAll()">Batal</button>
 </div>
-
-<script>
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
-    }
-
-    function closeAll() {
-        document.getElementById('sidebar').classList.remove('active');
-        document.getElementById('overlay').classList.remove('active');
-        const modal = document.getElementById('groupModal');
-        if(modal) modal.style.display = 'none';
-        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    }
-
-    function openModal(id) {
-        document.getElementById(id).style.display = 'block';
-        document.getElementById('overlay').classList.add('active');
-    }
-
-    // Fungsi scroll ke section tertentu dari sidebar
-    function scrollToView(id) {
-        const element = document.getElementById(id);
-        if(element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-            closeAll();
-        }
-    }
-
-    // Menangani penutupan dropdown jika klik di luar
-    window.onclick = function(event) {
-        if (!event.target.matches('.dots-menu')) {
-            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-        }
-    }
-</script>
 
 <script type="module" src="app.js"></script>
 
