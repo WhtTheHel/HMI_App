@@ -29,12 +29,14 @@ window.handleLogin = async () => {
 
     try {
         const res = await signInWithEmailAndPassword(auth, email, pass);
+        // Proteksi jika user belum verifikasi email
         if (!res.user.emailVerified) {
             alert("Email belum diverifikasi. Cek kotak masuk/spam Anda.");
             await signOut(auth);
+            return;
         }
     } catch (e) {
-        alert("Login Gagal: Periksa kembali email dan password.");
+        alert("Login Gagal: " + e.message);
     }
 };
 
@@ -42,6 +44,7 @@ window.handleGoogleLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
+        // Google biasanya otomatis terverifikasi, jadi tidak perlu cek emailVerified
     } catch (e) {
         alert("Login Google Gagal.");
     }
@@ -49,14 +52,18 @@ window.handleGoogleLogin = async () => {
 
 window.showRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'block';
-    document.getElementById('loginGroup').style.display = 'none';
-    document.getElementById('registerGroup').style.display = 'block';
+    const loginGrp = document.getElementById('loginGroup');
+    const regGrp = document.getElementById('registerGroup');
+    if(loginGrp) loginGrp.style.display = 'none';
+    if(regGrp) regGrp.style.display = 'block';
 };
 
 window.cancelRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'none';
-    document.getElementById('loginGroup').style.display = 'block';
-    document.getElementById('registerGroup').style.display = 'none';
+    const loginGrp = document.getElementById('loginGroup');
+    const regGrp = document.getElementById('registerGroup');
+    if(loginGrp) loginGrp.style.display = 'block';
+    if(regGrp) regGrp.style.display = 'none';
 };
 
 window.handleRegister = async () => {
@@ -64,18 +71,21 @@ window.handleRegister = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
 
-    if (!nama || !email || !pass) return alert("Lengkapi data!");
+    if (!nama || !email || !pass) return alert("Lengkapi semua data!");
 
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
         await sendEmailVerification(res.user);
+        
+        // Simpan data ke Firestore
         await setDoc(doc(db, "users", res.user.uid), {
             nama: nama,
             email: email,
             role: "anggota",
             createdAt: serverTimestamp()
         });
-        alert("Daftar Berhasil! Silakan cek email untuk verifikasi.");
+
+        alert("Daftar Berhasil! Silakan cek email Anda untuk verifikasi.");
         await signOut(auth);
         window.cancelRegisterUI();
     } catch (e) {
@@ -92,28 +102,37 @@ onAuthStateChanged(auth, async (user) => {
     const appScr = document.getElementById('app');
 
     if (user && user.emailVerified) {
-        loginScr.style.display = 'none';
-        appScr.style.display = 'block';
+        if(loginScr) loginScr.style.display = 'none';
+        if(appScr) appScr.style.display = 'block';
         
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            document.getElementById('userNameDisplay').innerText = userData.nama;
+        // Ambil Data Role dari Firestore
+        onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                const userDisplay = document.getElementById('userNameDisplay');
+                if(userDisplay) userDisplay.innerText = userData.nama;
 
-            const isPower = userData.role === "admin" || userData.role === "admin_utama";
-            document.getElementById('adminBadge').style.display = isPower ? 'block' : 'none';
-            document.getElementById('adminBadge').innerText = userData.role.toUpperCase();
-            document.getElementById('adminMenuSection').style.display = isPower ? 'block' : 'none';
+                const isPower = userData.role === "admin" || userData.role === "admin_utama";
+                const badge = document.getElementById('adminBadge');
+                const adminMenu = document.getElementById('adminMenuSection');
 
-            if (userData.role === "admin_utama") {
-                document.getElementById('adminPanel').style.display = 'block';
-                loadUserManagement(user.uid);
+                if(badge) {
+                    badge.style.display = isPower ? 'block' : 'none';
+                    badge.innerText = userData.role.toUpperCase();
+                }
+                if(adminMenu) adminMenu.style.display = isPower ? 'block' : 'none';
+
+                if (userData.role === "admin_utama") {
+                    const adminPnl = document.getElementById('adminPanel');
+                    if(adminPnl) adminPnl.style.display = 'block';
+                    loadUserManagement(user.uid);
+                }
             }
-        }
+        });
         loadGroupList();
     } else {
-        loginScr.style.display = 'block';
-        appScr.style.display = 'none';
+        if(loginScr) loginScr.style.display = 'block';
+        if(appScr) appScr.style.display = 'none';
     }
 });
 
@@ -126,7 +145,7 @@ function loadGroupList() {
         container.innerHTML = "";
         
         if (snap.empty) {
-            container.innerHTML = "<p style='font-size:12px; color:#999;'>Belum ada grup.</p>";
+            container.innerHTML = "<p style='font-size:12px; color:#999; padding:10px;'>Belum ada grup tersedia.</p>";
             return;
         }
 
@@ -135,8 +154,10 @@ function loadGroupList() {
             const div = document.createElement('div');
             div.className = 'item-row';
             div.innerHTML = `
-                <span>📂 <b>${data.namaGrup}</b></span>
-                <small style="color:gray">${data.createdAt?.toDate().toLocaleDateString() || ''}</small>
+                <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                    <span>📂 <b>${data.namaGrup}</b></span><br>
+                    <small style="color:gray">${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : ''}</small>
+                </div>
             `;
             container.appendChild(div);
         });
@@ -144,8 +165,10 @@ function loadGroupList() {
 }
 
 window.submitGroup = async () => {
-    const name = document.getElementById('newGroupName').value;
+    const nameEl = document.getElementById('newGroupName');
+    const name = nameEl.value;
     if (!name) return alert("Isi nama grup!");
+
     try {
         await addDoc(collection(db, "groups"), { 
             namaGrup: name, 
@@ -154,8 +177,11 @@ window.submitGroup = async () => {
         });
         alert("Grup Berhasil Dibuat!");
         window.closeAll();
-        document.getElementById('newGroupName').value = "";
-    } catch (e) { alert("Gagal membuat grup."); }
+        nameEl.value = "";
+    } catch (e) { 
+        console.error(e);
+        alert("Gagal: Pastikan Anda memiliki akses Admin."); 
+    }
 };
 
 // --- 5. MANAJEMEN ANGGOTA ---
@@ -172,19 +198,18 @@ function loadUserManagement(myUid) {
             if (id === myUid) return; 
 
             const div = document.createElement('div');
-            div.className = 'item-row';
+            div.className = 'user-item';
+            div.style = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; position:relative;";
             div.innerHTML = `
                 <div style="flex-grow:1">
                     <b>${d.nama}</b><br>
                     <small style="color:#0b6623">${d.role.toUpperCase()} | ${d.email}</small>
                 </div>
-                <div class="dots-menu" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
-                <div id="drop-${id}" class="dropdown-content">
-                    ${d.role === 'anggota' ? 
-                        `<button onclick="updateRole('${id}', 'admin')">⭐ Jadikan Admin</button>` : 
-                        `<button onclick="updateRole('${id}', 'anggota')">❌ Copot Admin</button>`
-                    }
-                    <button style="color:red" onclick="hapusUser('${id}')">🗑️ Hapus Anggota</button>
+                <div class="dots-menu" style="cursor:pointer; padding:5px 10px;" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
+                <div id="drop-${id}" class="dropdown-content" style="display:none; position:absolute; right:0; top:40px; background:white; border:1px solid #ccc; z-index:100; box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer;" onclick="window.updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
+                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer;" onclick="window.updateRole('${id}', 'anggota')">⬇️ Jadi Anggota</button>
+                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer; color:red;" onclick="window.hapusUser('${id}')">🗑️ Hapus</button>
                 </div>`;
             list.appendChild(div);
         });
@@ -194,33 +219,44 @@ function loadUserManagement(myUid) {
 window.updateRole = async (id, newRole) => { 
     try {
         await updateDoc(doc(db, "users", id), { role: newRole }); 
-        alert("Role diperbarui!"); 
-    } catch (e) { alert("Gagal!"); }
+        alert("Role berhasil diubah!"); 
+    } catch (e) { alert("Gagal memperbarui role."); }
 };
 
 window.hapusUser = async (id) => { 
-    if (confirm("Hapus pengguna ini permanen?")) {
-        await deleteDoc(doc(db, "users", id)); 
+    if (confirm("Hapus pengguna ini secara permanen dari database?")) {
+        try {
+            await deleteDoc(doc(db, "users", id));
+        } catch(e) { alert("Gagal menghapus."); }
     }
 };
 
 // --- 6. UI HELPERS ---
 
 window.toggleSidebar = () => {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if(sidebar) sidebar.classList.toggle('active');
+    if(overlay) overlay.classList.toggle('active');
 };
 
 window.closeAll = () => {
-    document.getElementById('sidebar').classList.remove('active');
-    document.getElementById('overlay').classList.remove('active');
-    document.getElementById('groupModal').style.display = 'none';
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('groupModal');
+    
+    if(sidebar) sidebar.classList.remove('active');
+    if(overlay) overlay.classList.remove('active');
+    if(modal) modal.style.display = 'none';
+    
     document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
 };
 
 window.openModal = (id) => {
-    document.getElementById(id).style.display = 'block';
-    document.getElementById('overlay').classList.add('active');
+    const modal = document.getElementById(id);
+    const overlay = document.getElementById('overlay');
+    if(modal) modal.style.display = 'block';
+    if(overlay) overlay.classList.add('active');
 };
 
 window.scrollToView = (id) => {
@@ -233,7 +269,9 @@ window.scrollToView = (id) => {
 
 window.toggleDropdown = (id) => {
     const el = document.getElementById(id);
-    const isVisible = el.style.display === 'block';
+    const wasVisible = el.style.display === 'block';
+    // Sembunyikan dropdown lain dulu
     document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    el.style.display = isVisible ? 'none' : 'block';
+    // Toggle yang dipilih
+    if(el) el.style.display = wasVisible ? 'none' : 'block';
 };
