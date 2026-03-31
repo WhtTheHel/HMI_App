@@ -257,34 +257,49 @@
 <script type="module" src="app.js"></script>
 
 <script>
-    // Fungsi ini harus tersedia secara global (window) agar onclick di HTML jalan
-    window.toggleSidebar = () => {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
-    };
+    // Fungsi pembantu untuk buka/tutup Sidebar
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    }
 
-    window.closeAll = () => {
-        document.getElementById('sidebar').classList.remove('active');
-        document.getElementById('overlay').classList.remove('active');
+    // Fungsi untuk menutup semua (Overlay, Sidebar, Modal)
+    function closeAll() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
         const modal = document.getElementById('groupModal');
-        if(modal) modal.style.display = 'none';
+        
+        if (sidebar) sidebar.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+        if (modal) modal.style.display = 'none';
+        
+        // Tutup semua dropdown admin jika ada
         document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    };
+    }
 
-    window.openModal = (id) => {
-        document.getElementById(id).style.display = 'block';
-        document.getElementById('overlay').classList.add('active');
-    };
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        const overlay = document.getElementById('overlay');
+        if (modal) modal.style.display = 'block';
+        if (overlay) overlay.classList.add('active');
+    }
 
-    window.scrollToView = (id) => {
-        const el = document.getElementById(id);
-        if(el) el.scrollIntoView({ behavior: 'smooth' });
-        window.closeAll();
-    };
-
-    // Fungsi placeholder sebelum app.js dimuat sepenuhnya
-    window.handleLogin = window.handleLogin || (() => {});
-    window.logout = window.logout || (() => {});
+    // Daftarkan fungsi ke window agar bisa dipanggil dari HTML
+    window.toggleSidebar = toggleSidebar;
+    window.closeAll = closeAll;
+    window.openModal = openModal;
+    
+    // Tambahan: Pastikan tombol hamburger di klik secara manual jika onclick gagal
+    document.addEventListener('DOMContentLoaded', () => {
+        const burgerIcon = document.querySelector('.topbar div');
+        if (burgerIcon) {
+            burgerIcon.addEventListener('click', toggleSidebar);
+        }
+    });
 </script>
 
 </body>
