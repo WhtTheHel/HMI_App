@@ -61,6 +61,7 @@
             border: none;
             font-size: 16px;
             outline: none;
+            color: #333;
         }
 
         button {
@@ -88,35 +89,38 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .sidebar {
-    position: fixed;
-    left: -280px; /* Sembunyi di kiri */
-    top: 0;
-    width: 280px;
-    height: 100%;
-    background: #111;
-    transition: 0.3s;
-    z-index: 1001; /* Harus sangat tinggi */
-}
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #111;
+            transition: 0.3s ease-in-out;
+            z-index: 2001; /* Lebih tinggi dari overlay */
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
 
-.sidebar.active {
-    left: 0; /* Muncul saat ada class .active */
-}
+        .sidebar.active {
+            left: 0;
+        }
 
-.overlay {
-    position: fixed;
-    display: none; /* Sembunyi default */
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-}
+        .overlay {
+            position: fixed;
+            display: none;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            backdrop-filter: blur(3px);
+        }
 
-.overlay.active {
-    display: block; /* Muncul saat aktif */
-}
-
+        .overlay.active {
+            display: block;
+        }
 
         .card {
             background: white;
@@ -156,7 +160,6 @@
             border-radius: 0; margin: 0; border-bottom: 1px solid #eee;
             font-size: 14px; padding: 12px; width: 100%;
         }
-        .dropdown-content button:hover { background: #f5f5f5; }
 
         /* --- MODAL --- */
         .modal {
@@ -170,7 +173,7 @@
             border-radius: 20px;
             width: 90%;
             max-width: 400px;
-            z-index: 2000;
+            z-index: 3000;
         }
     </style>
 </head>
@@ -183,7 +186,7 @@
         <div class="logo-hmi">
             <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
         </div>
-        <h2 style="margin:0;">HMI SUPER APP</h2>
+        <h2 style="margin:0; color:white;">HMI SUPER APP</h2>
         
         <div class="history-box">
             <b style="color:#90EE90;">📜 Sejarah HMI</b><br>
@@ -212,7 +215,7 @@
 
 <div id="app">
     <div class="topbar">
-        <div onclick="window.toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
+        <div id="burgerBtn" onclick="toggleSidebar()" style="cursor:pointer; font-size:24px; padding: 5px;">☰</div>
         <b>HMI SUPER APP</b>
         <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ADMIN</div>
     </div>
@@ -222,16 +225,16 @@
         <hr style="border: 0.5px solid #333;">
         <p id="userNameDisplay" style="font-weight:bold; color:#90EE90; margin-bottom: 20px;">Memuat...</p>
         
-        <button class="btn-outline" onclick="window.scrollToView('app')">🏠 Beranda</button>
-        <button class="btn-outline" onclick="window.scrollToView('groupListView')">📂 Daftar Grup</button>
+        <button class="btn-outline" onclick="scrollToView('app')">🏠 Beranda</button>
+        <button class="btn-outline" onclick="scrollToView('groupListView')">📂 Daftar Grup</button>
         
         <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 10px; padding-top: 10px;">
             <small style="color: #888;">ADMIN PANEL</small>
-            <button class="btn-outline" onclick="window.openModal('groupModal')">➕ Buat Grup Baru</button>
-            <button class="btn-outline" onclick="window.scrollToView('adminPanel')">📋 Kelola Anggota</button>
+            <button class="btn-outline" onclick="openModal('groupModal')">➕ Buat Grup Baru</button>
+            <button class="btn-outline" onclick="scrollToView('adminPanel')">📋 Kelola Anggota</button>
         </div>
         
-        <button class="btn-outline" onclick="window.logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
+        <button class="btn-outline" onclick="logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
     <div class="card">
@@ -253,27 +256,26 @@
 </div>
 
 <div id="groupModal" class="modal">
-    <h4 style="margin-top:0;">Buat Grup Komisariat</h4>
-    <input type="text" id="newGroupName" placeholder="Masukkan Nama Grup/Komisariat">
+    <h4 style="margin-top:0; color:#333;">Buat Grup Komisariat</h4>
+    <input type="text" id="newGroupName" placeholder="Nama Grup/Komisariat">
     <button class="btn-main" onclick="submitGroup()">✅ Simpan Grup</button>
-    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="window.closeAll()">Batal</button>
+    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="closeAll()">Batal</button>
 </div>
 
 <script type="module" src="app.js"></script>
 
 <script>
-    // Fungsi pembantu untuk buka/tutup Sidebar
-    function toggleSidebar() {
+    // Fungsi UI ditempatkan di global window agar bisa dipanggil HTML
+    window.toggleSidebar = function() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         if (sidebar && overlay) {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
         }
-    }
+    };
 
-    // Fungsi untuk menutup semua (Overlay, Sidebar, Modal)
-    function closeAll() {
+    window.closeAll = function() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const modal = document.getElementById('groupModal');
@@ -282,27 +284,30 @@
         if (overlay) overlay.classList.remove('active');
         if (modal) modal.style.display = 'none';
         
-        // Tutup semua dropdown admin jika ada
         document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    }
+    };
 
-    function openModal(id) {
+    window.openModal = function(id) {
         const modal = document.getElementById(id);
         const overlay = document.getElementById('overlay');
         if (modal) modal.style.display = 'block';
         if (overlay) overlay.classList.add('active');
-    }
+    };
 
-    // Daftarkan fungsi ke window agar bisa dipanggil dari HTML
-    window.toggleSidebar = toggleSidebar;
-    window.closeAll = closeAll;
-    window.openModal = openModal;
-    
-    // Tambahan: Pastikan tombol hamburger di klik secara manual jika onclick gagal
+    window.scrollToView = function(id) {
+        const el = document.getElementById(id);
+        if(el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+            window.closeAll();
+        }
+    };
+
+    // Inisialisasi saat halaman siap
     document.addEventListener('DOMContentLoaded', () => {
-        const burgerIcon = document.querySelector('.topbar div');
-        if (burgerIcon) {
-            burgerIcon.addEventListener('click', toggleSidebar);
+        // Fallback jika onclick di HTML tidak terdeteksi
+        const burger = document.getElementById('burgerBtn');
+        if (burger) {
+            burger.addEventListener('click', window.toggleSidebar);
         }
     });
 </script>
