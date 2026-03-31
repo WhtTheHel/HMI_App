@@ -9,7 +9,7 @@ import {
     onSnapshot, serverTimestamp, deleteDoc 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// --- KONFIGURASI FIREBASE ---
+// --- 1. KONFIGURASI FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
     authDomain: "hmi-app-ac76d.firebaseapp.com",
@@ -20,26 +20,28 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 1. LOGIN & REGISTER LOGIC ---
+// --- 2. LOGIKA AUTHENTICATION ---
+
 window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
     if (!email || !pass) return alert("Masukkan Email dan Password!");
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        if (!userCredential.user.emailVerified) {
+        const res = await signInWithEmailAndPassword(auth, email, pass);
+        if (!res.user.emailVerified) {
             alert("Email belum diverifikasi. Cek kotak masuk/spam Anda.");
             await signOut(auth);
         }
     } catch (e) {
-        alert("Login Gagal: Periksa kembali akun Anda.");
+        alert("Login Gagal: Periksa kembali email dan password.");
     }
 };
 
 window.handleGoogleLogin = async () => {
     try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
     } catch (e) {
         alert("Login Google Gagal.");
     }
@@ -62,7 +64,7 @@ window.handleRegister = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
 
-    if (!nama || !email || !pass) return alert("Mohon lengkapi semua kolom!");
+    if (!nama || !email || !pass) return alert("Lengkapi data!");
 
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
@@ -73,7 +75,7 @@ window.handleRegister = async () => {
             role: "anggota",
             createdAt: serverTimestamp()
         });
-        alert("Daftar Berhasil! Cek email untuk verifikasi.");
+        alert("Daftar Berhasil! Silakan cek email untuk verifikasi.");
         await signOut(auth);
         window.cancelRegisterUI();
     } catch (e) {
@@ -81,7 +83,10 @@ window.handleRegister = async () => {
     }
 };
 
-// --- 2. MONITOR STATUS LOGIN & ROLE ---
+window.logout = () => signOut(auth);
+
+// --- 3. MONITOR STATUS LOGIN & ROLE ---
+
 onAuthStateChanged(auth, async (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -98,11 +103,8 @@ onAuthStateChanged(auth, async (user) => {
             const isPower = userData.role === "admin" || userData.role === "admin_utama";
             document.getElementById('adminBadge').style.display = isPower ? 'block' : 'none';
             document.getElementById('adminBadge').innerText = userData.role.toUpperCase();
-            
-            // Tampilkan Menu Admin di Sidebar
             document.getElementById('adminMenuSection').style.display = isPower ? 'block' : 'none';
 
-            // Jika Admin Utama, tampilkan panel manajemen anggota
             if (userData.role === "admin_utama") {
                 document.getElementById('adminPanel').style.display = 'block';
                 loadUserManagement(user.uid);
@@ -115,7 +117,8 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- 3. DAFTAR GRUP (REALTIME) ---
+// --- 4. SISTEM GRUP ---
+
 function loadGroupList() {
     onSnapshot(collection(db, "groups"), (snap) => {
         const container = document.getElementById('groupContainer');
@@ -123,14 +126,14 @@ function loadGroupList() {
         container.innerHTML = "";
         
         if (snap.empty) {
-            container.innerHTML = "<p style='font-size:12px; color:#999;'>Belum ada grup yang dibuat.</p>";
+            container.innerHTML = "<p style='font-size:12px; color:#999;'>Belum ada grup.</p>";
             return;
         }
 
         snap.forEach(g => {
             const data = g.data();
             const div = document.createElement('div');
-            div.className = 'group-item';
+            div.className = 'item-row';
             div.innerHTML = `
                 <span>📂 <b>${data.namaGrup}</b></span>
                 <small style="color:gray">${data.createdAt?.toDate().toLocaleDateString() || ''}</small>
@@ -145,14 +148,18 @@ window.submitGroup = async () => {
     if (!name) return alert("Isi nama grup!");
     try {
         await addDoc(collection(db, "groups"), { 
-            namaGrup: name, creator: auth.currentUser.uid, createdAt: serverTimestamp() 
+            namaGrup: name, 
+            creator: auth.currentUser.uid, 
+            createdAt: serverTimestamp() 
         });
         alert("Grup Berhasil Dibuat!");
         window.closeAll();
+        document.getElementById('newGroupName').value = "";
     } catch (e) { alert("Gagal membuat grup."); }
 };
 
-// --- 4. MANAJEMEN ANGGOTA (KHUSUS ADMIN UTAMA) ---
+// --- 5. MANAJEMEN ANGGOTA ---
+
 function loadUserManagement(myUid) {
     onSnapshot(collection(db, "users"), (snap) => {
         const list = document.getElementById('userList');
@@ -162,10 +169,10 @@ function loadUserManagement(myUid) {
         snap.forEach((u) => {
             const d = u.data();
             const id = u.id;
-            if (id === myUid) return; // Sembunyikan diri sendiri
+            if (id === myUid) return; 
 
             const div = document.createElement('div');
-            div.className = 'user-item';
+            div.className = 'item-row';
             div.innerHTML = `
                 <div style="flex-grow:1">
                     <b>${d.nama}</b><br>
@@ -187,15 +194,46 @@ function loadUserManagement(myUid) {
 window.updateRole = async (id, newRole) => { 
     try {
         await updateDoc(doc(db, "users", id), { role: newRole }); 
-        alert("Jabatan diperbarui!"); 
-    } catch (e) { alert("Gagal memperbarui role."); }
+        alert("Role diperbarui!"); 
+    } catch (e) { alert("Gagal!"); }
 };
 
 window.hapusUser = async (id) => { 
-    if (confirm("Hapus pengguna secara permanen?")) {
+    if (confirm("Hapus pengguna ini permanen?")) {
         await deleteDoc(doc(db, "users", id)); 
     }
 };
 
-// --- 5. LOGOUT ---
-window.logout = () => signOut(auth);
+// --- 6. UI HELPERS ---
+
+window.toggleSidebar = () => {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+};
+
+window.closeAll = () => {
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('groupModal').style.display = 'none';
+    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+};
+
+window.openModal = (id) => {
+    document.getElementById(id).style.display = 'block';
+    document.getElementById('overlay').classList.add('active');
+};
+
+window.scrollToView = (id) => {
+    const el = document.getElementById(id);
+    if(el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        window.closeAll();
+    }
+};
+
+window.toggleDropdown = (id) => {
+    const el = document.getElementById(id);
+    const isVisible = el.style.display === 'block';
+    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+    el.style.display = isVisible ? 'none' : 'block';
+};
