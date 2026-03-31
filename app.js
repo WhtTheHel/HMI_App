@@ -50,18 +50,14 @@ window.handleGoogleLogin = async () => {
 
 window.showRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'block';
-    const loginGrp = document.getElementById('loginGroup');
-    const regGrp = document.getElementById('registerGroup');
-    if(loginGrp) loginGrp.style.display = 'none';
-    if(regGrp) regGrp.style.display = 'block';
+    document.getElementById('loginGroup').style.display = 'none';
+    document.getElementById('registerGroup').style.display = 'block';
 };
 
 window.cancelRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'none';
-    const loginGrp = document.getElementById('loginGroup');
-    const regGrp = document.getElementById('registerGroup');
-    if(loginGrp) loginGrp.style.display = 'block';
-    if(regGrp) regGrp.style.display = 'none';
+    document.getElementById('loginGroup').style.display = 'block';
+    document.getElementById('registerGroup').style.display = 'none';
 };
 
 window.handleRegister = async () => {
@@ -74,6 +70,7 @@ window.handleRegister = async () => {
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
         await sendEmailVerification(res.user);
+        
         await setDoc(doc(db, "users", res.user.uid), {
             nama: nama,
             email: email,
@@ -98,14 +95,13 @@ onAuthStateChanged(auth, async (user) => {
     const appScr = document.getElementById('app');
 
     if (user && user.emailVerified) {
-        if(loginScr) loginScr.style.display = 'none';
-        if(appScr) appScr.style.display = 'block';
+        loginScr.style.display = 'none';
+        appScr.style.display = 'block';
         
         onSnapshot(doc(db, "users", user.uid), (docSnap) => {
             if (docSnap.exists()) {
                 const userData = docSnap.data();
-                const userDisplay = document.getElementById('userNameDisplay');
-                if(userDisplay) userDisplay.innerText = userData.nama;
+                document.getElementById('userNameDisplay').innerText = userData.nama;
 
                 const isPower = userData.role === "admin" || userData.role === "admin_utama";
                 const badge = document.getElementById('adminBadge');
@@ -118,16 +114,15 @@ onAuthStateChanged(auth, async (user) => {
                 if(adminMenu) adminMenu.style.display = isPower ? 'block' : 'none';
 
                 if (userData.role === "admin_utama") {
-                    const adminPnl = document.getElementById('adminPanel');
-                    if(adminPnl) adminPnl.style.display = 'block';
+                    document.getElementById('adminPanel').style.display = 'block';
                     loadUserManagement(user.uid);
                 }
             }
         });
         loadGroupList();
     } else {
-        if(loginScr) loginScr.style.display = 'block';
-        if(appScr) appScr.style.display = 'none';
+        loginScr.style.display = 'block';
+        appScr.style.display = 'none';
     }
 });
 
@@ -149,9 +144,9 @@ function loadGroupList() {
             const div = document.createElement('div');
             div.className = 'item-row';
             div.innerHTML = `
-                <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                <div style="padding: 10px; border-bottom: 1px solid #eee; width: 100%;">
                     <span>📂 <b>${data.namaGrup}</b></span><br>
-                    <small style="color:gray">${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : ''}</small>
+                    <small style="color:gray">${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Baru saja'}</small>
                 </div>
             `;
             container.appendChild(div);
@@ -174,7 +169,7 @@ window.submitGroup = async () => {
         window.closeAll();
         nameEl.value = "";
     } catch (e) { 
-        alert("Gagal: Pastikan Anda memiliki akses Admin."); 
+        alert("Gagal: Anda memerlukan akses Admin."); 
     }
 };
 
@@ -192,18 +187,18 @@ function loadUserManagement(myUid) {
             if (id === myUid) return; 
 
             const div = document.createElement('div');
-            div.className = 'user-item';
-            div.style = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; position:relative;";
+            div.className = 'item-row';
+            div.style.padding = "10px";
             div.innerHTML = `
                 <div style="flex-grow:1">
                     <b>${d.nama}</b><br>
                     <small style="color:#0b6623">${d.role.toUpperCase()} | ${d.email}</small>
                 </div>
-                <div class="dots-menu" style="cursor:pointer; padding:5px 10px;" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
-                <div id="drop-${id}" class="dropdown-content" style="display:none; position:absolute; right:0; top:40px; background:white; border:1px solid #ccc; z-index:100; box-shadow:0 2px 5px rgba(0,0,0,0.2);">
-                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer;" onclick="window.updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
-                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer;" onclick="window.updateRole('${id}', 'anggota')">⬇️ Jadi Anggota</button>
-                    <button style="display:block; width:100%; padding:8px; border:none; background:none; text-align:left; cursor:pointer; color:red;" onclick="window.hapusUser('${id}')">🗑️ Hapus</button>
+                <div class="dots-menu" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
+                <div id="drop-${id}" class="dropdown-content">
+                    <button onclick="window.updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
+                    <button onclick="window.updateRole('${id}', 'anggota')">⬇️ Jadi Anggota</button>
+                    <button onclick="window.hapusUser('${id}')" style="color:red;">🗑️ Hapus</button>
                 </div>`;
             list.appendChild(div);
         });
@@ -218,46 +213,10 @@ window.updateRole = async (id, newRole) => {
 };
 
 window.hapusUser = async (id) => { 
-    if (confirm("Hapus pengguna ini secara permanen dari database?")) {
+    if (confirm("Hapus pengguna ini secara permanen?")) {
         try {
             await deleteDoc(doc(db, "users", id));
         } catch(e) { alert("Gagal menghapus."); }
-    }
-};
-
-// --- 6. UI HELPERS (PERBAIKAN) ---
-
-window.toggleSidebar = () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    if(sidebar) sidebar.classList.toggle('active');
-    if(overlay) overlay.classList.toggle('active');
-};
-
-window.closeAll = () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const modal = document.getElementById('groupModal');
-    
-    if(sidebar) sidebar.classList.remove('active');
-    if(overlay) overlay.classList.remove('active');
-    if(modal) modal.style.display = 'none';
-    
-    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-};
-
-window.openModal = (id) => {
-    const modal = document.getElementById(id);
-    const overlay = document.getElementById('overlay');
-    if(modal) modal.style.display = 'block';
-    if(overlay) overlay.classList.add('active');
-};
-
-window.scrollToView = (id) => {
-    const el = document.getElementById(id);
-    if(el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-        window.closeAll();
     }
 };
 
@@ -267,12 +226,3 @@ window.toggleDropdown = (id) => {
     document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     if(el) el.style.display = wasVisible ? 'none' : 'block';
 };
-
-// --- TAMBAHAN: AUTO-BIND UNTUK MODUL ---
-// Kode ini memastikan tombol hamburger tetap jalan meskipun onclick di HTML telat merespon
-document.addEventListener('DOMContentLoaded', () => {
-    const burgerBtn = document.querySelector('.topbar div');
-    if (burgerBtn) {
-        burgerBtn.addEventListener('click', window.toggleSidebar);
-    }
-});
