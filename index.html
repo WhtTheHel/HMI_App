@@ -91,27 +91,32 @@
         }
 
         .sidebar {
-            position: fixed;
-            left: -280px;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: #111;
-            padding: 20px;
-            transition: 0.3s;
-            z-index: 1001;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-        }
-        .sidebar.active { left: 0; }
+    position: fixed;
+    left: -280px; /* Sembunyi di kiri */
+    top: 0;
+    width: 280px;
+    height: 100%;
+    background: #111;
+    transition: 0.3s;
+    z-index: 1001; /* Harus sangat tinggi */
+}
 
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            z-index: 1000;
-        }
-        .overlay.active { display: block; }
+.sidebar.active {
+    left: 0; /* Muncul saat ada class .active */
+}
+
+.overlay {
+    position: fixed;
+    display: none; /* Sembunyi default */
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+}
+
+.overlay.active {
+    display: block; /* Muncul saat aktif */
+}
+
 
         .card {
             background: white;
