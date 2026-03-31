@@ -247,6 +247,20 @@
     <button class="btn-outline" style="color:black; border-color:black;" onclick="closeAll()">Batal</button>
 </div>
 
+<div id="authFields">
+    <input type="text" id="namaUser" placeholder="Nama Lengkap" style="display:none"> <input type="email" id="email" placeholder="Email" autocomplete="username">
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+</div>
+
+<div id="authButtons">
+    <button class="btn-main" id="btnLogin" onclick="handleLogin()">🚀 Masuk</button>
+    <button class="btn-outline" id="btnRegisterInitial" onclick="showRegisterUI()">📝 Daftar Akun Baru</button>
+    
+    <button class="btn-main" id="btnConfirmRegister" style="display:none" onclick="handleRegister()">✅ Konfirmasi Daftar</button>
+    <button class="btn-outline" id="btnCancelRegister" style="display:none" onclick="cancelRegisterUI()">⬅️ Batal</button>
+</div>
+
+    
 <script>
     /* --- UI LOGIC (LOGIC DATA ADA DI APP.JS) --- */
     
