@@ -76,7 +76,7 @@
         }
         .btn-main { background: #0b6623; color: white; }
         .btn-google { background: #4285F4; color: white; }
-        .btn-outline { background: transparent; border: 1px solid white; color: white; }
+        .btn-outline { background: transparent; border: 1px solid white; color: white; text-align: center; display: block; width: 100%; text-decoration: none; }
 
         /* --- APP SCREEN --- */
         #app { display: none; }
@@ -88,7 +88,7 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1002; /* Harus lebih tinggi dari sidebar */
+            z-index: 1002;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
@@ -132,20 +132,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- DROPDOWN & MODAL --- */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 40px;
-            background: white;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 10;
-            border-radius: 12px;
-            min-width: 170px;
-            overflow: hidden;
-        }
-
+        /* --- MODAL --- */
         .modal {
             display: none;
             position: fixed;
@@ -163,7 +150,7 @@
 </head>
 <body>
 
-<div id="overlay" class="overlay" onclick="window.closeAll()"></div>
+<div id="overlay" class="overlay"></div>
 
 <div id="loginScreen">
     <div class="login-container">
@@ -201,7 +188,7 @@
     <div class="topbar">
         <div id="burgerBtn" style="cursor:pointer; font-size:28px; padding: 5px; user-select: none;">☰</div>
         <b style="font-size: 18px;">HMI SUPER APP</b>
-        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ADMIN</div>
+        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ROLE</div>
     </div>
 
     <div id="sidebar" class="sidebar">
@@ -213,9 +200,9 @@
         <button class="btn-outline" onclick="scrollToView('groupListView')">📂 Daftar Grup</button>
         
         <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
-            <small style="color: #888; letter-spacing: 1px;">ADMIN PANEL</small>
+            <small style="color: #888; letter-spacing: 1px;">MANAGEMENT PANEL</small>
             <button class="btn-outline" onclick="openModal('groupModal')">➕ Buat Grup Baru</button>
-            <button class="btn-outline" onclick="scrollToView('adminPanel')">📋 Kelola Anggota</button>
+            <button class="btn-outline" onclick="scrollToView('adminPanel')">👥 Kelola Anggota</button>
         </div>
         
         <button class="btn-outline" onclick="logout()" style="margin-top:40px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
@@ -234,7 +221,7 @@
     </div>
 
     <div class="card" id="adminPanel" style="display:none;">
-        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px; margin-top:0; color: #0b6623;">👥 Manajemen Anggota</h4>
+        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px; margin-top:0; color: #0b6623;">👥 Manajemen Anggota (Owner Only)</h4>
         <div id="userList"></div>
     </div>
 </div>
@@ -249,18 +236,13 @@
 <script type="module" src="app.js"></script>
 
 <script>
-    // 1. Definisikan Fungsi di Global Window
+    // FUNGSI GLOBAL
     window.toggleSidebar = function() {
-        console.log("Mencoba Toggle Sidebar...");
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        
         if (sidebar && overlay) {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-            console.log("Status: Berhasil ditoggle.");
-        } else {
-            console.error("Error: Elemen sidebar/overlay tidak ditemukan.");
         }
     };
 
@@ -272,8 +254,6 @@
         if (sidebar) sidebar.classList.remove('active');
         if (overlay) overlay.classList.remove('active');
         if (modal) modal.style.display = 'none';
-        
-        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     };
 
     window.openModal = function(id) {
@@ -291,24 +271,23 @@
         }
     };
 
-    // 2. Jalur Paksa Listener (Menunggu Halaman Siap)
+    // Event Listener Hamburger
     window.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM Siap. Memasang listener hamburger...");
         const burger = document.getElementById('burgerBtn');
+        const overlay = document.getElementById('overlay');
+        
         if (burger) {
             burger.addEventListener('click', (e) => {
-                e.stopPropagation(); // Mencegah bentrok klik
+                e.stopPropagation();
                 window.toggleSidebar();
             });
-            console.log("Listener Hamburger Terpasang.");
-        } else {
-            console.error("ID burgerBtn tidak ditemukan di HTML!");
+        }
+        
+        if (overlay) {
+            overlay.addEventListener('click', window.closeAll);
         }
     });
-
-    // 3. Tambahan: Klik Overlay untuk tutup
-    document.getElementById('overlay').addEventListener('click', window.closeAll);
 </script>
 
 </body>
-</html>
+            </html>
