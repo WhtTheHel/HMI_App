@@ -95,13 +95,14 @@ onAuthStateChanged(auth, async (user) => {
     const appScr = document.getElementById('app');
 
     if (user && user.emailVerified) {
-        loginScr.style.display = 'none';
-        appScr.style.display = 'block';
+        if(loginScr) loginScr.style.display = 'none';
+        if(appScr) appScr.style.display = 'block';
         
         onSnapshot(doc(db, "users", user.uid), (docSnap) => {
             if (docSnap.exists()) {
                 const userData = docSnap.data();
-                document.getElementById('userNameDisplay').innerText = userData.nama;
+                const userDisplay = document.getElementById('userNameDisplay');
+                if(userDisplay) userDisplay.innerText = userData.nama;
 
                 const isPower = userData.role === "admin" || userData.role === "admin_utama";
                 const badge = document.getElementById('adminBadge');
@@ -114,15 +115,16 @@ onAuthStateChanged(auth, async (user) => {
                 if(adminMenu) adminMenu.style.display = isPower ? 'block' : 'none';
 
                 if (userData.role === "admin_utama") {
-                    document.getElementById('adminPanel').style.display = 'block';
+                    const panel = document.getElementById('adminPanel');
+                    if(panel) panel.style.display = 'block';
                     loadUserManagement(user.uid);
                 }
             }
         });
         loadGroupList();
     } else {
-        loginScr.style.display = 'block';
-        appScr.style.display = 'none';
+        if(loginScr) loginScr.style.display = 'block';
+        if(appScr) appScr.style.display = 'none';
     }
 });
 
@@ -166,7 +168,7 @@ window.submitGroup = async () => {
             createdAt: serverTimestamp() 
         });
         alert("Grup Berhasil Dibuat!");
-        window.closeAll();
+        if(window.closeAll) window.closeAll();
         nameEl.value = "";
     } catch (e) { 
         alert("Gagal: Anda memerlukan akses Admin."); 
@@ -226,3 +228,14 @@ window.toggleDropdown = (id) => {
     document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     if(el) el.style.display = wasVisible ? 'none' : 'block';
 };
+
+// --- 6. FORCE BINDING SIDEBAR (Agar Tombol Jalan) ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Cari tombol ☰ di topbar
+    const burger = document.querySelector('.topbar div');
+    if (burger) {
+        burger.onclick = () => {
+            if(window.toggleSidebar) window.toggleSidebar();
+        };
+    }
+});
