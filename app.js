@@ -267,6 +267,32 @@ window.scrollToView = (id) => {
     }
 };
 
+// Tambahkan baris ini di bagian bawah atau di dalam fungsi UI Helpers
+// untuk memastikan fungsi benar-benar tersedia secara global
+window.toggleSidebar = () => {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if(sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    } else {
+        console.error("Elemen sidebar atau overlay tidak ditemukan!");
+    }
+};
+
+window.closeAll = () => {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('groupModal');
+    
+    if(sidebar) sidebar.classList.remove('active');
+    if(overlay) overlay.classList.remove('active');
+    if(modal) modal.style.display = 'none';
+    
+    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+};
+
+
 window.toggleDropdown = (id) => {
     const el = document.getElementById(id);
     const wasVisible = el.style.display === 'block';
