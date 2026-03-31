@@ -8,24 +8,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         /* --- RESET & BASE STYLE --- */
-        * {box-sizing: border-box; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
             color: white;
             min-height: 100vh;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
         }
 
         /* --- LOGIN SCREEN --- */
+        #loginScreen { padding: 20px; }
         .login-container {
             max-width: 400px;
             margin: 40px auto;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             border-radius: 25px;
             padding: 30px;
             text-align: center;
@@ -34,18 +32,14 @@
         }
 
         .logo-hmi {
-            width: 100px;
-            height: 100px;
+            width: 80px; height: 80px;
             background: white;
             border-radius: 50%;
             margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid #0b6623;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
-        .logo-hmi img { width: 70%; height: auto; }
+        .logo-hmi img { width: 70%; }
 
         .history-box {
             background: rgba(0,0,0,0.2);
@@ -116,7 +110,6 @@
         }
         .overlay.active { display: block; }
 
-        /* --- ADMIN PANEL & USER LIST --- */
         .card {
             background: white;
             color: #333;
@@ -126,31 +119,34 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* --- ADMIN LIST --- */
         .user-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 12px 0;
             border-bottom: 1px solid #eee;
             position: relative;
         }
 
-        .dots-menu { cursor: pointer; font-size: 20px; padding: 5px; }
+        .dots-menu { cursor: pointer; font-size: 20px; padding: 5px; color: #666; }
 
         .dropdown-content {
             display: none;
             position: absolute;
             right: 0;
-            top: 35px;
+            top: 40px;
             background: white;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             z-index: 10;
-            border-radius: 8px;
+            border-radius: 12px;
             min-width: 160px;
+            overflow: hidden;
         }
         .dropdown-content button {
             background: none; color: #333; text-align: left;
             border-radius: 0; margin: 0; border-bottom: 1px solid #eee;
+            font-size: 14px; padding: 12px;
         }
         .dropdown-content button:hover { background: #f5f5f5; }
 
@@ -167,10 +163,6 @@
             width: 90%;
             max-width: 400px;
             z-index: 2000;
-        }
-
-        @media (max-width: 480px) {
-            .login-container { margin: 15px; }
         }
     </style>
 </head>
@@ -191,9 +183,10 @@
         </div>
 
         <div id="authFields">
-            <input type="text" id="regNama" placeholder="Nama Lengkap" style="display:none">
+            <input type="text" id="namaUser" placeholder="Nama Lengkap" style="display:none">
+            
             <input type="email" id="email" placeholder="Email" autocomplete="email">
-            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+            <input type="password" id="password" placeholder="Password">
         </div>
         
         <div id="loginGroup">
@@ -214,65 +207,41 @@
     <div class="topbar">
         <div onclick="toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
         <b>HMI SUPER APP</b>
-        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px;">ADMIN</div>
+        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ADMIN</div>
     </div>
 
     <div id="sidebar" class="sidebar">
-        <h3 style="color:#f1c40f;">Menu Utama</h3>
-        <hr>
-        <p id="userNameDisplay">Nama User</p>
-        <button class="btn-outline" onclick="openModal('groupModal')">👥 Buat Grup Kom</button>
-        <button class="btn-outline" onclick="logout()">🚪 Keluar</button>
+        <h3 style="color:#f1c40f; margin-top:0;">Menu Utama</h3>
+        <hr style="border: 0.5px solid #333;">
+        <p id="userNameDisplay" style="font-weight:bold; color:#90EE90;">Nama User</p>
+        
+        <div id="groupBtnSection" style="display:none;">
+            <button class="btn-outline" onclick="openModal('groupModal')">👥 Buat Grup Kom</button>
+        </div>
+        
+        <button class="btn-outline" onclick="logout()" style="margin-top:20px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
     <div class="card">
-        <h4>📢 Beranda</h4>
-        <p>Selamat datang di pusat koordinasi kader HMI.</p>
+        <h4 style="margin-top:0;">📢 Beranda</h4>
+        <p style="font-size:14px; line-height:1.5;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk berkolaborasi antar komisariat.</p>
     </div>
 
     <div class="card" id="adminPanel" style="display:none;">
-        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px;">👥 Manajemen Anggota</h4>
+        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px; margin-top:0;">👥 Manajemen Anggota</h4>
         <div id="userList">
-            <div class="user-item">
-                <div>
-                    <b>Ahmad Kader</b><br>
-                    <small>ahmad@email.com</small>
-                </div>
-                <div class="dots-menu" onclick="toggleDropdown('drop1')">⋮</div>
-                <div id="drop1" class="dropdown-content">
-                    <button onclick="makeAdmin('uid1')">⭐ Jadikan Admin</button>
-                    <button onclick="removeAdmin('uid1')">⬇️ Hapus Admin</button>
-                    <button style="color:red;" onclick="deleteUser('uid1')">🗑️ Hapus Anggota</button>
-                </div>
             </div>
-        </div>
     </div>
 </div>
 
 <div id="groupModal" class="modal">
-    <h4>Buat Grup Komisariat</h4>
+    <h4 style="margin-top:0;">Buat Grup Komisariat</h4>
     <input type="text" id="newGroupName" placeholder="Masukkan Nama Grup/Komisariat">
     <button class="btn-main" onclick="submitGroup()">✅ Buat Sekarang</button>
-    <button class="btn-outline" style="color:black; border-color:black;" onclick="closeAll()">Batal</button>
+    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="closeAll()">Batal</button>
 </div>
 
-<div id="authFields">
-    <input type="text" id="namaUser" placeholder="Nama Lengkap" style="display:none"> <input type="email" id="email" placeholder="Email" autocomplete="username">
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-</div>
-
-<div id="authButtons">
-    <button class="btn-main" id="btnLogin" onclick="handleLogin()">🚀 Masuk</button>
-    <button class="btn-outline" id="btnRegisterInitial" onclick="showRegisterUI()">📝 Daftar Akun Baru</button>
-    
-    <button class="btn-main" id="btnConfirmRegister" style="display:none" onclick="handleRegister()">✅ Konfirmasi Daftar</button>
-    <button class="btn-outline" id="btnCancelRegister" style="display:none" onclick="cancelRegisterUI()">⬅️ Batal</button>
-</div>
-
-    
 <script>
-    /* --- UI LOGIC (LOGIC DATA ADA DI APP.JS) --- */
-    
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
@@ -281,7 +250,8 @@
     function closeAll() {
         document.getElementById('sidebar').classList.remove('active');
         document.getElementById('overlay').classList.remove('active');
-        document.getElementById('groupModal').style.display = 'none';
+        const modal = document.getElementById('groupModal');
+        if(modal) modal.style.display = 'none';
         document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     }
 
@@ -290,23 +260,7 @@
         document.getElementById('overlay').classList.add('active');
     }
 
-    function toggleDropdown(id) {
-        const drop = document.getElementById(id);
-        const isVisible = drop.style.display === 'block';
-        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-        drop.style.display = isVisible ? 'none' : 'block';
-    }
-
-    // Simulasi Login (Untuk Testing Tampilan)
-    function handleLogin() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        // Contoh: Jika admin, tampilkan fitur admin
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminBadge').style.display = 'block';
-    }
-
-    // Tutup dropdown jika klik di luar
+    // Fungsi Dropdown Titik Tiga
     window.onclick = function(event) {
         if (!event.target.matches('.dots-menu')) {
             document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
