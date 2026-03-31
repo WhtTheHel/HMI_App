@@ -1,275 +1,297 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<title>HMI Super App</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>
-* {box-sizing: border-box; -webkit-tap-highlight-color: transparent;}
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
-    color: white;
-    min-height: 100vh;
-    padding: 10px;
-    -webkit-font-smoothing: antialiased;
-    touch-action: manipulation;
-}
+    <meta charset="UTF-8">
+    <title>HMI Super App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* --- RESET & BASE STYLE --- */
+        * {box-sizing: border-box; -webkit-tap-highlight-color: transparent;}
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
 
-.login-container {
-    max-width: 400px;
-    margin: 20px auto;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 30px 25px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.25);
-}
+        /* --- LOGIN SCREEN --- */
+        .login-container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
 
-.logo {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 20px;
-    background: linear-gradient(45deg, #0b6623, #228B22);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    font-weight: bold;
-    box-shadow: 0 10px 30px rgba(11,102,35,0.6);
-    line-height: 1;
-}
+        .logo-hmi {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #0b6623;
+            overflow: hidden;
+        }
+        .logo-hmi img { width: 70%; height: auto; }
 
-.app-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-}
+        .history-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 13px;
+            text-align: left;
+            margin: 20px 0;
+            border-left: 4px solid #f1c40f;
+        }
 
-.info-section {
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px;
-    padding: 15px;
-    margin: 20px 0;
-    font-size: 13px;
-}
+        /* --- UI COMPONENTS --- */
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+        }
 
-input {
-    width: 100%;
-    padding: 15px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.95);
-    font-size: 16px;
-    color: #333;
-    -webkit-appearance: none;
-}
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-main { background: #0b6623; color: white; }
+        .btn-google { background: #4285F4; color: white; }
+        .btn-outline { background: transparent; border: 1px solid white; color: white; }
 
-input:focus {
-    outline: none;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(11,102,35,0.4);
-}
+        /* --- APP SCREEN --- */
+        #app { display: none; }
+        .topbar {
+            background: #0b6623;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-button {
-    width: 100%;
-    padding: 15px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 12px;
-    background: #0b6623;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    -webkit-appearance: none;
-}
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #111;
+            padding: 20px;
+            transition: 0.3s;
+            z-index: 1001;
+        }
+        .sidebar.active { left: 0; }
 
-button:active {
-    transform: scale(0.98);
-    background: #1a5f2e;
-}
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            z-index: 1000;
+        }
+        .overlay.active { display: block; }
 
-.google-btn {background: #4285F4 !important;}
+        /* --- ADMIN PANEL & USER LIST --- */
+        .card {
+            background: white;
+            color: #333;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-.or-divider {
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-    color: #aaa;
-    font-size: 14px;
-}
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
 
-.or-divider::before,
-.or-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(255,255,255,0.3);
-}
+        .dots-menu { cursor: pointer; font-size: 20px; padding: 5px; }
 
-.or-divider span {
-    padding: 0 15px;
-    background: rgba(255,255,255,0.15);
-}
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 35px;
+            background: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 10;
+            border-radius: 8px;
+            min-width: 160px;
+        }
+        .dropdown-content button {
+            background: none; color: #333; text-align: left;
+            border-radius: 0; margin: 0; border-bottom: 1px solid #eee;
+        }
+        .dropdown-content button:hover { background: #f5f5f5; }
 
-#app {display: none;}
-.topbar {
-    background: #0b6623;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-.sidebar {
-    position: fixed;
-    left: -280px;
-    top: 0;
-    width: 280px;
-    height: 100vh;
-    background: #000;
-    padding: 15px;
-    transition: left 0.3s ease;
-    overflow: auto;
-    z-index: 1001;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-}
-.sidebar.active {left: 0;}
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    display: none;
-}
-.overlay.active {display: block;}
-.card {
-    background: white;
-    color: black;
-    margin: 15px;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.dark .card {background: #222; color: white;}
-#chatList {
-    height: 400px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    padding-right: 5px;
-}
-#chatList div {
-    margin: 12px 0;
-    padding: 15px;
-    border-radius: 15px;
-    background: #f5f5f5;
-    word-wrap: break-word;
-}
-.me {
-    background: #0b6623 !important;
-    color: white !important;
-    margin-left: 20%;
-}
-.preview img,.preview video {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    margin: 5px;
-    border-radius: 8px;
-}
-#typingStatus {
-    padding: 10px;
-    color: #0b6623;
-    font-style: italic;
-    font-size: 14px;
-}
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            z-index: 2000;
+        }
 
-@media (max-width: 480px) {
-    body {padding: 5px;}
-    .login-container {margin: 10px; padding: 25px 20px;}
-    .logo {width: 80px; height: 80px; font-size: 28px;}
-    .app-title {font-size: 20px;}
-    #chatList {height: 300px;}
-    .sidebar {width: 260px;}
-    .card {margin: 10px; padding: 15px;}
-}
-</style>
+        @media (max-width: 480px) {
+            .login-container { margin: 15px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- OVERLAY -->
-<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+<div id="overlay" class="overlay" onclick="closeAll()"></div>
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen" class="login-container">
-    <div class="logo">HMI</div>
-    <div class="app-title">HMI SUPER APP</div>
-    
-    <div class="info-section">
-        <h4 style="margin: 0 0 10px 0; color: #90EE90;">ℹ️ Tentang Aplikasi</h4>
-        <p><strong>Pendiri:</strong> Tim Developer HMI</p>
-        <p><strong>Dibuat:</strong> Desember 2024</p>
-        <p><strong>Version:</strong> 1.0.1</p>
+<div id="loginScreen">
+    <div class="login-container">
+        <div class="logo-hmi">
+            <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
+        </div>
+        <h2 style="margin:0;">HMI SUPER APP</h2>
+        <p style="font-size:12px; color:#f1c40f;">Yakin Usaha Sampai</p>
+
+        <div class="history-box">
+            <b style="color:#90EE90;">📜 Sejarah Singkat</b><br>
+            HMI didirikan di <b>Yogyakarta</b> pada tanggal <b>5 Februari 1947</b>. 
+            Diprakarsai oleh <b>Lafran Pane</b> bersama 14 mahasiswa STI (sekarang UII) untuk mempertahankan NKRI dan meninggikan derajat umat Islam.
+        </div>
+
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        
+        <button class="btn-main" onclick="handleLogin()">🚀 Masuk</button>
+        <button class="btn-google" onclick="handleGoogleLogin()">🔗 Login via Google</button>
+        <button class="btn-outline" onclick="showRegister()">Daftar Akun Baru</button>
     </div>
-
-    <input id="namaUser" placeholder="Nama Lengkap" style="display:none">
-    <input id="email" placeholder="📧 Email" autocomplete="email">
-    <input id="password" type="password" placeholder="🔒 Password" autocomplete="current-password">
-    
-    <button onclick="login()">🚀 Masuk</button>
-    <button class="google-btn" onclick="loginGoogle()">🔗 Login Google</button>
-    <button onclick="showRegister()">📝 Daftar Akun Baru</button>
 </div>
 
-<!-- APP SCREEN -->
 <div id="app">
     <div class="topbar">
-        <span onclick="toggleMenu()" style="font-size:24px;cursor:pointer;padding:5px;">☰</span>
+        <div onclick="toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
         <b>HMI SUPER APP</b>
-        <span style="font-size:20px;">💬</span>
+        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px;">ADMIN</div>
     </div>
 
-    <!-- SIDEBAR -->
     <div id="sidebar" class="sidebar">
-        <h3 style="margin-top:0;">Menu</h3>
-        <img id="profilePic" src="https://via.placeholder.com/70/0b6623/ffffff?text=👤" width="70" style="border-radius:50%;display:block;margin:10px auto">
-        <p id="namaDisplay" style="font-weight:bold;text-align:center;margin:5px 0;">Loading...</p>
-        <input type="file" id="editFoto" accept="image/*" style="width:100%;margin:10px 0">
-        <button onclick="updateFoto()">📸 Ganti Foto</button>
-        <button onclick="toggleDark()">🌙 Dark Mode</button>
-        <button onclick="openGroup()">👥 Chat Grup</button>
-        <button onclick="logout()">🚪 Logout</button>
+        <h3 style="color:#f1c40f;">Menu Utama</h3>
+        <hr>
+        <p id="userNameDisplay">Nama User</p>
+        <button class="btn-outline" onclick="openModal('groupModal')">👥 Buat Grup Kom</button>
+        <button class="btn-outline" onclick="logout()">🚪 Keluar</button>
     </div>
 
-    <!-- CHAT -->
     <div class="card">
-        <div id="chatList"></div>
-        <div id="typingStatus"></div>
-        <div style="position:relative;">
-            <input id="chatInput" placeholder="Ketik pesan..." style="margin-bottom:10px">
-            <input type="file" id="multiFile" multiple accept="image/*,video/*" style="display:none">
+        <h4>📢 Beranda</h4>
+        <p>Selamat datang di pusat koordinasi kader HMI.</p>
+    </div>
+
+    <div class="card" id="adminPanel" style="display:none;">
+        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px;">👥 Manajemen Anggota</h4>
+        <div id="userList">
+            <div class="user-item">
+                <div>
+                    <b>Ahmad Kader</b><br>
+                    <small>ahmad@email.com</small>
+                </div>
+                <div class="dots-menu" onclick="toggleDropdown('drop1')">⋮</div>
+                <div id="drop1" class="dropdown-content">
+                    <button onclick="makeAdmin('uid1')">⭐ Jadikan Admin</button>
+                    <button onclick="removeAdmin('uid1')">⬇️ Hapus Admin</button>
+                    <button style="color:red;" onclick="deleteUser('uid1')">🗑️ Hapus Anggota</button>
+                </div>
+            </div>
         </div>
-        <div id="preview" style="display:flex;flex-wrap:wrap;"></div>
-        <button onclick="sendChat()">📤 Kirim</button>
     </div>
 </div>
 
+<div id="groupModal" class="modal">
+    <h4>Buat Grup Komisariat</h4>
+    <input type="text" id="newGroupName" placeholder="Masukkan Nama Grup/Komisariat">
+    <button class="btn-main" onclick="submitGroup()">✅ Buat Sekarang</button>
+    <button class="btn-outline" style="color:black; border-color:black;" onclick="closeAll()">Batal</button>
+</div>
+
+<script>
+    /* --- UI LOGIC (LOGIC DATA ADA DI APP.JS) --- */
+    
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function closeAll() {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('overlay').classList.remove('active');
+        document.getElementById('groupModal').style.display = 'none';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+    }
+
+    function openModal(id) {
+        document.getElementById(id).style.display = 'block';
+        document.getElementById('overlay').classList.add('active');
+    }
+
+    function toggleDropdown(id) {
+        const drop = document.getElementById(id);
+        const isVisible = drop.style.display === 'block';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+        drop.style.display = isVisible ? 'none' : 'block';
+    }
+
+    // Simulasi Login (Untuk Testing Tampilan)
+    function handleLogin() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        // Contoh: Jika admin, tampilkan fitur admin
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminBadge').style.display = 'block';
+    }
+
+    // Tutup dropdown jika klik di luar
+    window.onclick = function(event) {
+        if (!event.target.matches('.dots-menu')) {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+        }
+    }
+</script>
+
 <script type="module" src="app.js"></script>
+
 </body>
 </html>
