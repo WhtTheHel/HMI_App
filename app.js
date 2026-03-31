@@ -1,34 +1,13 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 import { 
-    getAuth, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    onAuthStateChanged, 
-    signOut 
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+    signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut,
+    sendEmailVerification 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    addDoc, 
-    getDoc, 
-    setDoc, 
-    updateDoc, 
-    onSnapshot, 
-    orderBy, 
-    query, 
-    limit, 
-    serverTimestamp,
-    writeBatch
+    getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, 
+    onSnapshot, serverTimestamp, deleteDoc 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-import { 
-    getStorage, 
-    ref, 
-    uploadBytes, 
-    getDownloadURL 
-} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
@@ -39,305 +18,136 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-// DOM Elements
-const loginScreen = document.getElementById('loginScreen');
-const appScreen = document.getElementById('app');
-const namaUser = document.getElementById('namaUser');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const chatInput = document.getElementById('chatInput');
-const chatList = document.getElementById('chatList');
-const typingStatus = document.getElementById('typingStatus');
-const preview = document.getElementById('preview');
-const multiFile = document.getElementById('multiFile');
-const sidebar = document.getElementById('sidebar');
-const profilePic = document.getElementById('profilePic');
-const namaDisplay = document.getElementById('namaDisplay');
-const overlay = document.getElementById('overlay');
+// --- 1. REGISTRASI DENGAN KONFIRMASI EMAIL ---
+window.showRegister = async () => {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    const nama = prompt("Masukkan Nama Lengkap Anda:");
+    
+    if (!nama || !email || !pass) return alert("Data tidak lengkap!");
 
-let unsubscribeChat = null;
-let unsubscribeTyping = null;
-let selectedFiles = [];
-let currentUserData = null;
-let typingTimeout = null;
-
-// Login Functions
-window.login = async () => {
     try {
-        if (!emailInput.value || !passwordInput.value) {
-            alert('Mohon isi email dan password!');
-            return;
-        }
-        await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-    } catch (error) {
-        if (error.code === 'auth/user-not-found') {
-            alert('Akun belum terdaftar. Silakan daftar dulu!');
-        } else {
-            alert('Login gagal: ' + error.message);
-        }
-    }
-};
-
-window.loginGoogle = async () => {
-    try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        alert('Google login gagal: ' + error.message);
-    }
-};
-
-window.showRegister = () => {
-    namaUser.style.display = namaUser.style.display === 'none' ? 'block' : 'none';
-};
-
-window.register = async () => {
-    try {
-        if (!emailInput.value || !passwordInput.value || !namaUser.value) {
-            alert('Mohon isi semua field!');
-            return;
-        }
-        const userCredential = await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-        const user = userCredential.user;
-        await setDoc(doc(db, "users", user.uid), {
-            nama: namaUser.value,
-            foto: "",
+        const res = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // 1. Kirim Email Verifikasi
+        await sendEmailVerification(res.user);
+        
+        // 2. Simpan Data ke Firestore
+        await setDoc(doc(db, "users", res.user.uid), {
+            nama: nama,
+            email: email,
             role: "anggota",
-            online: true,
-            updatedAt: serverTimestamp()
+            emailVerified: false, // Status awal
+            createdAt: serverTimestamp()
         });
-        alert('Registrasi berhasil! Silakan login.');
-        namaUser.style.display = 'none';
-    } catch (error) {
-        alert('Registrasi gagal: ' + error.message);
+
+        alert("Pendaftaran berhasil! Silakan cek email Anda untuk konfirmasi sebelum login.");
+        await signOut(auth); // Paksa logout sampai mereka verifikasi email
+        location.reload(); 
+    } catch (e) { 
+        alert("Gagal Daftar: " + e.message); 
     }
 };
 
-// Auth State
+// --- 2. LOGIN DENGAN PROTEKSI VERIFIKASI ---
+window.handleLogin = async () => {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
+
+        // Cek apakah email sudah diklik konfirmasinya
+        if (!user.emailVerified) {
+            alert("Email Anda belum dikonfirmasi. Silakan cek kotak masuk/spam email Anda.");
+            await signOut(auth);
+            return;
+        }
+    } catch (e) {
+        alert("Login Gagal: Email atau Password salah.");
+    }
+};
+
+// --- 3. MONITOR STATUS LOGIN & AUTO-LOGIN ---
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        loginScreen.style.display = 'none';
-        appScreen.style.display = 'block';
+    const loginScr = document.getElementById('loginScreen');
+    const appScr = document.getElementById('app');
+
+    if (user && user.emailVerified) {
+        loginScr.style.display = 'none';
+        appScr.style.display = 'block';
         
-        // Load user data
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-            await setDoc(doc(db, "users", user.uid), {
-                nama: user.displayName || 'User',
-                foto: user.photoURL || "",
-                role: "anggota",
-                online: true,
-                updatedAt: serverTimestamp()
-            });
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            document.getElementById('userNameDisplay').innerText = userData.nama;
+
+            // Update status verifikasi di database jika belum update
+            if (userData.emailVerified === false) {
+                await updateDoc(doc(db, "users", user.uid), { emailVerified: true });
+            }
+
+            // Role Check
+            if (userData.role === "admin_utama") {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminBadge').style.display = 'block';
+                document.getElementById('groupBtnSection').style.display = 'block';
+                loadUserList();
+            } else if (userData.role === "admin") {
+                document.getElementById('adminBadge').style.display = 'block';
+                document.getElementById('groupBtnSection').style.display = 'block';
+            }
         }
-        
-        currentUserData = userDoc.data();
-        namaDisplay.textContent = currentUserData.nama;
-        if (currentUserData.foto) profilePic.src = currentUserData.foto;
-        
-        await updateDoc(doc(db, "users", user.uid), { online: true });
-        initChat();
     } else {
-        loginScreen.style.display = 'block';
-        appScreen.style.display = 'none';
-        if (unsubscribeChat) unsubscribeChat();
-        if (unsubscribeTyping) unsubscribeTyping();
-        chatList.innerHTML = '';
+        loginScr.style.display = 'block';
+        appScr.style.display = 'none';
     }
 });
 
-// UI Functions
-window.toggleMenu = () => {
-    sidebar.classList.toggle("active");
-    overlay.classList.toggle("active");
-};
+// --- 4. ADMIN & UI LOGIC (Tetap sama seperti sebelumnya) ---
+window.handleGoogleLogin = () => signInWithPopup(auth, new GoogleAuthProvider());
+window.logout = () => signOut(auth);
 
-window.toggleDark = () => {
-    document.body.classList.toggle("dark");
-};
-
-window.openGroup = () => {
-    alert('Fitur Chat Grup segera hadir!');
-};
-
-window.logout = async () => {
-    if (auth.currentUser) {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { online: false });
-    }
-    await signOut(auth);
-};
-
-// Profile Update
-window.updateFoto = async () => {
-    const fileInput = document.getElementById('editFoto');
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    try {
-        const storageRef = ref(storage, "profile/" + auth.currentUser.uid);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { foto: url });
-        profilePic.src = url;
-        fileInput.value = '';
-        alert('Foto berhasil diupdate!');
-    } catch (error) {
-        alert('Upload foto gagal: ' + error.message);
-    }
-};
-
-// File Preview
-multiFile.onchange = () => {
-    preview.innerHTML = "";
-    selectedFiles = Array.from(multiFile.files);
-    
-    selectedFiles.forEach(f => {
-        const el = f.type.startsWith("image/") ? 
-            document.createElement("img") : 
-            document.createElement("video");
-        el.src = URL.createObjectURL(f);
-        if (el.tagName === 'VIDEO') el.controls = true;
-        el.style.maxWidth = '80px';
-        el.style.maxHeight = '80px';
-        preview.appendChild(el);
-    });
-};
-
-// Chat Functions
-function initChat() {
-    // Chat listener
-    const q = query(collection(db, "chat"), orderBy("waktu", "desc"), limit(50));
-    unsubscribeChat = onSnapshot(q, (snap) => {
-        chatList.innerHTML = "";
-        snap.forEach((docSnap) => {
-            const d = docSnap.data();
-            const div = document.createElement("div");
-            if (d.uid === auth.currentUser.uid) div.classList.add("me");
-            
-            const time = d.waktu?.toDate ? 
-                d.waktu.toDate().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) : '';
-            
+function loadUserList() {
+    onSnapshot(collection(db, "users"), (snap) => {
+        const list = document.getElementById('userList');
+        list.innerHTML = "";
+        snap.forEach((u) => {
+            const d = u.data();
+            const id = u.id;
+            if (id === auth.currentUser?.uid) return;
+            const div = document.createElement('div');
+            div.className = 'user-item';
             div.innerHTML = `
-                <div style="margin-bottom:8px;font-size:14px">
-                    <b>${d.nama || 'Unknown'}</b> 
-                    <small style="opacity:0.7;margin-left:10px">${time}</small>
-                </div>
-                ${d.reply ? `<i style="color:#888;font-size:12px">Reply: ${d.reply}</i><br>` : ''}
-                <div style="margin-bottom:5px;white-space:pre-wrap">${d.pesan || ''}</div>
-                <small>${d.status === "failed" ? "❌" : d.read ? "✔✔" : "✔"}</small>
-            `;
-            
-            chatList.appendChild(div);
+                <div><b>${d.nama}</b><br><small>${d.role} | ${d.emailVerified ? '✅ Terverifikasi' : '⏳ Pending'}</small></div>
+                <div class="dots-menu" onclick="toggleDropdown('drop-${id}')">⋮</div>
+                <div id="drop-${id}" class="dropdown-content">
+                    <button onclick="updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
+                    <button onclick="updateRole('${id}', 'anggota')">⬇️ Anggota Biasa</button>
+                    <button style="color:red" onclick="hapusUser('${id}')">🗑️ Hapus</button>
+                </div>`;
+            list.appendChild(div);
         });
-        chatList.scrollTop = 0;
-    }, (error) => {
-        console.error('Chat error:', error);
-    });
-
-    // Typing listener
-    unsubscribeTyping = onSnapshot(doc(db, "typing", "global"), (docSnap) => { // File app.js LENGKAP (lanjutan dari sebelumnya)
-
-        const d = docSnap.data();
-        if (d?.uid && d.uid !== auth.currentUser?.uid) {
-            typingStatus.textContent = `${d.nama || 'Seseorang'} sedang mengetik...`;
-        } else {
-            typingStatus.textContent = "";
-        }
     });
 }
 
-// Typing indicator
-chatInput.addEventListener('input', () => {
-    if (!auth.currentUser || !currentUserData) return;
-    
-    clearTimeout(typingTimeout);
-    
-    // Set typing
-    setDoc(doc(db, "typing", "global"), {
-        uid: auth.currentUser.uid,
-        nama: currentUserData.nama,
-        waktu: serverTimestamp()
-    });
-    
-    // Clear after 2 seconds
-    typingTimeout = setTimeout(() => {
-        setDoc(doc(db, "typing", "global"), {
-            uid: "",
-            nama: "",
-            waktu: serverTimestamp()
-        });
-    }, 2000);
-});
-
-window.sendChat = async () => {
-    if (!auth.currentUser || !chatInput.value.trim()) return;
-    
-    const message = chatInput.value.trim();
-    chatInput.value = '';
-    
-    try {
-        await addDoc(collection(db, "chat"), {
-            nama: currentUserData.nama,
-            pesan: message,
-            uid: auth.currentUser.uid,
-            waktu: serverTimestamp(),
-            read: false,
-            status: "sent"
-        });
-        
-        // Clear preview
-        preview.innerHTML = '';
-        selectedFiles = [];
-        multiFile.value = '';
-        
-    } catch (error) {
-        alert('Gagal kirim pesan: ' + error.message);
-    }
+window.updateRole = async (id, role) => { await updateDoc(doc(db, "users", id), { role: role }); alert("Role diperbarui!"); };
+window.hapusUser = async (id) => { if (confirm("Hapus user ini?")) await deleteDoc(doc(db, "users", id)); };
+window.submitGroup = async () => {
+    const name = document.getElementById('newGroupName').value;
+    if (!name) return;
+    await addDoc(collection(db, "groups"), { namaGrup: name, creator: auth.currentUser.uid, createdAt: serverTimestamp() });
+    alert("Grup berhasil dibuat!");
+    window.closeAll();
 };
 
-// Prevent zoom on input focus (Android fix)
-document.addEventListener('touchstart', function() {}, true);
-
-// Service Worker for PWA (optional)
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
-
-// Auto-hide keyboard after send
-chatInput.addEventListener('blur', () => {
-    setTimeout(() => {
-        chatInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 100);
-});
-
-// Enter to send
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChat();
-    }
-});
-
-// File upload on click preview area
-preview.addEventListener('click', () => multiFile.click());
-
-// Online status
-window.addEventListener('beforeunload', async () => {
-    if (auth.currentUser && currentUserData) {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { 
-            online: false,
-            updatedAt: serverTimestamp()
-        });
-    }
-});
-
-// Visibility change handler
-document.addEventListener('visibilitychange', async () => {
-    if (auth.currentUser && !document.hidden) {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { online: true });
-    }
-});
-
-console.log('HMI Super App v1.0.1 - Ready for Android! 🚀');
+// UI Helpers
+window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); };
+window.closeAll = () => { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); document.getElementById('groupModal').style.display = 'none'; };
+window.openModal = (id) => { document.getElementById(id).style.display = 'block'; document.getElementById('overlay').classList.add('active'); };
+window.toggleDropdown = (id) => { 
+    document.querySelectorAll('.dropdown-content').forEach(d => { if (d.id !== id) d.style.display = 'none'; });
+    const drop = document.getElementById(id); drop.style.display = (drop.style.display === 'block') ? 'none' : 'block'; 
+};
