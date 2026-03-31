@@ -97,35 +97,42 @@ onAuthStateChanged(auth, async (user) => {
     if (user && user.emailVerified) {
         if(loginScr) loginScr.style.display = 'none';
         if(appScr) appScr.style.display = 'block';
+        // Di dalam onAuthStateChanged...
+onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+    if (docSnap.exists()) {
+        const userData = docSnap.data();
         
-        onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-            if (docSnap.exists()) {
-                const userData = docSnap.data();
-                const userDisplay = document.getElementById('userNameDisplay');
-                if(userDisplay) userDisplay.innerText = userData.nama;
+        // Simpan role dalam variabel
+        const userRole = userData.role; 
 
-                // Update: admin_utama diganti menjadi Owner
-                const isPower = userData.role === "admin" || userData.role === "Owner";
-                const badge = document.getElementById('adminBadge');
-                const adminMenu = document.getElementById('adminMenuSection');
+        // Tentukan siapa yang bisa melihat Menu Admin (Buat Grup & Kelola Anggota)
+        const isPower = userRole === "admin" || userRole === "Owner";
 
-                if(badge) {
-                    badge.style.display = isPower ? 'block' : 'none';
-                    badge.innerText = userData.role.toUpperCase();
-                }
-                if(adminMenu) adminMenu.style.display = isPower ? 'block' : 'none';
+        // Ambil elemen UI
+        const badge = document.getElementById('adminBadge');
+        const adminMenu = document.getElementById('adminMenuSection');
+        const adminPanel = document.getElementById('adminPanel');
 
-                // Update: Akses panel manajemen khusus untuk Owner
-                if (userData.role === "Owner") {
-                    const panel = document.getElementById('adminPanel');
-                    if(panel) panel.style.display = 'block';
-                    loadUserManagement(user.uid);
-                } else {
-                    const panel = document.getElementById('adminPanel');
-                    if(panel) panel.style.display = 'none';
-                }
-            }
-        });
+        // Tampilkan Badge & Menu di Sidebar
+        if(badge) {
+            badge.style.display = isPower ? 'block' : 'none';
+            badge.innerText = userRole.toUpperCase();
+        }
+        
+        // INI PENTING: Menampilkan section "Buat Grup Baru" dan "Kelola Anggota"
+        if(adminMenu) {
+            adminMenu.style.display = isPower ? 'block' : 'none';
+        }
+
+        // Panel Kelola Anggota (Hanya untuk Owner)
+        if (userRole === "Owner") {
+            if(adminPanel) adminPanel.style.display = 'block';
+            loadUserManagement(user.uid);
+        } else {
+            if(adminPanel) adminPanel.style.display = 'none';
+        }
+    }
+});
         loadGroupList();
     } else {
         if(loginScr) loginScr.style.display = 'block';
