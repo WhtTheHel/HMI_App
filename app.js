@@ -104,7 +104,8 @@ onAuthStateChanged(auth, async (user) => {
                 const userDisplay = document.getElementById('userNameDisplay');
                 if(userDisplay) userDisplay.innerText = userData.nama;
 
-                const isPower = userData.role === "admin" || userData.role === "admin_utama";
+                // Tambahkan "Owner" ke dalam syarat
+                const isPower = userData.role === "admin" || userData.role === "admin_utama" || userData.role === "Owner";
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
 
