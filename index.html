@@ -157,7 +157,7 @@
         <div class="logo-hmi">
             <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
         </div>
-        <h2 style="margin:0;">HMI SUPER APP</h2>
+        <h2 style="margin:0;">HMI CABANG LABUHANBATU RAYA</h2>
         
         <div class="history-box">
             <b style="color:#90EE90;">📜 Sejarah HMI</b><br>
@@ -187,7 +187,7 @@
 <div id="app">
     <div class="topbar">
         <div id="burgerBtn" style="cursor:pointer; font-size:28px; padding: 5px; user-select: none;">☰</div>
-        <b style="font-size: 18px;">HMI SUPER APP</b>
+        <b style="font-size: 18px;">HMI CABANG LABUHANBATU RAYA</b>
         <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ROLE</div>
     </div>
 
@@ -234,7 +234,7 @@
 </div>
 
 <script type="module" src="app.js"></script>
-
+       
 <script>
     // FUNGSI GLOBAL
     window.toggleSidebar = function() {
@@ -271,12 +271,13 @@
         }
     };
 
-    // Event Listener Hamburger
+    // Event Listener Hamburger - SUDAH DIPERBAIKI (TIDAK TERPUTUS)
     window.addEventListener('DOMContentLoaded', () => {
         const burger = document.getElementById('burgerBtn');
         const overlay = document.getElementById('overlay');
         
         if (burger) {
+            // Pastikan addEventListener tertulis menyambung
             burger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 window.toggleSidebar();
