@@ -40,6 +40,67 @@ window.handleGoogleLogin = async () => {
     catch (e) { console.error(e); }
 };
 
+// --- FUNGSI NAVIGASI UI DAFTAR ---
+
+window.showRegisterUI = () => {
+    // Tampilkan kolom Nama
+    document.getElementById('namaUser').style.display = 'block';
+    // Sembunyikan tombol Login dan tombol Daftar awal
+    document.getElementById('btnLogin').style.display = 'none';
+    document.getElementById('btnRegisterInitial').style.display = 'none';
+    // Tampilkan tombol konfirmasi pendaftaran
+    document.getElementById('btnConfirmRegister').style.display = 'block';
+    document.getElementById('btnCancelRegister').style.display = 'block';
+};
+
+window.cancelRegisterUI = () => {
+    // Kembalikan ke tampilan Login
+    document.getElementById('namaUser').style.display = 'none';
+    document.getElementById('btnLogin').style.display = 'block';
+    document.getElementById('btnRegisterInitial').style.display = 'block';
+    document.getElementById('btnConfirmRegister').style.display = 'none';
+    document.getElementById('btnCancelRegister').style.display = 'none';
+};
+
+// --- FUNGSI EKSEKUSI PENDAFTARAN ---
+
+window.handleRegister = async () => {
+    const nama = document.getElementById('namaUser').value;
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    if (!nama || !email || !pass) {
+        alert("Mohon isi Nama, Email, dan Password dengan lengkap!");
+        return;
+    }
+
+    try {
+        const res = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // Kirim Verifikasi Email
+        await sendEmailVerification(res.user);
+        
+        // Simpan ke Firestore
+        await setDoc(doc(db, "users", res.user.uid), {
+            nama: nama,
+            email: email,
+            role: "anggota",
+            emailVerified: false,
+            createdAt: serverTimestamp()
+        });
+
+        alert("Pendaftaran Berhasil! Kode konfirmasi telah dikirim ke email Anda. Silakan verifikasi sebelum login.");
+        
+        // Reset tampilan ke Login
+        await signOut(auth);
+        window.cancelRegisterUI();
+        
+    } catch (e) {
+        alert("Gagal Daftar: " + e.message);
+    }
+};
+
+
 window.showRegister = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
