@@ -36,7 +36,7 @@ window.handleGoogleLogin = async () => {
 
 window.logout = () => signOut(auth);
 
-// --- MONITORING USER & ROLE (FIXED FOR 'Owner') ---
+// --- MONITORING USER & ROLE (VERSI DEBUGGING KETAT) ---
 onAuthStateChanged(auth, (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -50,32 +50,40 @@ onAuthStateChanged(auth, (user) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Menampilkan Nama (Gunakan email jika nama kosong)
+                // Cek di Console F12: Apa sebenarnya isi role Anda?
+                console.log("DEBUG: Role dari Database adalah =>", `'${data.role}'`);
+
                 if(userDisplay) userDisplay.innerText = data.nama || data.email || "User HMI";
 
-                // NORMALISASI ROLE: Mengubah 'Owner' ke 'owner' agar cocok dengan pengecekan
-                const roleLower = (data.role || "anggota").toLowerCase();
-                const isOwner = roleLower === "owner";
-                const isAdmin = roleLower === "admin";
-                const isPower = isOwner || isAdmin;
+                // NORMALISASI: Hapus spasi dan ubah ke huruf kecil
+                const roleClean = (data.role || "anggota").trim().toLowerCase();
+                
+                // Cek apakah dia 'owner' atau 'admin'
+                const isPower = roleClean === "owner" || roleClean === "admin";
 
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
                 const adminPanel = document.getElementById('adminPanel');
 
-                // 1. Tampilkan Badge Role
+                // Tampilkan Badge
                 if(badge) {
                     badge.style.display = isPower ? 'block' : 'none';
-                    badge.innerText = (data.role || "USER").toUpperCase();
+                    badge.innerText = roleClean.toUpperCase();
                 }
 
-                // 2. Tampilkan Menu Buat Grup (PENTING)
+                // JALUR PAKSA: Tampilkan Menu Buat Grup
                 if(adminMenu) {
-                    adminMenu.style.display = isPower ? 'block' : 'none';
+                    if (isPower) {
+                        console.log("AKSES DITERIMA: Menampilkan Tombol Buat Grup");
+                        adminMenu.style.setProperty("display", "block", "important");
+                    } else {
+                        console.log("AKSES DITOLAK: Role Anda bukan Owner/Admin");
+                        adminMenu.style.display = 'none';
+                    }
                 }
 
-                // 3. Tampilkan Panel Kelola Anggota (Hanya Owner)
-                if(isOwner) {
+                // Tampilkan Panel Kelola Anggota (Hanya Owner)
+                if(roleClean === "owner") {
                     if(adminPanel) adminPanel.style.display = 'block';
                     loadUserManagement();
                 } else {
@@ -90,7 +98,6 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- GRUP & USER MANAGEMENT ---
 function loadGroupList() {
     onSnapshot(collection(db, "groups"), (snap) => {
         const container = document.getElementById('groupContainer');
@@ -110,7 +117,6 @@ window.submitGroup = async () => {
     const nameInput = document.getElementById('newGroupName');
     const name = nameInput.value;
     if(!name) return alert("Nama grup kosong!");
-
     try {
         await addDoc(collection(db, "groups"), {
             namaGrup: name,
@@ -121,7 +127,7 @@ window.submitGroup = async () => {
         nameInput.value = "";
         if(window.closeAll) window.closeAll();
     } catch (e) {
-        alert("Gagal: Izin ditolak (Cek Security Rules Firebase Anda).");
+        alert("Gagal: Cek Security Rules Firebase Anda.");
     }
 };
 
@@ -138,4 +144,4 @@ function loadUserManagement() {
             list.appendChild(div);
         });
     });
-            }
+                }
