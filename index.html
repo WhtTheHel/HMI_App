@@ -184,20 +184,29 @@
             <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
         </div>
         <h2 style="margin:0;">HMI SUPER APP</h2>
-        <p style="font-size:12px; color:#f1c40f;">Yakin Usaha Sampai</p>
-
+        
         <div class="history-box">
-            <b style="color:#90EE90;">📜 Sejarah Singkat</b><br>
-            HMI didirikan di <b>Yogyakarta</b> pada tanggal <b>5 Februari 1947</b>. 
-            Diprakarsai oleh <b>Lafran Pane</b> bersama 14 mahasiswa STI (sekarang UII) untuk mempertahankan NKRI dan meninggikan derajat umat Islam.
+            <b style="color:#90EE90;">📜 Sejarah HMI</b><br>
+            Didirikan di <b>Yogyakarta, 5 Feb 1947</b> oleh <b>Lafran Pane</b>.
         </div>
 
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
+        <div id="authFields">
+            <input type="text" id="regNama" placeholder="Nama Lengkap" style="display:none">
+            <input type="email" id="email" placeholder="Email" autocomplete="email">
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+        </div>
         
-        <button class="btn-main" onclick="handleLogin()">🚀 Masuk</button>
-        <button class="btn-google" onclick="handleGoogleLogin()">🔗 Login via Google</button>
-        <button class="btn-outline" onclick="showRegister()">Daftar Akun Baru</button>
+        <div id="loginGroup">
+            <button class="btn-main" onclick="handleLogin()">🚀 Masuk</button>
+            <button class="btn-outline" onclick="showRegisterUI()">📝 Daftar Akun Baru</button>
+        </div>
+
+        <div id="registerGroup" style="display:none">
+            <button class="btn-main" onclick="handleRegister()">✅ Konfirmasi Daftar</button>
+            <button class="btn-outline" onclick="cancelRegisterUI()">⬅️ Batal</button>
+        </div>
+
+        <button class="btn-google" style="margin-top:15px;" onclick="handleGoogleLogin()">🔗 Login Google</button>
     </div>
 </div>
 
