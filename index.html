@@ -3,31 +3,27 @@
 <head>
 <title>HMI Super App</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 * {box-sizing: border-box;}
 body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
     color: white;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 20px;
 }
 
 .login-container {
+    max-width: 400px;
+    margin: 0 auto;
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 40px;
-    max-width: 400px;
-    width: 100%;
+    padding: 40px 30px;
+    text-align: center;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.2);
-    text-align: center;
 }
 
 .logo {
@@ -39,7 +35,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 48px;
+    font-size: 40px;
     font-weight: bold;
     box-shadow: 0 10px 30px rgba(11,102,35,0.5);
 }
@@ -48,10 +44,7 @@ body {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 10px;
-    background: linear-gradient(45deg, white, #e0e0e0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 .info-section {
@@ -70,20 +63,18 @@ body {
 input {
     width: 100%;
     padding: 15px;
-    margin: 12px 0;
+    margin: 10px 0;
     border: none;
     border-radius: 12px;
     background: rgba(255,255,255,0.9);
     font-size: 16px;
     color: #333;
-    transition: all 0.3s;
 }
 
 input:focus {
     outline: none;
     background: white;
-    box-shadow: 0 0 20px rgba(11,102,35,0.3);
-    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(11,102,35,0.3);
 }
 
 button {
@@ -92,32 +83,21 @@ button {
     margin: 10px 0;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(45deg, #0b6623, #228B22);
+    background: #0b6623;
     color: white;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 5px 15px rgba(11,102,35,0.4);
 }
 
 button:hover {
+    background: #1a5f2e;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(11,102,35,0.6);
-}
-
-button:active {
-    transform: translateY(0);
 }
 
 .google-btn {
-    background: linear-gradient(45deg, #4285F4, #34A853) !important;
-    margin-top: 15px;
-}
-
-.register-toggle {
-    background: linear-gradient(45deg, #FF6B35, #F7931E) !important;
-    font-size: 14px;
+    background: #4285F4 !important;
 }
 
 .or-divider {
@@ -138,41 +118,27 @@ button:active {
 .or-divider span {
     padding: 0 15px;
     background: rgba(255,255,255,0.1);
-    border-radius: 20px;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-    .login-container {
-        padding: 30px 20px;
-        margin: 10px;
-    }
-    
-    .logo {
-        width: 100px;
-        height: 100px;
-        font-size: 40px;
-    }
-    
-    .app-title {
-        font-size: 24px;
-    }
-    
-    body {
-        padding: 10px;
-    }
-}
-
-/* App Styles (tetap sama) */
-.topbar{background:#0b6623;padding:12px;display:flex;justify-content:space-between}
-.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100%;background:#000;padding:15px;transition:.3s;overflow:auto}
+/* App Styles */
+#app {display: none;}
+.topbar{background:#0b6623;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100vh;background:#000;padding:15px;transition:.3s;overflow:auto;z-index:1000}
 .sidebar.active{left:0}
-.card{background:white;color:black;margin:10px;padding:10px;border-radius:10px}
-.dark{background:#111}
+.card{background:white;color:black;margin:20px;padding:20px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
+.dark{background:#111;color:white}
 .dark .card{background:#222;color:white}
-#chatList div{margin:5px;padding:10px;border-radius:10px;background:#eee;color:black}
+#chatList{height:400px;overflow:auto;margin-bottom:15px}
+#chatList div{margin:10px 0;padding:15px;border-radius:10px;background:#f0f0f0}
 .me{background:#0b6623 !important;color:white !important}
 .preview img,.preview video{width:80px;margin:5px;border-radius:6px}
+#typingStatus{padding:10px;color:#0b6623;font-style:italic}
+@media (max-width: 768px) {
+    .login-container {margin:10px;padding:30px 20px;}
+    .logo {width:100px;height:100px;font-size:32px;}
+    .app-title {font-size:24px;}
+    #chatList {height:300px;}
+}
 </style>
 </head>
 
@@ -190,51 +156,44 @@ button:active {
         <p><strong>Version:</strong> 1.0.0</p>
     </div>
 
-    <div style="display:none" id="namaUserContainer">
-        <input id="namaUser" placeholder="Nama Lengkap">
-    </div>
-    
+    <input id="namaUser" placeholder="Nama Lengkap (untuk registrasi)" style="display:none">
     <input id="email" placeholder="📧 Email">
     <input id="password" type="password" placeholder="🔒 Password">
     
-    <button class="register-toggle" onclick="showRegister()">📝 Daftar Akun Baru</button>
     <button onclick="login()">🚀 Masuk</button>
-    
-    <div class="or-divider">
-        <span>atau</span>
-    </div>
-    
     <button class="google-btn" onclick="loginGoogle()">🔗 Login dengan Google</button>
+    <button onclick="showRegister()">📝 Daftar Akun Baru</button>
 </div>
 
-<!-- APP SCREEN (sama seperti sebelumnya) -->
-<div id="app" style="display:none">
-<div class="topbar">
-<span onclick="toggleMenu()">☰</span>
-<b>HMI SUPER APP</b>
-</div>
+<!-- APP SCREEN -->
+<div id="app">
+    <div class="topbar">
+        <span onclick="toggleMenu()" style="font-size:24px;cursor:pointer">☰</span>
+        <b>HMI SUPER APP</b>
+        <span></span>
+    </div>
 
-<!-- SIDEBAR -->
-<div id="sidebar" class="sidebar">
-<h3>Menu</h3>
-<img id="profilePic" width="70" style="border-radius:50%">
-<p id="namaDisplay"></p>
-<input type="file" id="editFoto">
-<button onclick="updateFoto()">Ganti Foto</button>
-<button onclick="toggleDark()">Dark Mode</button>
-<button onclick="openGroup()">Chat Grup</button>
-<button onclick="logout()">Logout</button>
-</div>
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar">
+        <h3>Menu</h3>
+        <img id="profilePic" src="https://via.placeholder.com/70/0b6623/ffffff?text=👤" width="70" style="border-radius:50%;display:block;margin:10px auto">
+        <p id="namaDisplay" style="font-weight:bold;text-align:center">Loading...</p>
+        <input type="file" id="editFoto" accept="image/*" style="width:100%;margin:10px 0">
+        <button onclick="updateFoto()">📸 Ganti Foto</button>
+        <button onclick="toggleDark()">🌙 Dark Mode</button>
+        <button onclick="openGroup()">👥 Chat Grup</button>
+        <button onclick="logout()">🚪 Logout</button>
+    </div>
 
-<!-- CHAT -->
-<div class="card" style="margin:20px">
-<div id="chatList" style="height:300px;overflow:auto"></div>
-<div id="typingStatus"></div>
-<input id="chatInput" placeholder="Pesan..." oninput="typing()">
-<input type="file" id="multiFile" multiple>
-<div id="preview" class="preview"></div>
-<button onclick="sendChat()">Kirim</button>
-</div>
+    <!-- CHAT -->
+    <div class="card">
+        <div id="chatList"></div>
+        <div id="typingStatus"></div>
+        <input id="chatInput" placeholder="Ketik pesan..." style="margin-bottom:10px">
+        <input type="file" id="multiFile" multiple accept="image/*,video/*">
+        <div id="preview"></div>
+        <button onclick="sendChat()">📤 Kirim</button>
+    </div>
 </div>
 
 <!-- FIREBASE -->
@@ -244,233 +203,260 @@ button:active {
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
 
 <script>
-const firebaseConfig={apiKey:"AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",authDomain:"hmi-app-ac76d.firebaseapp.com",projectId:"hmi-app-ac76d"};
+const firebaseConfig = {
+    apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
+    authDomain: "hmi-app-ac76d.firebaseapp.com",
+    projectId: "hmi-app-ac76d"
+};
 firebase.initializeApp(firebaseConfig);
 
-const auth=firebase.auth();
-const db=firebase.firestore();
-const storage=firebase.storage();
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-let selectedFiles=[];
-let uploadTasks={};
-let replyData=null;
+let selectedFiles = [];
+let uploadTasks = {};
+let replyData = null;
+let unsubscribeChat = null;
+let unsubscribeTyping = null;
+
+// DOM Elements
+const loginScreen = document.getElementById('loginScreen');
+const app = document.getElementById('app');
+const namaUser = document.getElementById('namaUser');
+const email = document.getElementById('email');
+const password = document.getElementById('password');
+const chatInput = document.getElementById('chatInput');
+const chatList = document.getElementById('chatList');
+const typingStatus = document.getElementById('typingStatus');
+const preview = document.getElementById('preview');
+const multiFile = document.getElementById('multiFile');
+const sidebar = document.getElementById('sidebar');
+const profilePic = document.getElementById('profilePic');
+const namaDisplay = document.getElementById('namaDisplay');
 
 /* ================= AUTH ================= */
-
-function login(){
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    
-    if (!emailInput.value || !passwordInput.value) {
-        alert('Email dan password harus diisi!');
+function login() {
+    if (!email.value || !password.value) {
+        alert('Mohon isi email dan password!');
         return;
     }
     
-    auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-        .catch((error) => {
-            alert('Login gagal: ' + error.message);
-        });
-}
-
-function showRegister(){
-    const namaUserContainer = document.getElementById('namaUserContainer');
-    namaUserContainer.style.display = namaUserContainer.style.display === 'none' ? 'block' : 'none';
-}
-
-function loginGoogle(){
-    const provider=new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
-}
-
-auth.onAuthStateChanged(user=>{
-    const loginScreen = document.getElementById('loginScreen');
-    const appDiv = document.getElementById('app');
-    
-    if(user){
-        loginScreen.style.display="none";
-        appDiv.style.display="block";
-
-        db.collection("users").doc(user.uid).get().then(doc=>{
-            if(!doc.exists){
-                db.collection("users").doc(user.uid).set({
-                    nama:user.displayName||document.getElementById('namaUser').value,
-                    foto:user.photoURL||"",
-                    role:"anggota",
-                    online:true
-                });
+    auth.signInWithEmailAndPassword(email.value, password.value)
+        .catch(error => {
+            if (error.code === 'auth/user-not-found') {
+                alert('Akun belum terdaftar. Silakan daftar dulu!');
+            } else {
+                alert('Login gagal: ' + error.message);
             }
-
-            let d=doc.data();
-            document.getElementById('namaDisplay').innerText=d.nama;
-            if(d.foto) document.getElementById('profilePic').src=d.foto;
         });
+}
 
+function showRegister() {
+    namaUser.style.display = namaUser.style.display === 'none' ? 'block' : 'none';
+}
+
+function register() {
+    if (!email.value || !password.value || !namaUser.value) {
+        alert('Mohon isi semua field!');
+        return;
+    }
+    
+    auth.createUserWithEmailAndPassword(email.value, password.value)
+        .then(userCredential => {
+            const user = userCredential.user;
+            return db.collection("users").doc(user.uid).set({
+                nama: namaUser.value,
+                foto: "",
+                role: "anggota",
+                online: true
+            });
+        })
+        .then(() => {
+            alert('Registrasi berhasil! Silakan login.');
+            namaUser.style.display = 'none';
+        })
+        .catch(error => {
+            alert('Registrasi gagal: ' + error.message);
+        });
+}
+
+function loginGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(error => {
+        alert('Google login gagal: ' + error.message);
+    });
+}
+
+/* ================= AUTH STATE ================= */
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // User logged in
+        loginScreen.style.display = 'none';
+        app.style.display = 'block';
+        
+        // Load user data
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (!doc.exists) {
+            await db.collection("users").doc(user.uid).set({
+                nama: user.displayName || namaUser.value || 'User',
+                foto: user.photoURL || "",
+                role: "anggota",
+                online: true
+            });
+        }
+        
+        const userData = doc.exists ? doc.data() : {nama: user.displayName || 'User'};
+        namaDisplay.textContent = userData.nama;
+        if (userData.foto) profilePic.src = userData.foto;
+        
         setOnline(true);
-        loadChat();
-    }else{
-        loginScreen.style.display="flex";
-        appDiv.style.display="none";
+        initChat();
+    } else {
+        // No user
+        loginScreen.style.display = 'block';
+        app.style.display = 'none';
+        if (unsubscribeChat) unsubscribeChat();
+        if (unsubscribeTyping) unsubscribeTyping();
     }
 });
 
 /* ================= UI ================= */
-function toggleMenu(){document.getElementById('sidebar').classList.toggle("active");}
-function toggleDark(){document.body.classList.toggle("dark");}
-function openGroup(){alert('Fitur Chat Grup akan segera hadir!');}
-
-/* ================= PROFILE ================= */
-function updateFoto(){
-    let file=document.getElementById('editFoto').files[0];
-    let user=auth.currentUser;
-    if(!file || !user) return;
-
-    let ref=storage.ref("profile/"+user.uid);
-    ref.put(file).then(()=>{
-        ref.getDownloadURL().then(url=>{
-            db.collection("users").doc(user.uid).update({foto:url});
-            document.getElementById('profilePic').src=url;
-        });
-    });
+function toggleMenu() {
+    sidebar.classList.toggle("active");
 }
 
-/* ================= ONLINE ================= */
-function setOnline(val){
-    let user=auth.currentUser;
-    if(user){
-        db.collection("users").doc(user.uid).update({online:val});
+function toggleDark() {
+    document.body.classList.toggle("dark");
+}
+
+function openGroup() {
+    alert('Fitur Chat Grup segera hadir!');
+}
+
+/* ================= ONLINE STATUS ================= */
+function setOnline(val) {
+    const user = auth.currentUser;
+    if (user) {
+        db.collection("users").doc(user.uid).update({online: val}).catch(() => {});
     }
 }
 
-window.onbeforeunload=()=>setOnline(false);
+window.addEventListener('beforeunload', () => setOnline(false));
 
-/* ================= PREVIEW ================= */
-document.getElementById('multiFile').onchange=()=>{
-    const preview = document.getElementById('preview');
-    preview.innerHTML="";
-    selectedFiles=Array.from(document.getElementById('multiFile').files);
-    selectedFiles.forEach(f=>{
-        let el = f.type.startsWith("image") ? document.createElement("img") : document.createElement("video");
-        if(el.tagName === 'VIDEO') el.controls=true;
-        el.src=URL.createObjectURL(f);
+/* ================= PROFILE ================= */
+function updateFoto() {
+    const file = document.getElementById('editFoto').files[0];
+    const user = auth.currentUser;
+    if (!file || !user) return;
+
+    const ref = storage.ref("profile/" + user.uid);
+    ref.put(file).then(() => {
+        ref.getDownloadURL().then(url => {
+            db.collection("users").doc(user.uid).update({foto: url});
+            profilePic.src = url;
+        });
+    }).catch(error => {
+        alert('Upload foto gagal: ' + error.message);
+    });
+}
+
+/* ================= FILE PREVIEW ================= */
+multiFile.onchange = () => {
+    preview.innerHTML = "";
+    selectedFiles = Array.from(multiFile.files);
+    
+    selectedFiles.forEach(f => {
+        const el = f.type.startsWith("image/") ? 
+            document.createElement("img") : 
+            document.createElement("video");
+        if (el.tagName === 'VIDEO') el.controls = true;
+        el.src = URL.createObjectURL(f);
+        el.style.maxWidth = '100px';
         preview.appendChild(el);
     });
 };
 
-/* ================= SEND ================= */
-async function sendChat(){
-    if(!auth.currentUser) return;
-    
-    let docRef=await db.collection("chat").add({
-        nama:document.getElementById('namaDisplay').innerText,
-        pesan:document.getElementById('chatInput').value,
-        uid:auth.currentUser.uid,
-        waktu:new Date(),
-        read:false,
-        typing:false,
-        reply:replyData?replyData.pesan:null,
-        status:"sending",
-        files:selectedFiles.map(f=>({
-            type:f.type.startsWith("image")?"img":"video",
-            url:"",progress:0,uploading:true
-        }))
-    });
-
-    let id=docRef.id;
-    document.getElementById('chatInput').value="";
-    document.getElementById('preview').innerHTML="";
-    document.getElementById('multiFile').value="";
-    replyData=null;
-
-    selectedFiles.forEach((file,i)=>uploadFile(file,docRef,id,i));
-    if(selectedFiles.length===0) docRef.update({status:"sent"});
-    selectedFiles=[];
-}
-
-// Sisanya sama seperti sebelumnya (uploadFile, typing, loadChat, dll)
-function uploadFile(file,docRef,id,index){
-    let ref=storage.ref("chat/"+Date.now()+file.name);
-    let task=ref.put(file);
-    if(!uploadTasks[id]) uploadTasks[id]={};
-    uploadTasks[id][index]=task;
-
-    task.on("state_changed",snap=>{
-        let p=(snap.bytesTransferred/snap.totalBytes)*100;
-        docRef.get().then(d=>{
-            let f=d.data().files;
-            f[index].progress=Math.floor(p);
-            docRef.update({files:f});
-        });
-    },()=>docRef.update({status:"failed"}),()=>{
-        ref.getDownloadURL().then(url=>{
-            docRef.get().then(d=>{
-                let f=d.data().files;
-                f[index].url=url;
-                f[index].uploading=false;
-                docRef.update({files:f,status:"sent"});
-            });
-        });
-    });
-}
-
-function typing(){
-    if(!auth.currentUser) return;
-    db.collection("typing").doc("global").set({uid:auth.currentUser.uid});
-    setTimeout(()=>db.collection("typing").doc("global").set({uid:""}),1500);
-}
-
-db.collection("typing").doc("global").onSnapshot(doc=>{
-    let d=doc.data();
-    const typingStatus = document.getElementById('typingStatus');
-    if(d?.uid && d.uid!==auth.currentUser?.uid){
-        typingStatus.innerText="Sedang mengetik...";
-    }else{
-        typingStatus.innerText="";
-    }
-});
-
-function loadChat(){
-    db.collection("chat").orderBy("waktu").onSnapshot(snap=>{
-        const chatList = document.getElementById('chatList');
-        chatList.innerHTML="";
-        snap.forEach(doc=>{
-            let d=doc.data(), div=document.createElement("div");
-            if(d.uid===auth.currentUser?.uid) div.classList.add("me");
-            let status=d.status==="failed"?"❌":d.read?"✔✔":"✔";
-            let reply=d.reply?`<i>Reply: ${d.reply}</i><br>`:"";
+/* ================= CHAT FUNCTIONS ================= */
+function initChat() {
+    // Chat listener
+    unsubscribeChat = db.collection("chat").orderBy("waktu", "desc").limit(50).onSnapshot(snap => {
+        chatList.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            const div = document.createElement("div");
+            if (d.uid === auth.currentUser.uid) div.classList.add("me");
             
-            div.innerHTML=`<b>${d.nama}</b><br>${reply}${d.pesan}<br>${status}`;
+            div.innerHTML = `
+                <div style="margin-bottom:5px">
+                    <b>${d.nama}</b> 
+                    <small style="opacity:0.7">${d.waktu?.toDate ? d.waktu.toDate().toLocaleTimeString() : ''}</small>
+                </div>
+                ${d.reply ? `<i style="color:#888;font-size:12px">Reply: ${d.reply}</i><br>` : ''}
+                ${d.pesan}<br>
+                <small>${d.status === "failed" ? "❌" : d.read ? "✔✔" : "✔"}</small>
+            `;
             
-            d.files?.forEach((f,i)=>{
-                if(f.type==="img") div.innerHTML+=`<br><img src="${f.url}" width="120">`;
-                if(f.type==="video") div.innerHTML+=`<br><video width="150" controls src="${f.url}"></video>`;
-                if(f.uploading){
-                    div.innerHTML+=`<br>Uploading ${f.progress}%`;
-                    let b=document.createElement("button");
-                    b.textContent="Cancel"; b.onclick=()=>cancelUpload(doc.id,i);
-                    div.appendChild(b);
-                }
-            });
+            if (d.files) {
+                d.files.forEach(f => {
+                    if (f.url) {
+                        if (f.type === "img") {
+                            div.innerHTML += `<br><img src="${f.url}" style="max-width:200px;border-radius:8px;margin-top:5px">`;
+                        } else if (f.type === "video") {
+                            div.innerHTML += `<br><video controls style="max-width:200px;border-radius:8px;margin-top:5px"><source src="${f.url}"></video>`;
+                        }
+                    } else if (f.uploading) {
+                        div.innerHTML += `<br><small>Uploading ${f.progress || 0}%</small>`;
+                    }
+                });
+            }
             
-            let r=document.createElement("button"); r.textContent="Reply"; r.onclick=()=>{replyData=d;};
-            let f=document.createElement("button"); f.textContent="Forward"; f.onclick=()=>forwardChat(d);
-            div.appendChild(r); div.appendChild(f);
             chatList.appendChild(div);
         });
-        chatList.scrollTop=chatList.scrollHeight;
+        chatList.scrollTop = 0;
+    });
+
+    // Typing listener
+    unsubscribeTyping = db.collection("typing").doc("global").onSnapshot(doc => {
+        const d = doc.data();
+        if (d?.uid && d.uid !== auth.currentUser?.uid) {
+            typingStatus.textContent = "Sedang mengetik...";
+        } else {
+            typingStatus.textContent = "";
+        }
     });
 }
 
-function forwardChat(d){
-    if(!auth.currentUser) return;
+function sendChat() {
+    if (!auth.currentUser || !chatInput.value.trim()) return;
+    
     db.collection("chat").add({
-        nama:document.getElementById('namaDisplay').innerText+" (Forward)",
-        pesan:d.pesan, waktu:new Date()
+        nama: namaDisplay.textContent,
+        pesan: chatInput.value.trim(),
+        uid: auth.currentUser.uid,
+        waktu: firebase.firestore.Timestamp.now(),
+        read: false,
+        status: "sent"
+    }).then(() => {
+        chatInput.value = "";
     });
+    
+    // Typing indicator
+    db.collection("typing").doc("global").set({uid: auth.currentUser.uid});
+    setTimeout(() => {
+        db.collection("typing").doc("global").set({uid: ""});
+    }, 1500);
 }
 
-function logout(){auth.signOut();}
-function cancelUpload(id,i){
-    if(uploadTasks[id]&&uploadTasks[id][i]) uploadTasks[id][i].cancel();
+chatInput.oninput = () => {
+    if (auth.currentUser) {
+        db.collection("typing").doc("global").set({uid: auth.currentUser.uid});
+    }
+};
+
+/* ================= LOGOUT ================= */
+function logout() {
+    auth.signOut();
 }
 </script>
 
