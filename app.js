@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- AUTH ---
+// --- AUTH FUNCTIONS ---
 window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
@@ -33,7 +33,7 @@ window.handleGoogleLogin = async () => {
 
 window.logout = () => signOut(auth);
 
-// --- MONITOR ROLE & UI ---
+// --- MONITOR ROLE & UI (SOLUSI FINAL) ---
 onAuthStateChanged(auth, (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -43,35 +43,43 @@ onAuthStateChanged(auth, (user) => {
         if(loginScr) loginScr.style.display = 'none';
         if(appScr) appScr.style.display = 'block';
 
+        // Ambil data user secara realtime
         onSnapshot(doc(db, "users", user.uid), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Update Nama di Sidebar
+                // 1. Update Nama (Agar tidak stuck "Memuat")
                 if(userDisplay) userDisplay.innerText = data.nama || data.email || "Kader HMI";
 
-                // NORMALISASI ROLE (Solusi untuk 'Owner' O besar)
-                const rawRole = data.role || "anggota";
-                const roleLower = rawRole.trim().toLowerCase();
-                const isPower = roleLower === "owner" || roleLower === "admin";
+                // 2. NORMALISASI ROLE (Sangat Penting untuk 'Owner')
+                // Kita ambil data role, hapus spasi di depan/belakang, lalu jadikan huruf kecil semua
+                const roleDariDB = (data.role || "anggota").toString().trim().toLowerCase();
+                
+                // Cek apakah dia punya akses admin/owner
+                const isPower = roleDariDB === "owner" || roleDariDB === "admin";
 
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
                 const adminPanel = document.getElementById('adminPanel');
 
-                // 1. Update Badge
+                // Update Badge Role
                 if(badge) {
                     badge.style.display = isPower ? 'block' : 'none';
-                    badge.innerText = rawRole.toUpperCase();
+                    badge.innerText = roleDariDB.toUpperCase();
                 }
 
-                // 2. Tampilkan Menu "Buat Grup Baru" (Admin & Owner)
+                // 3. MENAMPILKAN TOMBOL BUAT GRUP
                 if(adminMenu) {
-                    adminMenu.style.display = isPower ? 'block' : 'none';
+                    if (isPower) {
+                        // Paksa tampil menggunakan flex atau block
+                        adminMenu.style.display = 'block';
+                    } else {
+                        adminMenu.style.display = 'none';
+                    }
                 }
 
-                // 3. Tampilkan Panel Kelola Anggota (Khusus Owner)
-                if(roleLower === "owner") {
+                // 4. Tampilkan Panel Kelola Anggota (Khusus Owner)
+                if(roleDariDB === "owner") {
                     if(adminPanel) adminPanel.style.display = 'block';
                     loadUserManagement();
                 } else {
@@ -86,7 +94,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- LOAD DATA ---
+// --- FUNGSI GRUP ---
 function loadGroupList() {
     onSnapshot(collection(db, "groups"), (snap) => {
         const container = document.getElementById('groupContainer');
@@ -106,6 +114,7 @@ window.submitGroup = async () => {
     const nameInput = document.getElementById('newGroupName');
     const name = nameInput.value;
     if(!name) return alert("Masukkan nama grup!");
+
     try {
         await addDoc(collection(db, "groups"), {
             namaGrup: name,
@@ -115,7 +124,9 @@ window.submitGroup = async () => {
         alert("Grup Berhasil Dibuat!");
         nameInput.value = "";
         if(window.closeAll) window.closeAll();
-    } catch (e) { alert("Gagal membuat grup."); }
+    } catch (e) {
+        alert("Gagal: Anda tidak memiliki izin.");
+    }
 };
 
 function loadUserManagement() {
@@ -131,4 +142,4 @@ function loadUserManagement() {
             list.appendChild(div);
         });
     });
-}
+                     }
