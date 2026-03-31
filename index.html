@@ -88,10 +88,11 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1002; /* Harus lebih tinggi dari sidebar */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
+        /* --- SIDEBAR & OVERLAY --- */
         .sidebar {
             position: fixed;
             left: -280px;
@@ -99,8 +100,8 @@
             width: 280px;
             height: 100%;
             background: #111;
-            transition: 0.3s ease-in-out;
-            z-index: 2001; /* Lebih tinggi dari overlay */
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2001;
             padding: 20px;
             box-shadow: 5px 0 15px rgba(0,0,0,0.5);
         }
@@ -115,7 +116,7 @@
             inset: 0;
             background: rgba(0,0,0,0.7);
             z-index: 2000;
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(4px);
         }
 
         .overlay.active {
@@ -131,18 +132,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- LIST ITEMS --- */
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-            position: relative;
-        }
-
-        .dots-menu { cursor: pointer; font-size: 20px; padding: 5px; color: #666; font-weight: bold; }
-
+        /* --- DROPDOWN & MODAL --- */
         .dropdown-content {
             display: none;
             position: absolute;
@@ -155,13 +145,7 @@
             min-width: 170px;
             overflow: hidden;
         }
-        .dropdown-content button {
-            background: none; color: #333; text-align: left;
-            border-radius: 0; margin: 0; border-bottom: 1px solid #eee;
-            font-size: 14px; padding: 12px; width: 100%;
-        }
 
-        /* --- MODAL --- */
         .modal {
             display: none;
             position: fixed;
@@ -186,7 +170,7 @@
         <div class="logo-hmi">
             <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
         </div>
-        <h2 style="margin:0; color:white;">HMI SUPER APP</h2>
+        <h2 style="margin:0;">HMI SUPER APP</h2>
         
         <div class="history-box">
             <b style="color:#90EE90;">📜 Sejarah HMI</b><br>
@@ -215,36 +199,36 @@
 
 <div id="app">
     <div class="topbar">
-        <div id="burgerBtn" onclick="toggleSidebar()" style="cursor:pointer; font-size:24px; padding: 5px;">☰</div>
-        <b>HMI SUPER APP</b>
+        <div id="burgerBtn" style="cursor:pointer; font-size:28px; padding: 5px; user-select: none;">☰</div>
+        <b style="font-size: 18px;">HMI SUPER APP</b>
         <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ADMIN</div>
     </div>
 
     <div id="sidebar" class="sidebar">
         <h3 style="color:#f1c40f; margin-top:0;">Menu Utama</h3>
-        <hr style="border: 0.5px solid #333;">
-        <p id="userNameDisplay" style="font-weight:bold; color:#90EE90; margin-bottom: 20px;">Memuat...</p>
+        <hr style="border: 0.5px solid #333; margin: 15px 0;">
+        <p id="userNameDisplay" style="font-weight:bold; color:#90EE90; margin-bottom: 25px;">Memuat...</p>
         
         <button class="btn-outline" onclick="scrollToView('app')">🏠 Beranda</button>
         <button class="btn-outline" onclick="scrollToView('groupListView')">📂 Daftar Grup</button>
         
-        <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 10px; padding-top: 10px;">
-            <small style="color: #888;">ADMIN PANEL</small>
+        <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
+            <small style="color: #888; letter-spacing: 1px;">ADMIN PANEL</small>
             <button class="btn-outline" onclick="openModal('groupModal')">➕ Buat Grup Baru</button>
             <button class="btn-outline" onclick="scrollToView('adminPanel')">📋 Kelola Anggota</button>
         </div>
         
-        <button class="btn-outline" onclick="logout()" style="margin-top:30px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
+        <button class="btn-outline" onclick="logout()" style="margin-top:40px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
     <div class="card">
         <h4 style="margin-top:0; color: #0b6623;">📢 Beranda</h4>
-        <p style="font-size:14px; line-height:1.5;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat koordinasi antar komisariat.</p>
+        <p style="font-size:14px; line-height:1.6; color: #555;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat koordinasi antar komisariat.</p>
     </div>
 
     <div id="groupListView" class="card">
         <h4 style="margin:0; border-bottom: 2px solid #0b6623; padding-bottom: 8px; color: #0b6623;">📂 Grup & Komisariat</h4>
-        <div id="groupContainer" style="margin-top:10px; font-size:14px; color:#333;">
+        <div id="groupContainer" style="margin-top:15px; font-size:14px; color:#333;">
             Memuat data grup...
         </div>
     </div>
@@ -256,22 +240,27 @@
 </div>
 
 <div id="groupModal" class="modal">
-    <h4 style="margin-top:0; color:#333;">Buat Grup Komisariat</h4>
+    <h4 style="margin-top:0; color: #333;">Buat Grup Komisariat</h4>
     <input type="text" id="newGroupName" placeholder="Nama Grup/Komisariat">
     <button class="btn-main" onclick="submitGroup()">✅ Simpan Grup</button>
-    <button class="btn-outline" style="color:black; border-color:#ccc;" onclick="closeAll()">Batal</button>
+    <button class="btn-outline" style="color:#666; border-color:#ccc;" onclick="closeAll()">Batal</button>
 </div>
 
 <script type="module" src="app.js"></script>
 
 <script>
-    // Fungsi UI ditempatkan di global window agar bisa dipanggil HTML
+    // 1. Definisikan Fungsi di Global Window
     window.toggleSidebar = function() {
+        console.log("Mencoba Toggle Sidebar...");
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
+        
         if (sidebar && overlay) {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+            console.log("Status: Berhasil ditoggle.");
+        } else {
+            console.error("Error: Elemen sidebar/overlay tidak ditemukan.");
         }
     };
 
@@ -302,14 +291,23 @@
         }
     };
 
-    // Inisialisasi saat halaman siap
-    document.addEventListener('DOMContentLoaded', () => {
-        // Fallback jika onclick di HTML tidak terdeteksi
+    // 2. Jalur Paksa Listener (Menunggu Halaman Siap)
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM Siap. Memasang listener hamburger...");
         const burger = document.getElementById('burgerBtn');
         if (burger) {
-            burger.addEventListener('click', window.toggleSidebar);
+            burger.addEventListener('click', (e) => {
+                e.stopPropagation(); // Mencegah bentrok klik
+                window.toggleSidebar();
+            });
+            console.log("Listener Hamburger Terpasang.");
+        } else {
+            console.error("ID burgerBtn tidak ditemukan di HTML!");
         }
     });
+
+    // 3. Tambahan: Klik Overlay untuk tutup
+    document.getElementById('overlay').addEventListener('click', window.closeAll);
 </script>
 
 </body>
