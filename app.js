@@ -29,7 +29,6 @@ window.handleLogin = async () => {
 
     try {
         const res = await signInWithEmailAndPassword(auth, email, pass);
-        // Proteksi jika user belum verifikasi email
         if (!res.user.emailVerified) {
             alert("Email belum diverifikasi. Cek kotak masuk/spam Anda.");
             await signOut(auth);
@@ -44,7 +43,6 @@ window.handleGoogleLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
-        // Google biasanya otomatis terverifikasi, jadi tidak perlu cek emailVerified
     } catch (e) {
         alert("Login Google Gagal.");
     }
@@ -76,8 +74,6 @@ window.handleRegister = async () => {
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
         await sendEmailVerification(res.user);
-        
-        // Simpan data ke Firestore
         await setDoc(doc(db, "users", res.user.uid), {
             nama: nama,
             email: email,
@@ -105,7 +101,6 @@ onAuthStateChanged(auth, async (user) => {
         if(loginScr) loginScr.style.display = 'none';
         if(appScr) appScr.style.display = 'block';
         
-        // Ambil Data Role dari Firestore
         onSnapshot(doc(db, "users", user.uid), (docSnap) => {
             if (docSnap.exists()) {
                 const userData = docSnap.data();
@@ -179,7 +174,6 @@ window.submitGroup = async () => {
         window.closeAll();
         nameEl.value = "";
     } catch (e) { 
-        console.error(e);
         alert("Gagal: Pastikan Anda memiliki akses Admin."); 
     }
 };
@@ -231,7 +225,7 @@ window.hapusUser = async (id) => {
     }
 };
 
-// --- 6. UI HELPERS ---
+// --- 6. UI HELPERS (PERBAIKAN) ---
 
 window.toggleSidebar = () => {
     const sidebar = document.getElementById('sidebar');
@@ -267,37 +261,18 @@ window.scrollToView = (id) => {
     }
 };
 
-// Tambahkan baris ini di bagian bawah atau di dalam fungsi UI Helpers
-// untuk memastikan fungsi benar-benar tersedia secara global
-window.toggleSidebar = () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    if(sidebar && overlay) {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    } else {
-        console.error("Elemen sidebar atau overlay tidak ditemukan!");
-    }
-};
-
-window.closeAll = () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const modal = document.getElementById('groupModal');
-    
-    if(sidebar) sidebar.classList.remove('active');
-    if(overlay) overlay.classList.remove('active');
-    if(modal) modal.style.display = 'none';
-    
-    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-};
-
-
 window.toggleDropdown = (id) => {
     const el = document.getElementById(id);
     const wasVisible = el.style.display === 'block';
-    // Sembunyikan dropdown lain dulu
     document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    // Toggle yang dipilih
     if(el) el.style.display = wasVisible ? 'none' : 'block';
 };
+
+// --- TAMBAHAN: AUTO-BIND UNTUK MODUL ---
+// Kode ini memastikan tombol hamburger tetap jalan meskipun onclick di HTML telat merespon
+document.addEventListener('DOMContentLoaded', () => {
+    const burgerBtn = document.querySelector('.topbar div');
+    if (burgerBtn) {
+        burgerBtn.addEventListener('click', window.toggleSidebar);
+    }
+});
