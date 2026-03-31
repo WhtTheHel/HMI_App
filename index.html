@@ -213,26 +213,28 @@
         <p style="font-size:14px; line-height:1.6; color: #555;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat koordinasi antar komisariat.</p>
     </div>
 
+    <div id="app">
     <div id="groupListView" class="card">
-        <h4 style="margin:0; border-bottom: 2px solid #0b6623; padding-bottom: 8px; color: #0b6623;">📂 Grup & Komisariat</h4>
-        <div id="groupContainer" style="margin-top:15px; font-size:14px; color:#333;">
-            Memuat data grup...
+        <h4 style="margin:0; border-bottom: 2px solid #0b6623; padding-bottom: 8px; color: #0b6623;">📂 Pilih Grup / Komisariat</h4>
+        <div id="groupContainer" style="margin-top:15px;">
+            <p style="color:gray;">Memuat daftar grup...</p>
         </div>
     </div>
 
-    <div id="chatView" class="card" style="display:none; height: 80vh; display: flex; flex-direction: column;">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
-        <h4 id="chatGroupName" style="margin:0; color:#0b6623;">💬 Nama Grup</h4>
-        <button class="btn-outline" onclick="backToGroups()" style="width:auto; padding:5px 10px; font-size:12px; color:#666; border-color:#ccc;">⬅️ Kembali</button>
-    </div>
-    
-    <div id="messagesContainer" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:10px; margin:10px 0; background:#f9f9f9; border-radius:10px;">
+    <div id="chatView" class="card" style="display:none; flex-direction: column; height: 500px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 id="chatGroupName" style="margin:0; color:#0b6623;">Nama Grup</h4>
+            <button onclick="backToGroups()" style="width:auto; padding:5px 10px; background:#666; color:white; border-radius:5px; border:none; cursor:pointer;">❌ Tutup</button>
         </div>
+        
+        <div id="messagesContainer" style="flex:1; overflow-y:auto; padding:10px; background:#f0f0f0; border-radius:10px; display:flex; flex-direction:column; gap:8px;"></div>
 
-    <div style="display:flex; gap:10px;">
-        <input type="text" id="chatInput" placeholder="Ketik pesan..." style="margin:0;">
-        <button class="btn-main" onclick="sendMessage()" style="width:80px; margin:0;">Kirim</button>
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <input type="text" id="chatInput" placeholder="Tulis pesan..." style="flex:1; margin:0;">
+            <button class="btn-main" onclick="sendMessage()" style="width:70px; margin:0;">Kirim</button>
+        </div>
     </div>
+
     </div>
     
     <div class="card" id="adminPanel" style="display:none;">
