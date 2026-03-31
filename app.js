@@ -9,7 +9,7 @@ import {
     onSnapshot, serverTimestamp, deleteDoc 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// --- CONFIGURASI FIREBASE ---
+// --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
     authDomain: "hmi-app-ac76d.firebaseapp.com",
@@ -20,56 +20,41 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 1. FUNGSI LOGIN (EMAIL & PASSWORD) ---
+// --- 1. LOGIN & REGISTER LOGIC ---
 window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-
     if (!email || !pass) return alert("Masukkan Email dan Password!");
 
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-        const user = userCredential.user;
-
-        // CEK VERIFIKASI EMAIL
-        if (!user.emailVerified) {
-            alert("Email Anda belum diverifikasi. Silakan cek kotak masuk/spam email Anda.");
-            await signOut(auth); // Paksa keluar jika belum klik link konfirmasi
-            return;
+        if (!userCredential.user.emailVerified) {
+            alert("Email belum diverifikasi. Cek kotak masuk/spam Anda.");
+            await signOut(auth);
         }
-        // Jika sukses & verifikasi ok, onAuthStateChanged akan memproses sisa tugasnya
     } catch (e) {
-        alert("Login Gagal: Periksa kembali email dan password Anda.");
-        console.error(e);
+        alert("Login Gagal: Periksa kembali akun Anda.");
     }
 };
 
-// --- 2. FUNGSI LOGIN (GOOGLE) ---
 window.handleGoogleLogin = async () => {
     try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-        // Google otomatis terverifikasi, jadi tidak perlu cek emailVerified
+        await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (e) {
         alert("Login Google Gagal.");
     }
 };
 
-// --- 3. FUNGSI PENDAFTARAN (DENGAN KONFIRMASI EMAIL) ---
 window.showRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'block';
-    document.getElementById('btnLogin').style.display = 'none';
-    document.getElementById('btnRegisterInitial').style.display = 'none';
-    document.getElementById('btnConfirmRegister').style.display = 'block';
-    document.getElementById('btnCancelRegister').style.display = 'block';
+    document.getElementById('loginGroup').style.display = 'none';
+    document.getElementById('registerGroup').style.display = 'block';
 };
 
 window.cancelRegisterUI = () => {
     document.getElementById('namaUser').style.display = 'none';
-    document.getElementById('btnLogin').style.display = 'block';
-    document.getElementById('btnRegisterInitial').style.display = 'block';
-    document.getElementById('btnConfirmRegister').style.display = 'none';
-    document.getElementById('btnCancelRegister').style.display = 'none';
+    document.getElementById('loginGroup').style.display = 'block';
+    document.getElementById('registerGroup').style.display = 'none';
 };
 
 window.handleRegister = async () => {
@@ -81,28 +66,22 @@ window.handleRegister = async () => {
 
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
-        
-        // KIRIM LINK KONFIRMASI KE EMAIL
         await sendEmailVerification(res.user);
-        
-        // SIMPAN DATA PROFIL KE FIRESTORE
         await setDoc(doc(db, "users", res.user.uid), {
             nama: nama,
             email: email,
-            role: "anggota", // Default role
+            role: "anggota",
             createdAt: serverTimestamp()
         });
-
-        alert("Pendaftaran Berhasil! Link konfirmasi telah dikirim ke email: " + email);
-        
-        await signOut(auth); // Logout sampai mereka verifikasi
+        alert("Daftar Berhasil! Cek email untuk verifikasi.");
+        await signOut(auth);
         window.cancelRegisterUI();
     } catch (e) {
         alert("Gagal Daftar: " + e.message);
     }
 };
 
-// --- 4. LOGIKA UTAMA (DETEKSI LOGIN & HAK AKSES) ---
+// --- 2. MONITOR STATUS LOGIN & ROLE ---
 onAuthStateChanged(auth, async (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -116,106 +95,107 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDoc.data();
             document.getElementById('userNameDisplay').innerText = userData.nama;
 
-            // Kontrol Badge & Tombol Berdasarkan Role
-            const isAdmin = userData.role === "admin_utama" || userData.role === "admin";
-            const adminBadge = document.getElementById('adminBadge');
-            const adminPanel = document.getElementById('adminPanel');
-            const groupBtn = document.getElementById('groupBtnSection');
+            const isPower = userData.role === "admin" || userData.role === "admin_utama";
+            document.getElementById('adminBadge').style.display = isPower ? 'block' : 'none';
+            document.getElementById('adminBadge').innerText = userData.role.toUpperCase();
+            
+            // Tampilkan Menu Admin di Sidebar
+            document.getElementById('adminMenuSection').style.display = isPower ? 'block' : 'none';
 
-            if(adminBadge) {
-                adminBadge.style.display = isAdmin ? 'block' : 'none';
-                adminBadge.innerText = userData.role.toUpperCase();
-            }
-            if(groupBtn) groupBtn.style.display = isAdmin ? 'block' : 'none';
-
-            // Jika Owner, jalankan fungsi manajemen anggota
-            if (userData.role === "admin_utama" && adminPanel) {
-                adminPanel.style.display = 'block';
-                loadUserList();
+            // Jika Admin Utama, tampilkan panel manajemen anggota
+            if (userData.role === "admin_utama") {
+                document.getElementById('adminPanel').style.display = 'block';
+                loadUserManagement(user.uid);
             }
         }
+        loadGroupList();
     } else {
         loginScr.style.display = 'block';
         appScr.style.display = 'none';
     }
 });
 
-// --- 5. MANAJEMEN ANGGOTA (KHUSUS OWNER) ---
-function loadUserList() {
+// --- 3. DAFTAR GRUP (REALTIME) ---
+function loadGroupList() {
+    onSnapshot(collection(db, "groups"), (snap) => {
+        const container = document.getElementById('groupContainer');
+        if (!container) return;
+        container.innerHTML = "";
+        
+        if (snap.empty) {
+            container.innerHTML = "<p style='font-size:12px; color:#999;'>Belum ada grup yang dibuat.</p>";
+            return;
+        }
+
+        snap.forEach(g => {
+            const data = g.data();
+            const div = document.createElement('div');
+            div.className = 'group-item';
+            div.innerHTML = `
+                <span>📂 <b>${data.namaGrup}</b></span>
+                <small style="color:gray">${data.createdAt?.toDate().toLocaleDateString() || ''}</small>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+window.submitGroup = async () => {
+    const name = document.getElementById('newGroupName').value;
+    if (!name) return alert("Isi nama grup!");
+    try {
+        await addDoc(collection(db, "groups"), { 
+            namaGrup: name, creator: auth.currentUser.uid, createdAt: serverTimestamp() 
+        });
+        alert("Grup Berhasil Dibuat!");
+        window.closeAll();
+    } catch (e) { alert("Gagal membuat grup."); }
+};
+
+// --- 4. MANAJEMEN ANGGOTA (KHUSUS ADMIN UTAMA) ---
+function loadUserManagement(myUid) {
     onSnapshot(collection(db, "users"), (snap) => {
         const list = document.getElementById('userList');
         if (!list) return;
         list.innerHTML = "";
+        
         snap.forEach((u) => {
             const d = u.data();
             const id = u.id;
-            if (id === auth.currentUser?.uid) return;
+            if (id === myUid) return; // Sembunyikan diri sendiri
 
             const div = document.createElement('div');
             div.className = 'user-item';
             div.innerHTML = `
                 <div style="flex-grow:1">
                     <b>${d.nama}</b><br>
-                    <small>${d.role} | ${d.email}</small>
+                    <small style="color:#0b6623">${d.role.toUpperCase()} | ${d.email}</small>
                 </div>
-                <div class="dots-menu" onclick="toggleDropdown('drop-${id}')">⋮</div>
+                <div class="dots-menu" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
                 <div id="drop-${id}" class="dropdown-content">
-                    <button onclick="updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
-                    <button onclick="updateRole('${id}', 'anggota')">⬇️ Jadi Anggota</button>
-                    <button style="color:red" onclick="hapusUser('${id}')">🗑️ Hapus</button>
+                    ${d.role === 'anggota' ? 
+                        `<button onclick="updateRole('${id}', 'admin')">⭐ Jadikan Admin</button>` : 
+                        `<button onclick="updateRole('${id}', 'anggota')">❌ Copot Admin</button>`
+                    }
+                    <button style="color:red" onclick="hapusUser('${id}')">🗑️ Hapus Anggota</button>
                 </div>`;
             list.appendChild(div);
         });
     });
 }
 
-window.updateRole = async (id, role) => { 
-    await updateDoc(doc(db, "users", id), { role: role }); 
-    alert("Role berhasil diubah!"); 
+window.updateRole = async (id, newRole) => { 
+    try {
+        await updateDoc(doc(db, "users", id), { role: newRole }); 
+        alert("Jabatan diperbarui!"); 
+    } catch (e) { alert("Gagal memperbarui role."); }
 };
 
 window.hapusUser = async (id) => { 
-    if (confirm("Hapus pengguna ini secara permanen?")) await deleteDoc(doc(db, "users", id)); 
+    if (confirm("Hapus pengguna secara permanen?")) {
+        await deleteDoc(doc(db, "users", id)); 
+    }
 };
 
-// --- 6. NAVIGASI & UI HELPERS ---
+// --- 5. LOGOUT ---
 window.logout = () => signOut(auth);
-
-window.toggleSidebar = () => {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
-};
-
-window.closeAll = () => {
-    document.getElementById('sidebar').classList.remove('active');
-    document.getElementById('overlay').classList.remove('active');
-    const modal = document.getElementById('groupModal');
-    if(modal) modal.style.display = 'none';
-};
-
-window.openModal = (id) => {
-    document.getElementById(id).style.display = 'block';
-    document.getElementById('overlay').classList.add('active');
-};
-
-window.toggleDropdown = (id) => {
-    document.querySelectorAll('.dropdown-content').forEach(d => {
-        if (d.id !== id) d.style.display = 'none';
-    });
-    const drop = document.getElementById(id);
-    if(drop) drop.style.display = (drop.style.display === 'block') ? 'none' : 'block';
-};
-
-window.submitGroup = async () => {
-    const name = document.getElementById('newGroupName').value;
-    if (!name) return alert("Isi nama grup!");
-    await addDoc(collection(db, "groups"), { 
-        namaGrup: name, creator: auth.currentUser.uid, createdAt: serverTimestamp() 
-    });
-    alert("Grup Berhasil Dibuat!");
-    window.closeAll();
-};
-
-// Menutup overlay jika diklik
-const overlay = document.getElementById('overlay');
-if(overlay) overlay.addEventListener('click', window.closeAll);
