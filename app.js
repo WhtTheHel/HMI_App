@@ -25,22 +25,18 @@ window.handleLogin = async () => {
     const pass = document.getElementById('password').value;
     try {
         const res = await signInWithEmailAndPassword(auth, email, pass);
-        if (!res.user.emailVerified) { 
-            alert("Verifikasi email Anda!"); 
-            await signOut(auth); 
-        }
+        if (!res.user.emailVerified) { alert("Verifikasi email Anda!"); await signOut(auth); }
     } catch (e) { alert("Login Gagal: " + e.message); }
 };
 
 window.handleGoogleLogin = async () => {
-    try { 
-        await signInWithPopup(auth, new GoogleAuthProvider()); 
-    } catch (e) { alert("Google Login Gagal."); }
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+    catch (e) { alert("Google Login Gagal."); }
 };
 
 window.logout = () => signOut(auth);
 
-// --- MONITORING USER & ROLE ---
+// --- MONITORING USER & ROLE (FIXED FOR 'Owner') ---
 onAuthStateChanged(auth, (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -54,40 +50,37 @@ onAuthStateChanged(auth, (user) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // 1. Perbaikan Nama (Agar tidak stuck "Memuat...")
-                if(userDisplay) {
-                    userDisplay.innerText = data.nama || data.email || "User HMI";
-                }
+                // Menampilkan Nama (Gunakan email jika nama kosong)
+                if(userDisplay) userDisplay.innerText = data.nama || data.email || "User HMI";
 
-                // 2. Normalisasi Role (Menangani 'Owner', 'owner', 'admin', 'Admin')
-                const roleRaw = data.role || "anggota";
-                const roleLow = roleRaw.toLowerCase();
-                const isPower = roleLow === "owner" || roleLow === "admin";
+                // NORMALISASI ROLE: Mengubah 'Owner' ke 'owner' agar cocok dengan pengecekan
+                const roleLower = (data.role || "anggota").toLowerCase();
+                const isOwner = roleLower === "owner";
+                const isAdmin = roleLower === "admin";
+                const isPower = isOwner || isAdmin;
 
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
                 const adminPanel = document.getElementById('adminPanel');
 
-                // Update UI Badge
+                // 1. Tampilkan Badge Role
                 if(badge) {
                     badge.style.display = isPower ? 'block' : 'none';
-                    badge.innerText = roleRaw.toUpperCase();
+                    badge.innerText = (data.role || "USER").toUpperCase();
                 }
 
-                // 3. Menampilkan Menu "Buat Grup Baru"
+                // 2. Tampilkan Menu Buat Grup (PENTING)
                 if(adminMenu) {
                     adminMenu.style.display = isPower ? 'block' : 'none';
                 }
 
-                // 4. Menampilkan Panel "Kelola Anggota" (Khusus Owner)
-                if(roleLow === "owner") {
+                // 3. Tampilkan Panel Kelola Anggota (Hanya Owner)
+                if(isOwner) {
                     if(adminPanel) adminPanel.style.display = 'block';
                     loadUserManagement();
                 } else {
                     if(adminPanel) adminPanel.style.display = 'none';
                 }
-            } else {
-                if(userDisplay) userDisplay.innerText = "Profil Belum Dibuat";
             }
         });
         loadGroupList();
@@ -103,12 +96,6 @@ function loadGroupList() {
         const container = document.getElementById('groupContainer');
         if(!container) return;
         container.innerHTML = "";
-        
-        if(snap.empty) {
-            container.innerHTML = "<p style='color:gray; font-size:12px;'>Belum ada grup.</p>";
-            return;
-        }
-
         snap.forEach(g => {
             const d = g.data();
             const div = document.createElement('div');
@@ -134,7 +121,7 @@ window.submitGroup = async () => {
         nameInput.value = "";
         if(window.closeAll) window.closeAll();
     } catch (e) {
-        alert("Gagal: Anda tidak memiliki izin Admin/Owner.");
+        alert("Gagal: Izin ditolak (Cek Security Rules Firebase Anda).");
     }
 };
 
@@ -147,8 +134,8 @@ function loadUserManagement() {
             const d = u.data();
             const div = document.createElement('div');
             div.style = "padding:8px; border-bottom:1px solid #eee; color:black; font-size:13px;";
-            div.innerHTML = `👤 ${d.nama || 'Tanpa Nama'} | <small>${d.role || 'anggota'}</small>`;
+            div.innerHTML = `👤 ${d.nama || d.email} | <small>${d.role}</small>`;
             list.appendChild(div);
         });
     });
-    }
+            }
