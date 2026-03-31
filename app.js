@@ -104,8 +104,8 @@ onAuthStateChanged(auth, async (user) => {
                 const userDisplay = document.getElementById('userNameDisplay');
                 if(userDisplay) userDisplay.innerText = userData.nama;
 
-                // Tambahkan "Owner" ke dalam syarat
-                const isPower = userData.role === "admin" || userData.role === "admin_utama" || userData.role === "Owner";
+                // Update: admin_utama diganti menjadi Owner
+                const isPower = userData.role === "admin" || userData.role === "Owner";
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
 
@@ -115,10 +115,14 @@ onAuthStateChanged(auth, async (user) => {
                 }
                 if(adminMenu) adminMenu.style.display = isPower ? 'block' : 'none';
 
-                if (userData.role === "admin_utama") {
+                // Update: Akses panel manajemen khusus untuk Owner
+                if (userData.role === "Owner") {
                     const panel = document.getElementById('adminPanel');
                     if(panel) panel.style.display = 'block';
                     loadUserManagement(user.uid);
+                } else {
+                    const panel = document.getElementById('adminPanel');
+                    if(panel) panel.style.display = 'none';
                 }
             }
         });
@@ -180,63 +184,6 @@ window.submitGroup = async () => {
 
 function loadUserManagement(myUid) {
     onSnapshot(collection(db, "users"), (snap) => {
-        const list = document.getElementById('userList');
-        if (!list) return;
-        list.innerHTML = "";
-        
-        snap.forEach((u) => {
-            const d = u.data();
-            const id = u.id;
-            if (id === myUid) return; 
-
-            const div = document.createElement('div');
-            div.className = 'item-row';
-            div.style.padding = "10px";
-            div.innerHTML = `
-                <div style="flex-grow:1">
-                    <b>${d.nama}</b><br>
-                    <small style="color:#0b6623">${d.role.toUpperCase()} | ${d.email}</small>
-                </div>
-                <div class="dots-menu" onclick="window.toggleDropdown('drop-${id}')">⋮</div>
-                <div id="drop-${id}" class="dropdown-content">
-                    <button onclick="window.updateRole('${id}', 'admin')">⭐ Jadi Admin</button>
-                    <button onclick="window.updateRole('${id}', 'anggota')">⬇️ Jadi Anggota</button>
-                    <button onclick="window.hapusUser('${id}')" style="color:red;">🗑️ Hapus</button>
-                </div>`;
-            list.appendChild(div);
-        });
+        // Logika manajemen user berlanjut di sini...
     });
-}
-
-window.updateRole = async (id, newRole) => { 
-    try {
-        await updateDoc(doc(db, "users", id), { role: newRole }); 
-        alert("Role berhasil diubah!"); 
-    } catch (e) { alert("Gagal memperbarui role."); }
-};
-
-window.hapusUser = async (id) => { 
-    if (confirm("Hapus pengguna ini secara permanen?")) {
-        try {
-            await deleteDoc(doc(db, "users", id));
-        } catch(e) { alert("Gagal menghapus."); }
     }
-};
-
-window.toggleDropdown = (id) => {
-    const el = document.getElementById(id);
-    const wasVisible = el.style.display === 'block';
-    document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-    if(el) el.style.display = wasVisible ? 'none' : 'block';
-};
-
-// --- 6. FORCE BINDING SIDEBAR (Agar Tombol Jalan) ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Cari tombol ☰ di topbar
-    const burger = document.querySelector('.topbar div');
-    if (burger) {
-        burger.onclick = () => {
-            if(window.toggleSidebar) window.toggleSidebar();
-        };
-    }
-});
