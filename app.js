@@ -1,12 +1,9 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 import { 
-    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-    signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut,
-    sendEmailVerification 
+    getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 import { 
-    getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, 
-    onSnapshot, serverTimestamp, deleteDoc 
+    getFirestore, doc, collection, onSnapshot, addDoc, serverTimestamp 
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -19,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- GLOBAL FUNCTIONS ---
+// --- AUTH ---
 window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
@@ -31,12 +28,12 @@ window.handleLogin = async () => {
 
 window.handleGoogleLogin = async () => {
     try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-    catch (e) { alert("Google Login Gagal."); }
+    catch (e) { alert("Login Google Gagal."); }
 };
 
 window.logout = () => signOut(auth);
 
-// --- MONITORING USER & ROLE (VERSI DEBUGGING KETAT) ---
+// --- MONITOR ROLE & UI ---
 onAuthStateChanged(auth, (user) => {
     const loginScr = document.getElementById('loginScreen');
     const appScr = document.getElementById('app');
@@ -50,40 +47,31 @@ onAuthStateChanged(auth, (user) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Cek di Console F12: Apa sebenarnya isi role Anda?
-                console.log("DEBUG: Role dari Database adalah =>", `'${data.role}'`);
+                // Update Nama di Sidebar
+                if(userDisplay) userDisplay.innerText = data.nama || data.email || "Kader HMI";
 
-                if(userDisplay) userDisplay.innerText = data.nama || data.email || "User HMI";
-
-                // NORMALISASI: Hapus spasi dan ubah ke huruf kecil
-                const roleClean = (data.role || "anggota").trim().toLowerCase();
-                
-                // Cek apakah dia 'owner' atau 'admin'
-                const isPower = roleClean === "owner" || roleClean === "admin";
+                // NORMALISASI ROLE (Solusi untuk 'Owner' O besar)
+                const rawRole = data.role || "anggota";
+                const roleLower = rawRole.trim().toLowerCase();
+                const isPower = roleLower === "owner" || roleLower === "admin";
 
                 const badge = document.getElementById('adminBadge');
                 const adminMenu = document.getElementById('adminMenuSection');
                 const adminPanel = document.getElementById('adminPanel');
 
-                // Tampilkan Badge
+                // 1. Update Badge
                 if(badge) {
                     badge.style.display = isPower ? 'block' : 'none';
-                    badge.innerText = roleClean.toUpperCase();
+                    badge.innerText = rawRole.toUpperCase();
                 }
 
-                // JALUR PAKSA: Tampilkan Menu Buat Grup
+                // 2. Tampilkan Menu "Buat Grup Baru" (Admin & Owner)
                 if(adminMenu) {
-                    if (isPower) {
-                        console.log("AKSES DITERIMA: Menampilkan Tombol Buat Grup");
-                        adminMenu.style.setProperty("display", "block", "important");
-                    } else {
-                        console.log("AKSES DITOLAK: Role Anda bukan Owner/Admin");
-                        adminMenu.style.display = 'none';
-                    }
+                    adminMenu.style.display = isPower ? 'block' : 'none';
                 }
 
-                // Tampilkan Panel Kelola Anggota (Hanya Owner)
-                if(roleClean === "owner") {
+                // 3. Tampilkan Panel Kelola Anggota (Khusus Owner)
+                if(roleLower === "owner") {
                     if(adminPanel) adminPanel.style.display = 'block';
                     loadUserManagement();
                 } else {
@@ -98,16 +86,17 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// --- LOAD DATA ---
 function loadGroupList() {
     onSnapshot(collection(db, "groups"), (snap) => {
         const container = document.getElementById('groupContainer');
         if(!container) return;
-        container.innerHTML = "";
+        container.innerHTML = snap.empty ? "Belum ada grup." : "";
         snap.forEach(g => {
             const d = g.data();
             const div = document.createElement('div');
-            div.style = "padding:10px; border-bottom:1px solid #eee; color:black;";
-            div.innerHTML = `<b>📂 ${d.namaGrup}</b>`;
+            div.style = "padding:10px; border-bottom:1px solid #eee; color:#333;";
+            div.innerHTML = `📂 <b>${d.namaGrup}</b>`;
             container.appendChild(div);
         });
     });
@@ -116,7 +105,7 @@ function loadGroupList() {
 window.submitGroup = async () => {
     const nameInput = document.getElementById('newGroupName');
     const name = nameInput.value;
-    if(!name) return alert("Nama grup kosong!");
+    if(!name) return alert("Masukkan nama grup!");
     try {
         await addDoc(collection(db, "groups"), {
             namaGrup: name,
@@ -126,9 +115,7 @@ window.submitGroup = async () => {
         alert("Grup Berhasil Dibuat!");
         nameInput.value = "";
         if(window.closeAll) window.closeAll();
-    } catch (e) {
-        alert("Gagal: Cek Security Rules Firebase Anda.");
-    }
+    } catch (e) { alert("Gagal membuat grup."); }
 };
 
 function loadUserManagement() {
@@ -144,4 +131,4 @@ function loadUserManagement() {
             list.appendChild(div);
         });
     });
-                }
+}
