@@ -7,48 +7,37 @@
     <style>
         :root { --hmi-green: #0b6623; --hmi-gold: #f1c40f; --bg-dark: #111; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
 
-        /* --- AUTH SCREEN --- */
+        /* AUTH SCREEN */
         .auth-page { background: linear-gradient(135deg, var(--hmi-green) 0%, #000 100%); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .auth-card { width: 100%; max-width: 400px; background: white; border-radius: 25px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; }
         .logo-hmi { width: 75px; margin-bottom: 10px; }
         
-        input { width: 100%; padding: 12px 15px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; font-size: 15px; transition: 0.3s; }
-        input:focus { border-color: var(--hmi-green); box-shadow: 0 0 5px rgba(11, 102, 35, 0.2); }
+        input { width: 100%; padding: 12px 15px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; font-size: 15px; }
         button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-main { background: var(--hmi-green); color: white; }
-        .btn-main:active { transform: scale(0.98); }
+        .btn-google { background: white; color: #444; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-google img { width: 18px; }
         .btn-link { background: none; color: var(--hmi-green); font-size: 14px; text-decoration: underline; }
 
-        .history-box { max-width: 400px; margin-top: 20px; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; color: white; font-size: 12px; text-align: center; backdrop-filter: blur(5px); }
+        .divider { margin: 15px 0; display: flex; align-items: center; color: #888; font-size: 12px; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #ddd; margin: 0 10px; }
 
-        /* --- MAIN APP --- */
-        #app { display: none; background: #f0f2f5; min-height: 100vh; }
-        .topbar { background: var(--hmi-green); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        /* --- CHAT VIEW MODERN --- */
-        #chatView { display: none; flex-direction: column; height: calc(100vh - 60px); background: #e5ddd5; } 
+        /* Style Main App, Chat, Sidebar, dll (Sama seperti sebelumnya) */
+        #app { display: none; }
+        .topbar { background: var(--hmi-green); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        #chatView { display: none; flex-direction: column; height: calc(100vh - 60px); background: #e5ddd5; }
         #messagesContainer { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; font-size: 14px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.4; }
-        .msg-me { align-self: flex-end; background: #dcf8c6; color: #303030; border-top-right-radius: 2px; }
-        .msg-them { align-self: flex-start; background: white; color: #303030; border-top-left-radius: 2px; }
-        .sender-name { font-size: 10px; font-weight: bold; color: var(--hmi-green); margin-bottom: 2px; display: block; }
-        
-        .chat-input-area { background: white; padding: 10px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #ddd; }
-        
-        /* --- GROUP LIST --- */
-        .group-item { display: flex; align-items: center; padding: 15px; background: white; margin-bottom: 1px; cursor: pointer; transition: 0.2s; }
-        .group-item:active { background: #eee; }
-        .group-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #eee; margin-right: 15px; }
-        
-        /* --- SIDEBAR & MODAL --- */
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; font-size: 14px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg-me { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 2px; }
+        .msg-them { align-self: flex-start; background: white; border-top-left-radius: 2px; }
+        .sender-name { font-size: 10px; font-weight: bold; color: var(--hmi-green); display: block; }
+        .chat-input-area { background: white; padding: 10px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
         .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--bg-dark); transition: 0.3s; z-index: 200; padding: 25px; color: white; }
         .sidebar.active { left: 0; }
         .overlay { position: fixed; display: none; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; }
         .overlay.active { display: block; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; z-index: 300; }
     </style>
 </head>
 <body>
@@ -61,68 +50,68 @@
         <h2 id="authTitle" style="margin:0; color:var(--hmi-green);">MASUK KADER</h2>
         <p id="authSub" style="font-size:12px; color:gray; margin-bottom:20px;">Email/Nama & Password</p>
         
-        <input type="text" id="regNama" placeholder="Nama Lengkap (Wajib saat Daftar)" style="display:none;">
+        <input type="text" id="regNama" placeholder="Nama Lengkap (Wajib Daftar)" style="display:none;">
         <input type="text" id="identifier" placeholder="Email atau Nama Lengkap">
         <input type="password" id="password" placeholder="Password">
         
-        <button class="btn-main" id="btnPrimary" onclick="handleAuth()">MASUK SEKARANG</button>
-        <button class="btn-link" id="btnToggle" onclick="toggleAuth()">Belum punya akun? Daftar di sini</button>
-    </div>
+        <button class="btn-main" id="btnPrimary" onclick="handleAuth()">MASUK</button>
+        
+        <div class="divider">ATAU</div>
+        
+        <button class="btn-google" onclick="loginGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg">
+            Masuk dengan Google
+        </button>
 
-    <div class="history-box">
-        <b>HMI (Himpunan Mahasiswa Islam)</b><br>
-        Didirikan oleh Lafran Pane pada 5 Feb 1947 di Yogyakarta.
+        <button class="btn-link" id="btnToggle" onclick="toggleAuth()">Belum punya akun? Daftar</button>
     </div>
 </div>
 
 <div id="app">
     <div class="topbar">
         <div onclick="toggleSidebar()" style="cursor:pointer; font-size:22px;">☰</div>
-        <b style="letter-spacing: 1px;">HMI COORDINATION</b>
-        <div id="adminBadge" style="display:none; background:var(--hmi-gold); color:black; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:bold;">ROLE</div>
+        <b>HMI COORDINATION</b>
+        <div id="adminBadge" style="display:none; background:var(--hmi-gold); color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ROLE</div>
     </div>
 
     <div id="sidebar" class="sidebar">
-        <h3 style="color:var(--hmi-gold); margin-bottom:5px;">MENU</h3>
-        <p id="userNameDisplay" style="font-size:14px; margin-bottom:25px; color:#aaa;">Memuat nama...</p>
-        <button class="btn-link" onclick="closeAll()" style="text-align:left; color:white; padding:10px 0; text-decoration:none;">🏠 Dashboard</button>
+        <h3 style="color:var(--hmi-gold);">MENU</h3>
+        <p id="userNameDisplay" style="font-size:14px; margin-bottom:25px; color:#aaa;">Memuat...</p>
+        <button class="btn-link" onclick="closeAll()" style="color:white; text-decoration:none;">🏠 Dashboard</button>
         <div id="adminMenu" style="display:none; border-top:1px solid #333; margin-top:10px; padding-top:10px;">
-            <button class="btn-main" onclick="openModal('groupModal')" style="font-size:12px;">➕ Buat Grup Baru</button>
+            <button class="btn-main" onclick="openModal('groupModal')">➕ Grup Baru</button>
         </div>
         <button onclick="logout()" style="margin-top:40px; background:#e74c3c; color:white;">🚪 Keluar</button>
     </div>
 
-    <div id="groupListView">
-        <div id="groupContainer">
-            </div>
-    </div>
+    <div id="groupListView"><div id="groupContainer" style="padding:10px;"></div></div>
 
     <div id="chatView">
         <div style="background:var(--hmi-green); color:white; padding:10px 15px; display:flex; align-items:center; gap:12px;">
             <img id="chatGroupImg" src="" style="width:40px; height:40px; border-radius:50%; background:white; object-fit:cover;">
-            <div style="flex:1"><b id="chatGroupName">Nama Grup</b></div>
-            <button onclick="backToGroups()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 10px; border-radius:8px; font-size:12px;">KEMBALI</button>
+            <b id="chatGroupName" style="flex:1">Grup</b>
+            <button onclick="backToGroups()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 10px; border-radius:8px;">KEMBALI</button>
         </div>
         <div id="messagesContainer"></div>
         <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1; margin:0;">
-            <button class="btn-main" onclick="sendMessage()" style="width:70px; margin:0;">Kirim</button>
+            <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1;">
+            <button class="btn-main" onclick="sendMessage()" style="width:70px;">Kirim</button>
         </div>
     </div>
 </div>
 
-<div id="groupModal" class="modal">
+<div id="groupModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:25px; border-radius:20px; width:90%; max-width:400px; z-index:300; box-shadow:0 0 20px rgba(0,0,0,0.5);">
     <h3 style="margin-top:0; color:var(--hmi-green);">Grup Baru</h3>
-    <input type="text" id="newGroupName" placeholder="Nama Grup/Komisariat">
-    <input type="text" id="newGroupImg" placeholder="URL Foto Profil (Opsional)">
-    <button class="btn-main" onclick="submitGroup()">SIMPAN GRUP</button>
-    <button onclick="closeAll()" style="background:#eee; color:#333;">BATAL</button>
+    <input type="text" id="newGroupName" placeholder="Nama Grup">
+    <input type="text" id="newGroupImg" placeholder="Link Foto Profil (URL)">
+    <button class="btn-main" onclick="submitGroup()">SIMPAN</button>
+    <button onclick="closeAll()" style="background:#eee;">BATAL</button>
 </div>
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDocs, collection, query, where, onSnapshot, addDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where, onSnapshot, addDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = {
         apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
@@ -133,20 +122,39 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
     let isLoginMode = true;
     let currentGroupId = null;
-    let chatListener = null;
     let userRole = "anggota";
 
-    // --- LOGIKA AUTH (LOGIN HYBRID) ---
+    // --- LOGIN GOOGLE ---
+    window.loginGoogle = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            // Cek apakah user sudah ada di Firestore
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists()) {
+                // Jika user baru login Google pertama kali, simpan datanya
+                await setDoc(userRef, {
+                    nama: user.displayName,
+                    email: user.email,
+                    role: "anggota"
+                });
+            }
+        } catch (e) { alert("Gagal Login Google: " + e.message); }
+    };
+
+    // --- AUTH LOGIC (EMAIL/NAMA) ---
     window.toggleAuth = () => {
         isLoginMode = !isLoginMode;
         document.getElementById('authTitle').innerText = isLoginMode ? "MASUK KADER" : "DAFTAR KADER";
         document.getElementById('regNama').style.display = isLoginMode ? "none" : "block";
-        document.getElementById('identifier').placeholder = isLoginMode ? "Email atau Nama Lengkap" : "Email Aktif";
-        document.getElementById('btnPrimary').innerText = isLoginMode ? "MASUK SEKARANG" : "DAFTAR SEKARANG";
-        document.getElementById('btnToggle').innerText = isLoginMode ? "Belum punya akun? Daftar" : "Sudah punya akun? Masuk";
+        document.getElementById('btnPrimary').innerText = isLoginMode ? "MASUK" : "DAFTAR";
     };
 
     window.handleAuth = async () => {
@@ -154,51 +162,38 @@
         const password = document.getElementById('password').value;
         const namaLengkap = document.getElementById('regNama').value.trim();
 
-        if(!inputVal || !password) return alert("Lengkapi data!");
-
         try {
             if (isLoginMode) {
-                let emailToAuth = inputVal;
-
-                // Jika input bukan email (tidak ada @), cari email di Firestore berdasarkan nama
+                let emailAuth = inputVal;
                 if (!inputVal.includes('@')) {
                     const q = query(collection(db, "users"), where("nama", "==", inputVal));
                     const snap = await getDocs(q);
-                    if (snap.empty) return alert("Nama tidak ditemukan! Gunakan email jika belum pernah daftar nama.");
-                    emailToAuth = snap.docs[0].data().email;
+                    if (snap.empty) return alert("Nama tidak ditemukan!");
+                    emailAuth = snap.docs[0].data().email;
                 }
-                await signInWithEmailAndPassword(auth, emailToAuth, password);
+                await signInWithEmailAndPassword(auth, emailAuth, password);
             } else {
                 if(!namaLengkap) return alert("Nama wajib diisi!");
                 const res = await createUserWithEmailAndPassword(auth, inputVal, password);
-                await setDoc(doc(db, "users", res.user.uid), { 
-                    nama: namaLengkap, 
-                    email: inputVal, 
-                    role: "anggota" 
-                });
-                alert("Berhasil Daftar!");
+                await setDoc(doc(db, "users", res.user.uid), { nama: namaLengkap, email: inputVal, role: "anggota" });
             }
-        } catch (e) { alert("Akses Ditolak: " + e.message); }
+        } catch (e) { alert("Gagal: " + e.message); }
     };
 
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
-        const appDiv = document.getElementById('app');
-        const loginDiv = document.getElementById('loginScreen');
         if (user) {
-            loginDiv.style.display = 'none';
-            appDiv.style.display = 'block';
-            onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    userRole = (data.role || "anggota").toLowerCase().trim();
-                    document.getElementById('userNameDisplay').innerText = data.nama || user.email;
-                    
-                    // Ganti admin_utama ke Owner sesuai request sebelumnya
-                    const displayRole = userRole === "admin_utama" ? "OWNER" : userRole.toUpperCase();
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            onSnapshot(doc(db, "users", user.uid), (snap) => {
+                if (snap.exists()) {
+                    const d = snap.data();
+                    userRole = (d.role || "anggota").toLowerCase();
+                    document.getElementById('userNameDisplay').innerText = d.nama || user.displayName;
                     
                     const isPower = userRole === "owner" || userRole === "admin" || userRole === "admin_utama";
+                    const displayRole = userRole === "admin_utama" ? "OWNER" : userRole.toUpperCase();
                     document.getElementById('adminMenu').style.display = isPower ? 'block' : 'none';
                     document.getElementById('adminBadge').style.display = isPower ? 'block' : 'none';
                     document.getElementById('adminBadge').innerText = displayRole;
@@ -206,12 +201,12 @@
             });
             loadGroupList();
         } else {
-            loginDiv.style.display = 'flex';
-            appDiv.style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('app').style.display = 'none';
         }
     });
 
-    // --- GRUP & CHAT ---
+    // --- FUNGSI GRUP & CHAT (SAMA DENGAN SEBELUMNYA) ---
     function loadGroupList() {
         onSnapshot(collection(db, "groups"), (snap) => {
             const container = document.getElementById('groupContainer');
@@ -221,13 +216,13 @@
                 const img = d.fotoGrup || "pngtree-hmi-organization-shield-logo-png-image_7307707.png";
                 const div = document.createElement('div');
                 div.className = "group-item";
+                div.style = "display:flex; align-items:center; background:white; padding:15px; margin-bottom:1px; cursor:pointer;";
                 div.innerHTML = `
-                    <img src="${img}" class="group-img">
+                    <img src="${img}" style="width:45px; height:45px; border-radius:50%; margin-right:15px; object-fit:cover;">
                     <div style="flex:1" onclick="openChat('${g.id}', '${d.namaGrup}', '${img}')">
-                        <b style="font-size:16px;">${d.namaGrup}</b><br>
-                        <small style="color:gray;">Ketuk untuk berdiskusi</small>
+                        <b>${d.namaGrup}</b><br><small style="color:gray;">Mulai diskusi...</small>
                     </div>
-                    ${(userRole === "owner" || userRole === "admin_utama") ? `<button style="background:#ff4d4d; color:white; border-radius:8px; padding:5px 10px; font-size:10px; border:none;" onclick="deleteGroup('${g.id}')">Hapus</button>` : ''}
+                    ${(userRole === "owner" || userRole === "admin_utama") ? `<button style="background:red; color:white; border:none; border-radius:5px; padding:5px;" onclick="deleteGroup('${g.id}')">Hapus</button>` : ''}
                 `;
                 container.appendChild(div);
             });
@@ -246,12 +241,11 @@
     window.backToGroups = () => {
         document.getElementById('groupListView').style.display = 'block';
         document.getElementById('chatView').style.display = 'none';
-        if(chatListener) chatListener();
     };
 
     function loadMessages(id) {
         const container = document.getElementById('messagesContainer');
-        chatListener = onSnapshot(collection(db, "groups", id, "messages"), (snap) => {
+        onSnapshot(collection(db, "groups", id, "messages"), (snap) => {
             container.innerHTML = "";
             const msgs = snap.docs.sort((a,b) => (a.data().time || 0) - (b.data().time || 0));
             msgs.forEach(m => {
@@ -281,27 +275,14 @@
     window.submitGroup = async () => {
         const name = document.getElementById('newGroupName').value;
         const img = document.getElementById('newGroupImg').value;
-        if(!name) return alert("Nama grup wajib!");
-        await addDoc(collection(db, "groups"), { 
-            namaGrup: name, 
-            fotoGrup: img, 
-            createdAt: serverTimestamp() 
-        });
+        if(!name) return;
+        await addDoc(collection(db, "groups"), { namaGrup: name, fotoGrup: img, createdAt: serverTimestamp() });
         closeAll();
     };
 
     window.deleteGroup = async (id) => { if(confirm("Hapus grup?")) await deleteDoc(doc(db, "groups", id)); };
-
-    // --- UI HELPERS ---
-    window.toggleSidebar = () => {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').classList.toggle('active');
-    };
-    window.closeAll = () => {
-        document.getElementById('sidebar').classList.remove('active');
-        document.getElementById('overlay').classList.remove('active');
-        document.getElementById('groupModal').style.display = 'none';
-    };
+    window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); };
+    window.closeAll = () => { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); document.getElementById('groupModal').style.display = 'none'; };
     window.openModal = (id) => document.getElementById(id).style.display = 'block';
     document.getElementById('overlay').onclick = closeAll;
 </script>
