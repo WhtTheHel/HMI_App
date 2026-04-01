@@ -9,7 +9,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
 
-        /* AUTH SCREEN */
+        /* --- AUTH SCREEN --- */
         .auth-page { background: linear-gradient(135deg, var(--hmi-green) 0%, #000 100%); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .auth-card { width: 100%; max-width: 400px; background: white; border-radius: 25px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; }
         .logo-hmi { width: 75px; margin-bottom: 10px; }
@@ -18,13 +18,12 @@
         button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-main { background: var(--hmi-green); color: white; }
         .btn-google { background: white; color: #444; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-google img { width: 18px; }
         .btn-link { background: none; color: var(--hmi-green); font-size: 14px; text-decoration: underline; }
 
         .divider { margin: 15px 0; display: flex; align-items: center; color: #888; font-size: 12px; }
         .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #ddd; margin: 0 10px; }
 
-        /* Style Main App, Chat, Sidebar, dll (Sama seperti sebelumnya) */
+        /* --- MAIN APP & CHAT --- */
         #app { display: none; }
         .topbar { background: var(--hmi-green); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         #chatView { display: none; flex-direction: column; height: calc(100vh - 60px); background: #e5ddd5; }
@@ -34,6 +33,8 @@
         .msg-them { align-self: flex-start; background: white; border-top-left-radius: 2px; }
         .sender-name { font-size: 10px; font-weight: bold; color: var(--hmi-green); display: block; }
         .chat-input-area { background: white; padding: 10px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
+        
+        /* --- SIDEBAR --- */
         .sidebar { position: fixed; left: -280px; top: 0; width: 280px; height: 100%; background: var(--bg-dark); transition: 0.3s; z-index: 200; padding: 25px; color: white; }
         .sidebar.active { left: 0; }
         .overlay { position: fixed; display: none; inset: 0; background: rgba(0,0,0,0.6); z-index: 150; }
@@ -54,34 +55,34 @@
         <input type="text" id="identifier" placeholder="Email atau Nama Lengkap">
         <input type="password" id="password" placeholder="Password">
         
-        <button class="btn-main" id="btnPrimary" onclick="handleAuth()">MASUK</button>
+        <button class="btn-main" id="btnPrimary" onclick="window.handleAuth()">MASUK SEKARANG</button>
         
         <div class="divider">ATAU</div>
         
-        <button class="btn-google" onclick="loginGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg">
+        <button class="btn-google" onclick="window.loginGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
             Masuk dengan Google
         </button>
 
-        <button class="btn-link" id="btnToggle" onclick="toggleAuth()">Belum punya akun? Daftar</button>
+        <button class="btn-link" id="btnToggle" onclick="window.toggleAuth()">Belum punya akun? Daftar</button>
     </div>
 </div>
 
 <div id="app">
     <div class="topbar">
-        <div onclick="toggleSidebar()" style="cursor:pointer; font-size:22px;">☰</div>
-        <b>HMI COORDINATION</b>
-        <div id="adminBadge" style="display:none; background:var(--hmi-gold); color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ROLE</div>
+        <div onclick="window.toggleSidebar()" style="cursor:pointer; font-size:22px;">☰</div>
+        <b style="letter-spacing: 1px;">HMI COORDINATION</b>
+        <div id="adminBadge" style="display:none; background:var(--hmi-gold); color:black; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:bold;">ROLE</div>
     </div>
 
     <div id="sidebar" class="sidebar">
         <h3 style="color:var(--hmi-gold);">MENU</h3>
         <p id="userNameDisplay" style="font-size:14px; margin-bottom:25px; color:#aaa;">Memuat...</p>
-        <button class="btn-link" onclick="closeAll()" style="color:white; text-decoration:none;">🏠 Dashboard</button>
+        <button class="btn-link" onclick="window.closeAll()" style="color:white; text-decoration:none;">🏠 Dashboard</button>
         <div id="adminMenu" style="display:none; border-top:1px solid #333; margin-top:10px; padding-top:10px;">
-            <button class="btn-main" onclick="openModal('groupModal')">➕ Grup Baru</button>
+            <button class="btn-main" onclick="window.openModal('groupModal')">➕ Grup Baru</button>
         </div>
-        <button onclick="logout()" style="margin-top:40px; background:#e74c3c; color:white;">🚪 Keluar</button>
+        <button onclick="window.logout()" style="margin-top:40px; background:#e74c3c; color:white;">🚪 Keluar</button>
     </div>
 
     <div id="groupListView"><div id="groupContainer" style="padding:10px;"></div></div>
@@ -90,12 +91,12 @@
         <div style="background:var(--hmi-green); color:white; padding:10px 15px; display:flex; align-items:center; gap:12px;">
             <img id="chatGroupImg" src="" style="width:40px; height:40px; border-radius:50%; background:white; object-fit:cover;">
             <b id="chatGroupName" style="flex:1">Grup</b>
-            <button onclick="backToGroups()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 10px; border-radius:8px;">KEMBALI</button>
+            <button onclick="window.backToGroups()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 10px; border-radius:8px;">TUTUP</button>
         </div>
         <div id="messagesContainer"></div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Ketik pesan..." style="flex:1;">
-            <button class="btn-main" onclick="sendMessage()" style="width:70px;">Kirim</button>
+            <button class="btn-main" onclick="window.sendMessage()" style="width:70px;">Kirim</button>
         </div>
     </div>
 </div>
@@ -104,8 +105,8 @@
     <h3 style="margin-top:0; color:var(--hmi-green);">Grup Baru</h3>
     <input type="text" id="newGroupName" placeholder="Nama Grup">
     <input type="text" id="newGroupImg" placeholder="Link Foto Profil (URL)">
-    <button class="btn-main" onclick="submitGroup()">SIMPAN</button>
-    <button onclick="closeAll()" style="background:#eee;">BATAL</button>
+    <button class="btn-main" onclick="window.submitGroup()">SIMPAN</button>
+    <button onclick="window.closeAll()" style="background:#eee;">BATAL</button>
 </div>
 
 <script type="module">
@@ -126,35 +127,27 @@
 
     let isLoginMode = true;
     let currentGroupId = null;
+    let chatListener = null;
     let userRole = "anggota";
 
-    // --- LOGIN GOOGLE ---
+    // --- GLOBAL FUNCTIONS ---
     window.loginGoogle = async () => {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            
-            // Cek apakah user sudah ada di Firestore
             const userRef = doc(db, "users", user.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (!userSnap.exists()) {
-                // Jika user baru login Google pertama kali, simpan datanya
-                await setDoc(userRef, {
-                    nama: user.displayName,
-                    email: user.email,
-                    role: "anggota"
-                });
+            const snap = await getDoc(userRef);
+            if (!snap.exists()) {
+                await setDoc(userRef, { nama: user.displayName, email: user.email, role: "anggota" });
             }
-        } catch (e) { alert("Gagal Login Google: " + e.message); }
+        } catch (e) { alert("Error Google: " + e.message); }
     };
 
-    // --- AUTH LOGIC (EMAIL/NAMA) ---
     window.toggleAuth = () => {
         isLoginMode = !isLoginMode;
         document.getElementById('authTitle').innerText = isLoginMode ? "MASUK KADER" : "DAFTAR KADER";
         document.getElementById('regNama').style.display = isLoginMode ? "none" : "block";
-        document.getElementById('btnPrimary').innerText = isLoginMode ? "MASUK" : "DAFTAR";
+        document.getElementById('btnPrimary').innerText = isLoginMode ? "MASUK SEKARANG" : "DAFTAR SEKARANG";
     };
 
     window.handleAuth = async () => {
@@ -177,7 +170,7 @@
                 const res = await createUserWithEmailAndPassword(auth, inputVal, password);
                 await setDoc(doc(db, "users", res.user.uid), { nama: namaLengkap, email: inputVal, role: "anggota" });
             }
-        } catch (e) { alert("Gagal: " + e.message); }
+        } catch (e) { alert("Error: " + e.message); }
     };
 
     window.logout = () => signOut(auth);
@@ -189,8 +182,8 @@
             onSnapshot(doc(db, "users", user.uid), (snap) => {
                 if (snap.exists()) {
                     const d = snap.data();
-                    userRole = (d.role || "anggota").toLowerCase();
-                    document.getElementById('userNameDisplay').innerText = d.nama || user.displayName;
+                    userRole = (d.role || "anggota").toLowerCase().trim();
+                    document.getElementById('userNameDisplay').innerText = d.nama || user.displayName || user.email;
                     
                     const isPower = userRole === "owner" || userRole === "admin" || userRole === "admin_utama";
                     const displayRole = userRole === "admin_utama" ? "OWNER" : userRole.toUpperCase();
@@ -206,7 +199,6 @@
         }
     });
 
-    // --- FUNGSI GRUP & CHAT (SAMA DENGAN SEBELUMNYA) ---
     function loadGroupList() {
         onSnapshot(collection(db, "groups"), (snap) => {
             const container = document.getElementById('groupContainer');
@@ -215,14 +207,13 @@
                 const d = g.data();
                 const img = d.fotoGrup || "pngtree-hmi-organization-shield-logo-png-image_7307707.png";
                 const div = document.createElement('div');
-                div.className = "group-item";
                 div.style = "display:flex; align-items:center; background:white; padding:15px; margin-bottom:1px; cursor:pointer;";
                 div.innerHTML = `
                     <img src="${img}" style="width:45px; height:45px; border-radius:50%; margin-right:15px; object-fit:cover;">
-                    <div style="flex:1" onclick="openChat('${g.id}', '${d.namaGrup}', '${img}')">
-                        <b>${d.namaGrup}</b><br><small style="color:gray;">Mulai diskusi...</small>
+                    <div style="flex:1" onclick="window.openChat('${g.id}', '${d.namaGrup}', '${img}')">
+                        <b>${d.namaGrup}</b><br><small style="color:gray;">Diskusi Kader...</small>
                     </div>
-                    ${(userRole === "owner" || userRole === "admin_utama") ? `<button style="background:red; color:white; border:none; border-radius:5px; padding:5px;" onclick="deleteGroup('${g.id}')">Hapus</button>` : ''}
+                    ${(userRole === "owner" || userRole === "admin_utama") ? `<button style="background:red; color:white; border:none; border-radius:5px; padding:5px 8px; font-size:10px;" onclick="window.deleteGroup('${g.id}')">Hapus</button>` : ''}
                 `;
                 container.appendChild(div);
             });
@@ -241,11 +232,12 @@
     window.backToGroups = () => {
         document.getElementById('groupListView').style.display = 'block';
         document.getElementById('chatView').style.display = 'none';
+        if(chatListener) chatListener();
     };
 
     function loadMessages(id) {
         const container = document.getElementById('messagesContainer');
-        onSnapshot(collection(db, "groups", id, "messages"), (snap) => {
+        chatListener = onSnapshot(collection(db, "groups", id, "messages"), (snap) => {
             container.innerHTML = "";
             const msgs = snap.docs.sort((a,b) => (a.data().time || 0) - (b.data().time || 0));
             msgs.forEach(m => {
@@ -277,14 +269,14 @@
         const img = document.getElementById('newGroupImg').value;
         if(!name) return;
         await addDoc(collection(db, "groups"), { namaGrup: name, fotoGrup: img, createdAt: serverTimestamp() });
-        closeAll();
+        window.closeAll();
     };
 
     window.deleteGroup = async (id) => { if(confirm("Hapus grup?")) await deleteDoc(doc(db, "groups", id)); };
     window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); };
     window.closeAll = () => { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); document.getElementById('groupModal').style.display = 'none'; };
     window.openModal = (id) => document.getElementById(id).style.display = 'block';
-    document.getElementById('overlay').onclick = closeAll;
+    document.getElementById('overlay').onclick = window.closeAll;
 </script>
 </body>
 </html>
