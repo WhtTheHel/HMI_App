@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V15 Final Signature</title>
+    <title>HMI Connect - V16 Signature Fix</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -10,7 +10,7 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* --- LOGIN SCREEN WITH HISTORY & LOGO --- */
+        /* --- LOGIN SCREEN --- */
         #loginScreen { 
             position: fixed; inset: 0; z-index: 5000; 
             background: linear-gradient(rgba(5,51,20,0.92), rgba(5,51,20,0.85)), url('pngtree-hmi-organization-shield-logo-png-image_7307707.png');
@@ -18,7 +18,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
         }
         .history-card { 
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); 
+            background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(212, 175, 55, 0.4); 
             backdrop-filter: blur(10px); border-radius: 20px; padding: 18px; color: white; 
             max-width: 400px; margin-bottom: 20px; text-align: center; font-size: 11px; line-height: 1.6;
         }
@@ -34,11 +34,13 @@
         #sidebar.active { left: 0; }
         .close-sidebar { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: #64748b; padding: 10px; font-weight: bold; z-index: 10001; }
 
-        /* --- POSTING & UI --- */
+        /* --- BUTTONS & UI --- */
         .btn-green { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 15px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-google { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 15px; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-weight: 700; color: #444; }
+        .btn-google { background: white; border: 1px solid #dadce0; padding: 12px; border-radius: 15px; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; font-weight: 700; color: #3c4043; }
+        .google-icon { width: 20px; height: 20px; } /* Gaya untuk logo google */
+
         .post-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #edf2f7; position: relative; }
-        .post-media { width: 100%; border-radius: 15px; margin-top: 10px; display: block; }
+        .post-media { width: 100%; border-radius: 15px; margin-top: 10px; display: block; border: 1px solid #eee; }
         
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; outline: none; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9000; backdrop-filter: blur(2px); }
@@ -53,13 +55,13 @@
 <div id="loginScreen">
     <div class="history-card">
         <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="40" style="margin-bottom: 8px;">
-        <h4 style="margin: 0; color: var(--hmi-gold); letter-spacing: 1px;">SEJARAH HMI</h4>
-        <p style="margin-top: 8px;">Didirikan di Yogyakarta, 5 Februari 1947 oleh Lafran Pane. HMI berjuang untuk mempertahankan NKRI dan meninggikan derajat umat Islam melalui intelektualitas dan independensi.</p>
+        <h4 style="margin: 0; color: var(--hmi-gold); letter-spacing: 1px;">SEJARAH SINGKAT HMI</h4>
+        <p style="margin-top: 8px;">Didirikan di Yogyakarta, 5 Februari 1947 oleh Ayahanda Lafran Pane. HMI lahir dari semangat keislaman dan keindonesiaan untuk mencetak kader intelektual muslim yang bertanggung jawab atas terwujudnya masyarakat adil makmur yang diridhoi Allah SWT.</p>
     </div>
     
     <div class="auth-card">
         <h2 style="color:var(--hmi-green); margin:0;">HMI CONNECT</h2>
-        <p style="font-size:11px; color:gray; margin-bottom:15px;">Bahagia HMI, Jayalah Indonesia</p>
+        <p style="font-size:11px; color:gray; margin-bottom:15px;">Yakin Usaha Sampai (YAKUSA)</p>
         
         <div id="authInputs">
             <input type="text" id="regNama" placeholder="Nama Lengkap Kader" style="display:none;">
@@ -68,19 +70,14 @@
             <button class="btn-green" onclick="window.handleAuth()">MASUK</button>
         </div>
         
-        <div style="margin:12px 0; font-size:11px; color:#ccc;">— ATAU —</div>
+        <div style="margin:12px 0; font-size:11px; color:#ccc;">— LOGIN KHUSUS —</div>
         
         <button class="btn-google" onclick="window.handleGoogleLogin()">
-            <svg width="18" height="18" viewBox="0 0 18 18">
-                <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.71v2.25h2.91c1.7-1.56 2.68-3.87 2.68-6.61z" fill="#4285F4"/>
-                <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.25c-.81.54-1.85.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.94v2.33C2.42 16.02 5.51 18 9 18z" fill="#34A853"/>
-                <path d="M3.96 10.73c-.18-.54-.28-1.12-.28-1.73s.1-1.19.28-1.73V4.94H.94C.34 6.16 0 7.54 0 9s.34 2.84.94 4.06l3.02-2.33z" fill="#FBBC05"/>
-                <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.47C13.46.99 11.43 0 9 0 5.51 0 2.42 1.98.94 4.94l3.02 2.33c.71-2.12 2.7-3.7 5.04-3.7z" fill="#EA4335"/>
-            </svg>
+            <img class="google-icon" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google Logo">
             Masuk dengan Google
         </button>
         
-        <p onclick="window.toggleAuth()" id="authToggleText" style="font-size:12px; color:var(--hmi-green); cursor:pointer; margin-top:18px; font-weight:800; text-decoration:underline;">Daftar Kader Baru</p>
+        <p onclick="window.toggleAuth()" id="authToggleText" style="font-size:12px; color:var(--hmi-green); cursor:pointer; margin-top:18px; font-weight:800; text-decoration:underline;">Daftar Akun Baru</p>
     </div>
 </div>
 
@@ -108,7 +105,7 @@
 
     <div id="homeView" class="view-content active">
         <div class="post-card" style="border: 2px solid var(--hmi-green);">
-            <textarea id="postText" placeholder="Bagikan instruksi atau kabar komisariat..."></textarea>
+            <textarea id="postText" placeholder="Bagikan instruksi organisasi..."></textarea>
             <input type="file" id="homeFile" accept="image/*" style="display:none;" onchange="window.handleFile(this)">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <button onclick="document.getElementById('homeFile').click()" style="background:#f1f5f9; border:none; color:var(--hmi-green); font-weight:800; padding:10px; border-radius:10px; cursor:pointer;">🖼️ Galeri Foto</button>
@@ -119,7 +116,7 @@
         <div id="feedContainer"></div>
     </div>
 
-    <div id="groupView" class="view-content"><center style="margin-top:50px;"><h3>Grup Diskusi</h3><p>Fitur sedang disinkronisasi.</p></center></div>
+    <div id="groupView" class="view-content"><center style="margin-top:50px;"><h3>Grup Diskusi</h3><p>Fitur Sedang Diperbarui.</p></center></div>
     <div id="memberView" class="view-content"><h3>Daftar Seluruh Kader</h3><div id="memberList"></div></div>
 
     <div id="profileModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; padding:20px;">
@@ -146,7 +143,6 @@
     let userRole = "anggota";
     let tempMedia = "";
 
-    // --- NAVIGATION ---
     window.toggleSidebar = () => {
         const side = document.getElementById('sidebar');
         const over = document.getElementById('overlay');
@@ -161,7 +157,6 @@
         window.toggleSidebar();
     };
 
-    // --- AUTH & ROLES ---
     onAuthStateChanged(auth, async (user) => {
         if(user) {
             let uDoc = await getDoc(doc(db, "users", user.uid));
@@ -171,12 +166,10 @@
             }
             const data = uDoc.data();
             userRole = (data.role || "anggota").toLowerCase();
-            
             document.getElementById('userNameSidebar').innerText = data.nama;
             document.getElementById('roleBadgeSidebar').innerText = userRole.toUpperCase();
             document.getElementById('userTopPhoto').src = user.photoURL || `https://ui-avatars.com/api/?name=${data.nama}&background=084d1e&color=fff`;
             document.getElementById('adminMenu').style.display = (userRole === 'owner' || userRole === 'admin') ? 'block' : 'none';
-            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'block';
             loadFeed();
@@ -193,7 +186,6 @@
         } catch (e) { alert(e.message); }
     };
 
-    // --- MEDIA & POSTING ---
     window.handleFile = (input) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -238,7 +230,7 @@
         });
     }
 
-    window.deletePost = async (id) => { if(confirm("Hapus postingan?")) await deleteDoc(doc(db, "posts", id)); };
+    window.deletePost = async (id) => { if(confirm("Hapus postingan ini?")) await deleteDoc(doc(db, "posts", id)); };
 
     window.handleAuth = async () => {
         const iden = document.getElementById('identifier').value;
@@ -264,7 +256,7 @@
         if(!n) return;
         await updateProfile(auth.currentUser, { displayName: n });
         await setDoc(doc(db, "users", auth.currentUser.uid), { nama: n }, { merge: true });
-        alert("Berhasil!"); window.closeModal('profileModal');
+        alert("Profil diperbarui!"); window.closeModal('profileModal');
     };
 
     window.openModal = (id) => document.getElementById(id).style.display = 'flex';
