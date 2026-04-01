@@ -2,15 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - Legacy V6 Pro+</title>
+    <title>HMI Connect - V9 Google Auth</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { 
             --hmi-green: #084d1e; 
-            --hmi-green-light: #0b6623;
             --hmi-gold: #d4af37; 
-            --hmi-gold-light: #f1c40f;
             --bg-light: #f1f5f9;
             --glass: rgba(255, 255, 255, 0.95);
         }
@@ -18,290 +16,265 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg-light); height: 100vh; overflow: hidden; }
 
-        /* --- AUTH SCREEN (LOGIN DENGAN SEJARAH DETAIL) --- */
+        /* --- LOGIN SCREEN --- */
         #loginScreen { 
-            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(8, 77, 30, 0.9)), 
-                        url('pngtree-hmi-organization-shield-logo-png-image_7307707.png');
+            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(8, 77, 30, 0.9)), url('pngtree-hmi-organization-shield-logo-png-image_7307707.png');
             background-size: cover; background-position: center;
-            position: fixed; inset: 0; z-index: 5000; display: flex; flex-direction: column; 
-            align-items: center; padding: 20px; overflow-y: auto;
+            position: fixed; inset: 0; z-index: 5000; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto;
         }
-        .auth-container { width: 100%; max-width: 420px; margin-top: 20px; margin-bottom: 50px; }
-        
-        /* --- HISTORY PANEL SPESIFIK --- */
         .history-detailed { 
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); 
-            border-radius: 24px; padding: 25px; color: white; margin-bottom: 25px;
-            backdrop-filter: blur(15px); text-align: justify;
+            border-radius: 24px; padding: 25px; color: white; margin-bottom: 25px; backdrop-filter: blur(15px); text-align: justify; width: 100%; max-width: 420px;
         }
-        .history-detailed h3 { color: var(--hmi-gold); font-weight: 800; font-size: 18px; margin: 0 0 15px 0; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        .history-detailed p { margin: 0 0 12px 0; font-size: 12px; line-height: 1.6; color: #cbd5e1; }
-        .history-detailed b { color: var(--hmi-gold-light); }
-        .history-detailed ul { padding-left: 15px; margin: 0 0 12px 0; font-size: 12px; color: #cbd5e1; }
-        .history-detailed li { margin-bottom: 5px; }
+        .auth-card { background: var(--glass); padding: 30px; border-radius: 28px; text-align: center; width: 100%; max-width: 420px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
 
-        /* --- AUTH CARD --- */
-        .auth-card { background: var(--glass); padding: 35px; border-radius: 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; }
-        .auth-card h3 { margin-top: 0; color: var(--hmi-green); font-weight: 800; font-size: 20px; }
-
-        /* --- UI ELEMENTS --- */
-        input, textarea { width: 100%; padding: 14px; margin: 8px 0; border-radius: 14px; border: 1px solid #ddd; outline: none; background: #f8fafc; font-size: 14px; }
-        input:focus { border-color: var(--hmi-green-light); }
-        .btn-green { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; width: 100%; cursor: pointer; font-size: 15px; transition: 0.3s; }
-        .btn-green:active { transform: scale(0.98); }
-
-        /* --- INTERIOR APP --- */
+        /* --- APP STRUCTURE --- */
         .topbar { background: var(--hmi-green); color: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; height: 65px; border-bottom: 3px solid var(--hmi-gold); z-index: 1000; position: relative; }
-        .user-avatar-top { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #eee; cursor: pointer; }
-        
         .view-content { height: calc(100vh - 65px); overflow-y: auto; padding: 20px; display: none; }
         .view-content.active { display: block; }
 
-        /* --- SIDEBAR --- */
-        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: #0f172a; transition: 0.4s ease; z-index: 2000; padding: 30px 15px; color: white; display: flex; flex-direction: column; }
-        .sidebar.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        .role-tag { background: var(--hmi-gold); color: #000; padding: 3px 10px; border-radius: 7px; font-size: 10px; font-weight: 800; margin-top: 8px; display: inline-block; }
-        .side-item { padding: 14px; border-radius: 12px; cursor: pointer; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; color: #cbd5e1; font-weight: 600; font-size: 14px; }
-        .side-item.active-nav { background: var(--hmi-green); color: white; }
+        /* --- SIDEBAR & MODAL --- */
+        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: #0f172a; transition: 0.4s; z-index: 2000; padding: 30px 15px; color: white; }
+        .sidebar.active { left: 0; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 4000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-card { background: white; padding: 25px; border-radius: 24px; width: 100%; max-width: 400px; }
 
-        /* --- SOCIAL FEED --- */
-        .post-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .post-user { font-weight: 800; color: var(--hmi-green); font-size: 15px; }
-        .post-meta { font-size: 10px; color: #94a3b8; margin-bottom: 10px; }
-        .post-content { font-size: 14px; margin-bottom: 12px; line-height: 1.5; color: #333; }
-        .post-media { width: 100%; border-radius: 12px; margin: 10px 0; max-height: 400px; object-fit: cover; }
-        .interact-bar { display: flex; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 10px; }
-        .btn-interact { background: none; border: none; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .btn-interact:active { color: var(--hmi-green); }
-
-        /* --- UTILS --- */
-        .overlay { position: fixed; display: none; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 1800; }
-        .overlay.active { display: block; }
+        /* --- UI ELEMENTS --- */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; background: #f8fafc; font-size: 14px; outline: none; }
+        .btn-green { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-google { background: white; color: #444; border: 1px solid #ddd; padding: 12px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-google img { width: 18px; }
+        
+        .post-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-delete-item { background: #fee2e2; color: #ef4444; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; float: right; }
+        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="overlay" class="overlay" onclick="window.closeSidebar()"></div>
-
 <div id="loginScreen">
-    <div class="auth-container">
-        
-        <div class="history-detailed">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="60" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-            </div>
-            <h3>Prajurit Ideologi</h3>
-            <p>
-                <b>Himpunan Mahasiswa Islam (HMI)</b> didirikan secara spesifik pada hari Rabu Pon, tanggal <b>14 Rabiul Awal 1366 H</b>, yang bertepatan dengan tanggal <b>5 Februari 1947</b>.
-            </p>
-            <p>
-                Peristiwa bersejarah ini terjadi di salah satu ruang kuliah <b>Sekolah Tinggi Islam (STI)</b>—sekarang UII—di Jalan Setodiningratan (sekarang Jalan Senopati) Yogyakarta.
-            </p>
-            <p>
-                Prakarsa berdirinya HMI dimotori oleh ayahanda <b>Lafran Pane</b>, mahasiswa STI tingkat satu, bersama 14 orang rekannya. Latar belakang berdirinya HMI didorong oleh dua komitmen asasi, yaitu:
-            </p>
-            <ul>
-                <li>Mempertahankan Negara Republik Indonesia dan mempertinggi derajat Rakyat Indonesia.</li>
-                <li>Menegakkan dan mengembangkan ajaran agama Islam.</li>
-            </ul>
-            <p>
-                HMI berdiri Independen, tidak berafiliasi pada partai politik mana pun, dan berasaskan <b>Islam</b>. Tujuan HMI adalah terbinanya insan akademis, pencipta, pengabdi yang bernafaskan Islam, dan bertangung jawab atas terwujudnya masyarakat adil makmur yang diridhoi Allah SWT.
-            </p>
-        </div>
-
-        <div class="auth-card">
-            <h1 style="color: var(--hmi-green); margin: 0 0 10px 0; font-size: 24px; font-weight: 800; letter-spacing: 1px;">HMI CONNECT</h1>
-            <p style="color: #64748b; font-size: 12px; margin-bottom: 20px;">Pusat Koordinasi & Informasi Kader</p>
-            
-            <h3 id="authTitle">Silakan Masuk</h3>
-            <input type="text" id="regNama" placeholder="Nama Lengkap Sesuai KTM" style="display:none;">
+    <div class="history-detailed">
+        <center><img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="50"></center>
+        <h3 style="color:var(--hmi-gold); text-align:center;">Prajurit Ideologi</h3>
+        <p style="font-size:11px;">HMI didirikan pada <b>5 Februari 1947</b> di Yogyakarta oleh <b>Lafran Pane</b>. Wadah perjuangan mahasiswa Islam untuk mempertahankan NKRI dan meninggikan derajat rakyat.</p>
+    </div>
+    <div class="auth-card">
+        <h2 style="color:var(--hmi-green); margin:0 0 10px 0;">HMI CONNECT</h2>
+        <div id="authInputs">
+            <input type="text" id="regNama" placeholder="Nama Lengkap" style="display:none;">
             <input type="text" id="identifier" placeholder="Email atau Nama Lengkap">
             <input type="password" id="password" placeholder="Password">
             <button class="btn-green" onclick="window.handleAuth()">MASUK KE SISTEM</button>
-            <button onclick="window.toggleAuth()" style="background:none; border:none; margin-top:15px; color:var(--hmi-green); text-decoration:underline; font-size:13px; font-weight:600;">Belum punya akun? Daftar</button>
         </div>
+        
+        <div style="margin: 15px 0; color: #94a3b8; font-size: 12px;">— ATAU —</div>
+        
+        <button class="btn-google" onclick="window.handleGoogleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg">
+            Masuk dengan Google
+        </button>
+
+        <button onclick="window.toggleAuth()" style="background:none; border:none; margin-top:15px; color:var(--hmi-green); text-decoration:underline; font-size:12px; font-weight:600;">Belum punya akun? Daftar Sekarang</button>
     </div>
 </div>
 
 <div id="app" style="display:none;">
     <div class="topbar">
         <div onclick="window.toggleSidebar()" style="cursor:pointer; font-size:24px;">☰</div>
-        <b style="font-size:14px; letter-spacing:1px;">BERANDA KADER</b>
-        <img id="userTopPhoto" src="" class="user-avatar-top" onclick="window.showView('homeView')">
+        <b>BERANDA KADER</b>
+        <img id="userTopPhoto" src="" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--hmi-gold); cursor:pointer;" onclick="window.openModal('profileModal')">
     </div>
 
     <div id="sidebar" class="sidebar">
-        <div class="side-profile" style="text-align:center; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;">
-            <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="50">
-            <h4 id="userNameSidebar" style="margin:10px 0 0 0; color:white;">Nama Kader</h4>
-            <div id="roleBadgeSidebar" class="role-tag">ANGGOTA</div>
-        </div>
-        <div class="side-item active-nav" onclick="window.showView('homeView', this)">🏠 Beranda (Feed)</div>
-        <div class="side-item" onclick="window.showView('groupListView', this)">👥 Grup Diskusi</div>
-        <div id="adminMenu" style="display:none;">
-            <div class="side-item" style="color:var(--hmi-gold);" onclick="window.showView('memberListView', this)">🛡️ Daftar Anggota</div>
-        </div>
-        <div class="side-item" style="margin-top:auto; color:#ef4444;" onclick="window.logout()">🚪 Keluar</div>
+        <center><img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="50">
+        <h4 id="userNameSidebar" style="margin-top:10px;">Kader</h4>
+        <div id="roleBadgeSidebar" style="color:var(--hmi-gold); font-weight:800; font-size:10px;">ANGGOTA</div></center><br>
+        <div style="padding:12px; cursor:pointer;" onclick="window.showView('homeView')">🏠 Beranda (Feed)</div>
+        <div style="padding:12px; cursor:pointer;" onclick="window.showView('groupListView')">👥 Grup Diskusi</div>
+        <div id="adminMenu" style="display:none; padding:12px; cursor:pointer;" onclick="window.showView('memberListView')">🛡️ Daftar Anggota</div>
+        <div onclick="window.logout()" style="color:#ef4444; margin-top:30px; padding:12px; cursor:pointer; font-weight:bold;">🚪 Keluar Akun</div>
     </div>
 
     <div id="homeView" class="view-content active">
-        <div class="create-post" style="background:white; padding:20px; border-radius:20px; border:2px solid #e2e8f0; margin-bottom:15px;">
-            <textarea id="postText" placeholder="Bagikan situasi terkini HMI atau Indonesia..." style="border:none; background:none; padding:0;"></textarea>
+        <div class="post-card" style="border: 2px solid #e2e8f0;">
+            <textarea id="postText" placeholder="Bagikan instruksi atau situasi terkini..." style="border:none; background:none; resize:none;"></textarea>
+            <input type="file" id="homeFile" accept="image/*" style="display:none;" onchange="window.handleFile(this)">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <button onclick="window.promptMedia()" style="background:none; border:none; color:var(--hmi-green); font-weight:700; font-size:12px; cursor:pointer;">📷 Media URL</button>
-                <button class="btn-green" style="width:auto; padding:10px 20px;" onclick="window.submitPost()">POST</button>
+                <button onclick="document.getElementById('homeFile').click()" style="background:none; border:none; color:var(--hmi-green); font-weight:bold; cursor:pointer;">🖼️ Pilih Galeri</button>
+                <button class="btn-green" style="width:auto; padding:8px 25px;" onclick="window.submitPost()">KIRIM POST</button>
             </div>
+            <div id="previewContainer" style="display:none; margin-top:10px;"><img id="imgPreview" class="post-media"></div>
         </div>
         <div id="feedContainer"></div>
     </div>
 
-    <div id="groupListView" class="view-content">
-        <h3 style="color:var(--hmi-green); border-bottom:2px solid var(--hmi-gold); padding-bottom:10px;">Daftar Diskusi</h3>
-        <div id="groupContainer"></div>
-    </div>
-
-    <div id="memberListView" class="view-content">
-        <h3 style="color:var(--hmi-green);">Daftar Anggota Terdaftar</h3>
-        <div id="memberContainer"></div>
+    <div id="profileModal" class="modal">
+        <div class="modal-card">
+            <h3 style="margin-top:0; color:var(--hmi-green);">Pengaturan Kader</h3>
+            <label style="font-size:12px; font-weight:bold;">Ubah Nama Tampilan:</label>
+            <input type="text" id="newName" placeholder="Nama Baru">
+            <button class="btn-green" onclick="window.updateProfileData()">SIMPAN NAMA</button>
+            <hr style="margin:20px 0; opacity:0.2;">
+            <label style="font-size:12px; font-weight:bold;">Ubah Password:</label>
+            <input type="password" id="newPass" placeholder="Password Baru">
+            <button class="btn-green" style="background:#334155;" onclick="window.updateUserPass()">GANTI PASSWORD</button>
+            <button onclick="window.closeModal('profileModal')" style="width:100%; border:none; background:none; margin-top:15px; color:gray;">TUTUP</button>
+        </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where, onSnapshot, addDoc, orderBy, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, updatePassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, addDoc, orderBy, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = { apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo", authDomain: "hmi-app-ac76d.firebaseapp.com", projectId: "hmi-app-ac76d" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-    let selectedMedia = "";
+    let tempMedia = "";
+    let userRole = "anggota";
 
-    // --- INTEGRATED LOGIC ---
-    
-    // 1. Social Interactions
-    window.likePost = async (id) => { await updateDoc(doc(db, "posts", id), { likes: increment(1) }); };
-    window.sharePost = (txt) => { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("HMI CONNECT: "+txt)}`); };
-
-    // 2. Multimedia Feed
-    window.promptMedia = () => { selectedMedia = prompt("Masukkan URL Foto/Video (jpg/png/mp4):"); };
-    window.submitPost = async () => {
-        const txt = document.getElementById('postText').value;
-        if(!txt && !selectedMedia) return;
-        const u = await getDoc(doc(db, "users", auth.currentUser.uid));
-        await addDoc(collection(db, "posts"), {
-            userName: u.data().nama, content: txt, media: selectedMedia, likes: 0, time: Date.now()
-        });
-        document.getElementById('postText').value = ""; selectedMedia = "";
+    // --- LOGIN GOOGLE ---
+    window.handleGoogleLogin = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            // Simpan data ke firestore jika baru
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) {
+                await setDoc(doc(db, "users", user.uid), {
+                    nama: user.displayName,
+                    email: user.email,
+                    role: "anggota"
+                });
+            }
+        } catch (error) {
+            alert("Gagal Login Google: " + error.message);
+        }
     };
 
-    // 3. Load Social Feed
+    // --- FILE HANDLING (GALERI) ---
+    window.handleFile = (input) => {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            tempMedia = reader.result;
+            document.getElementById('imgPreview').src = tempMedia;
+            document.getElementById('previewContainer').style.display = 'block';
+        };
+        if(file) reader.readAsDataURL(file);
+    };
+
+    // --- PROFIL & AUTH LOGIC ---
+    window.updateProfileData = async () => {
+        const name = document.getElementById('newName').value;
+        if(!name) return;
+        await updateProfile(auth.currentUser, { displayName: name });
+        await setDoc(doc(db, "users", auth.currentUser.uid), { nama: name }, { merge: true });
+        alert("Nama diperbarui!");
+        window.closeModal('profileModal');
+    };
+
+    window.updateUserPass = async () => {
+        const pass = document.getElementById('newPass').value;
+        if(pass.length < 6) return alert("Password minimal 6 karakter");
+        try {
+            await updatePassword(auth.currentUser, pass);
+            alert("Password diperbarui!");
+            window.closeModal('profileModal');
+        } catch(e) { alert("Harus Login Ulang sebelum ganti password"); }
+    };
+
+    window.submitPost = async () => {
+        const txt = document.getElementById('postText').value;
+        if(!txt && !tempMedia) return;
+        await addDoc(collection(db, "posts"), {
+            uid: auth.currentUser.uid,
+            userName: auth.currentUser.displayName || "Kader HMI",
+            content: txt,
+            media: tempMedia,
+            time: Date.now()
+        });
+        document.getElementById('postText').value = "";
+        document.getElementById('previewContainer').style.display = 'none';
+        tempMedia = "";
+    };
+
+    window.deletePost = async (id) => {
+        if(confirm("Hapus postingan ini?")) await deleteDoc(doc(db, "posts", id));
+    };
+
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (snap) => {
             const container = document.getElementById('feedContainer');
             container.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
+                const canDelete = p.uid === auth.currentUser.uid || userRole === 'owner';
                 container.innerHTML += `
                     <div class="post-card">
-                        <div class="post-user">${p.userName}</div>
-                        <div class="post-meta">${new Date(p.time).toLocaleString()}</div>
-                        <div class="post-content">${p.content}</div>
-                        ${p.media ? (p.media.includes('.mp4') ? `<video src="${p.media}" class="post-media" controls></video>` : `<img src="${p.media}" class="post-media">`) : ''}
-                        <div class="interact-bar">
-                            <button class="btn-interact" onclick="window.likePost('${d.id}')">💚 ${p.likes || 0} Like</button>
-                            <button class="btn-interact" onclick="window.sharePost('${p.content}')">🔗 Share</button>
-                        </div>
+                        ${canDelete ? `<button class="btn-delete-item" onclick="window.deletePost('${d.id}')">Hapus</button>` : ''}
+                        <b style="color:var(--hmi-green)">${p.userName}</b><br><small style="color:gray">${new Date(p.time).toLocaleString()}</small>
+                        <p style="font-size:14px; margin-top:10px;">${p.content}</p>
+                        ${p.media ? `<img src="${p.media}" class="post-media">` : ''}
                     </div>
                 `;
             });
         });
     }
 
-    // 4. Auth & Role System
-    window.handleAuth = async () => {
-        const iden = document.getElementById('identifier').value.trim();
-        const pass = document.getElementById('password').value;
-        const nama = document.getElementById('regNama').value.trim();
-        const isReg = document.getElementById('regNama').style.display === "block";
-
-        try {
-            if(isReg) {
-                const res = await createUserWithEmailAndPassword(auth, iden, pass);
-                await setDoc(doc(db, "users", res.user.uid), { nama: nama, email: iden, role: "anggota", tglLahir: "" });
-                await updateProfile(res.user, { displayName: nama });
-            } else {
-                let email = iden;
-                if(!iden.includes('@')) {
-                    const q = query(collection(db, "users"), where("nama", "==", iden));
-                    const s = await getDocs(q);
-                    if(s.empty) return alert("User tidak ditemukan");
-                    email = s.docs[0].data().email;
-                }
-                await signInWithEmailAndPassword(auth, email, pass);
-            }
-        } catch (e) { alert(e.message); }
-    };
-
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if(user) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'block';
-            onSnapshot(doc(db, "users", user.uid), (s) => {
-                if(!s.exists()) return;
+            const s = await getDoc(doc(db, "users", user.uid));
+            if(s.exists()) {
                 const d = s.data();
-                const role = (d.role || "anggota").toLowerCase();
+                userRole = (d.role || "anggota").toLowerCase();
                 document.getElementById('userNameSidebar').innerText = d.nama;
-                document.getElementById('roleBadgeSidebar').innerText = role.toUpperCase();
-                document.getElementById('adminMenu').style.display = (role === 'owner' || role === 'admin') ? 'block' : 'none';
-                document.getElementById('userTopPhoto').src = `https://ui-avatars.com/api/?name=${d.nama}&background=084d1e&color=fff`;
-            });
+                document.getElementById('roleBadgeSidebar').innerText = userRole.toUpperCase();
+                document.getElementById('adminMenu').style.display = (userRole === 'owner' || userRole === 'admin') ? 'block' : 'none';
+                document.getElementById('userTopPhoto').src = user.photoURL || `https://ui-avatars.com/api/?name=${d.nama}&background=084d1e&color=fff`;
+            }
             loadFeed();
-            loadGroups();
         } else {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('app').style.display = 'none';
         }
     });
 
-    // 5. Navigation Utils
-    window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); };
-    window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); };
-    window.showView = (id, el) => {
-        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(el) {
-            document.querySelectorAll('.side-item').forEach(i => i.classList.remove('active-nav'));
-            el.classList.add('active-nav');
-        }
-        window.toggleSidebar();
+    window.handleAuth = async () => {
+        const iden = document.getElementById('identifier').value.trim();
+        const pass = document.getElementById('password').value;
+        const nama = document.getElementById('regNama').value.trim();
+        const isReg = document.getElementById('regNama').style.display === "block";
+        try {
+            if(isReg) {
+                const res = await createUserWithEmailAndPassword(auth, iden, pass);
+                await setDoc(doc(db, "users", res.user.uid), { nama: nama, email: iden, role: "anggota" });
+                await updateProfile(res.user, { displayName: nama });
+            } else {
+                await signInWithEmailAndPassword(auth, iden, pass);
+            }
+        } catch (e) { alert(e.message); }
     };
+
+    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
     window.logout = () => signOut(auth);
     window.toggleAuth = () => { 
-        const isLogin = document.getElementById('authTitle').innerText === "Silakan Masuk";
+        const isLogin = document.getElementById('regNama').style.display === "none";
         document.getElementById('regNama').style.display = isLogin ? 'block' : 'none';
-        document.getElementById('authTitle').innerText = isLogin ? "Daftar Kader" : "Silakan Masuk";
     };
-
-    // 6. Groups ( Tetap Berfungsi)
-    function loadGroups() {
-        onSnapshot(collection(db, "groups"), (s) => {
-            const container = document.getElementById('groupContainer');
-            container.innerHTML = "";
-            s.forEach(g => {
-                const d = g.data();
-                const img = d.fotoGrup || "pngtree-hmi-organization-shield-logo-png-image_7307707.png";
-                container.innerHTML += `
-                    <div style="background:white; padding:15px; border-radius:15px; margin-bottom:10px; display:flex; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                        <img src="${img}" style="width:45px; height:45px; border-radius:50%; margin-right:15px; object-fit:cover;">
-                        <div style="flex:1;"><b>${d.namaGrup}</b><br><small style="color:gray;">Buka Diskusi</small></div>
-                    </div>
-                `;
-            });
-        });
-    }
-
+    window.showView = (id) => {
+        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.toggleSidebar();
+    };
 </script>
 </body>
 </html>
