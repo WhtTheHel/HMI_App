@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <title>HMI Super App - Pusat Koordinasi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* --- RESET & BASE STYLE --- */
+        /* --- CSS STYLE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             margin: 0;
@@ -15,137 +13,39 @@
             background: linear-gradient(135deg, #0b6623 0%, #1a5f2e 50%, #111 100%);
             color: white;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* --- LOGIN SCREEN --- */
-        #loginScreen { padding: 20px; }
         .login-container {
-            max-width: 400px;
-            margin: 40px auto;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 400px; margin: 40px auto; background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px); border-radius: 25px; padding: 30px; text-align: center;
         }
 
-        .logo-hmi {
-            width: 80px; height: 80px;
-            background: white;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .logo-hmi img { width: 70%; }
-
-        .history-box {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 15px;
-            font-size: 13px;
-            text-align: left;
-            margin: 20px 0;
-            border-left: 4px solid #f1c40f;
-        }
-
-        /* --- UI COMPONENTS --- */
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
-            outline: none;
-            color: #333;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: none; font-size: 16px; }
+        button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+        
         .btn-main { background: #0b6623; color: white; }
-        .btn-google { background: #4285F4; color: white; }
-        .btn-outline { background: transparent; border: 1px solid white; color: white; text-align: center; display: block; width: 100%; text-decoration: none; }
+        .btn-outline { background: transparent; border: 1px solid white; color: white; text-decoration: none; display: block; }
 
-        /* --- APP SCREEN --- */
         #app { display: none; }
-        .topbar {
-            background: #0b6623;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1002;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
+        .topbar { background: #0b6623; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
 
-        /* --- SIDEBAR & OVERLAY --- */
         .sidebar {
-            position: fixed;
-            left: -280px;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: #111;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2001;
-            padding: 20px;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+            background: #111; transition: 0.3s; z-index: 2001; padding: 20px;
         }
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; display: none; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; }
+        .overlay.active { display: block; }
 
-        .sidebar.active {
-            left: 0;
-        }
+        .card { background: white; color: #333; margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Chat Styles */
+        #messagesContainer { height: 300px; overflow-y: auto; background: #f4f4f4; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 14px; }
+        .msg-me { align-self: flex-end; background: #0b6623; color: white; }
+        .msg-them { align-self: flex-start; background: #ddd; color: black; }
 
-        .overlay {
-            position: fixed;
-            display: none;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            backdrop-filter: blur(4px);
-        }
-
-        .overlay.active {
-            display: block;
-        }
-
-        .card {
-            background: white;
-            color: #333;
-            margin: 15px;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        /* --- MODAL --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            color: black;
-            padding: 25px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            z-index: 3000;
-        }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; z-index: 3000; }
     </style>
 </head>
 <body>
@@ -154,158 +54,216 @@
 
 <div id="loginScreen">
     <div class="login-container">
-        <div class="logo-hmi">
-            <img src="https://upload.wikimedia.org/wikipedia/id/0/05/Logo_HMI.png" alt="Logo HMI">
-        </div>
-        <h2 style="margin:0;">HMI CABANG LABUHANBATU RAYA</h2>
-        
-        <div class="history-box">
-            <b style="color:#90EE90;">📜 Sejarah HMI</b><br>
-            Didirikan di <b>Yogyakarta, 5 Feb 1947</b> oleh <b>Lafran Pane</b>.
-        </div>
-
-        <div id="authFields">
-            <input type="text" id="namaUser" placeholder="Nama Lengkap" style="display:none">
-            <input type="email" id="email" placeholder="Email" autocomplete="email">
-            <input type="password" id="password" placeholder="Password">
-        </div>
-        
-        <div id="loginGroup">
-            <button class="btn-main" onclick="handleLogin()">🚀 Masuk</button>
-            <button class="btn-outline" onclick="showRegisterUI()">📝 Daftar Akun Baru</button>
-        </div>
-
-        <div id="registerGroup" style="display:none">
-            <button class="btn-main" onclick="handleRegister()">✅ Konfirmasi Daftar</button>
-            <button class="btn-outline" onclick="cancelRegisterUI()">⬅️ Batal</button>
-        </div>
-
-        <button class="btn-google" style="margin-top:15px;" onclick="handleGoogleLogin()">🔗 Login Google</button>
+        <h2>HMI SUPER APP</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn-main" onclick="handleLogin()">🚀 Masuk</button>
+        <button class="btn-outline" onclick="handleGoogleLogin()">🔗 Login Google</button>
     </div>
 </div>
 
 <div id="app">
     <div class="topbar">
-        <div id="burgerBtn" style="cursor:pointer; font-size:28px; padding: 5px; user-select: none;">☰</div>
-        <b style="font-size: 18px;">HMI CABANG LABUHANBATU RAYA</b>
-        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:bold;">ROLE</div>
+        <div id="burgerBtn" style="cursor:pointer; font-size:24px;">☰</div>
+        <b>HMI SUPER APP</b>
+        <div id="adminBadge" style="display:none; background:#f1c40f; color:black; padding:2px 8px; border-radius:5px; font-size:10px;">ROLE</div>
     </div>
 
     <div id="sidebar" class="sidebar">
-        <h3 style="color:#f1c40f; margin-top:0;">Menu Utama</h3>
-        <hr style="border: 0.5px solid #333; margin: 15px 0;">
-        <p id="userNameDisplay" style="font-weight:bold; color:#90EE90; margin-bottom: 25px;">Memuat...</p>
+        <h3 style="color:#f1c40f;">Menu</h3>
+        <p id="userNameDisplay" style="color:#90EE90; font-weight:bold;">Memuat...</p>
+        <button class="btn-outline" onclick="closeAll()">🏠 Beranda</button>
         
-        <button class="btn-outline" onclick="scrollToView('app')">🏠 Beranda</button>
-        <button class="btn-outline" onclick="scrollToView('groupListView')">📂 Daftar Grup</button>
-        
-        <div id="adminMenuSection" style="display:none; border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
-            <small style="color: #888; letter-spacing: 1px;">MANAGEMENT PANEL</small>
+        <div id="adminMenuSection" style="display:none; border-top:1px solid #333; margin-top:10px; padding-top:10px;">
             <button class="btn-outline" onclick="openModal('groupModal')">➕ Buat Grup Baru</button>
-            <button class="btn-outline" onclick="scrollToView('adminPanel')">👥 Kelola Anggota</button>
         </div>
         
-        <button class="btn-outline" onclick="logout()" style="margin-top:40px; border-color:#ff4d4d; color:#ff4d4d;">🚪 Keluar</button>
+        <button class="btn-outline" onclick="logout()" style="margin-top:20px; color:#ff4d4d; border-color:#ff4d4d;">🚪 Keluar</button>
     </div>
 
-    <div class="card">
-        <h4 style="margin-top:0; color: #0b6623;">📢 Beranda</h4>
-        <p style="font-size:14px; line-height:1.6; color: #555;">Selamat datang di pusat koordinasi kader HMI. Gunakan aplikasi ini untuk memperkuat koordinasi antar komisariat.</p>
-    </div>
-
-    <div id="app">
     <div id="groupListView" class="card">
-        <h4 style="margin:0; border-bottom: 2px solid #0b6623; padding-bottom: 8px; color: #0b6623;">📂 Pilih Grup / Komisariat</h4>
-        <div id="groupContainer" style="margin-top:15px;">
-            <p style="color:gray;">Memuat daftar grup...</p>
-        </div>
+        <h4 style="color:#0b6623; margin-top:0;">📂 Daftar Grup & Komisariat</h4>
+        <div id="groupContainer">Memuat grup...</div>
     </div>
 
-    <div id="chatView" class="card" style="display:none; flex-direction: column; height: 500px;">
+    <div id="chatView" class="card" style="display:none; flex-direction:column;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h4 id="chatGroupName" style="margin:0; color:#0b6623;">Nama Grup</h4>
-            <button onclick="backToGroups()" style="width:auto; padding:5px 10px; background:#666; color:white; border-radius:5px; border:none; cursor:pointer;">❌ Tutup</button>
+            <h4 id="chatGroupName" style="margin:0;">Nama Grup</h4>
+            <button onclick="backToGroups()" style="background:#eee; border:none; padding:5px; border-radius:5px;">❌ Tutup</button>
         </div>
-        
-        <div id="messagesContainer" style="flex:1; overflow-y:auto; padding:10px; background:#f0f0f0; border-radius:10px; display:flex; flex-direction:column; gap:8px;"></div>
-
+        <div id="messagesContainer"></div>
         <div style="display:flex; gap:5px; margin-top:10px;">
             <input type="text" id="chatInput" placeholder="Tulis pesan..." style="flex:1; margin:0;">
             <button class="btn-main" onclick="sendMessage()" style="width:70px; margin:0;">Kirim</button>
         </div>
     </div>
 
-    </div>
-    
-    <div class="card" id="adminPanel" style="display:none;">
-        <h4 style="border-bottom: 2px solid #0b6623; padding-bottom:10px; margin-top:0; color: #0b6623;">👥 Manajemen Anggota (Owner Only)</h4>
+    <div id="adminPanel" class="card" style="display:none;">
+        <h4 style="color:#0b6623;">👥 Kelola Anggota</h4>
         <div id="userList"></div>
     </div>
 </div>
 
 <div id="groupModal" class="modal">
-    <h4 style="margin-top:0; color: #333;">Buat Grup Komisariat</h4>
-    <input type="text" id="newGroupName" placeholder="Nama Grup/Komisariat">
-    <button class="btn-main" onclick="submitGroup()">✅ Simpan Grup</button>
+    <h4>Buat Grup Baru</h4>
+    <input type="text" id="newGroupName" placeholder="Nama Komisariat">
+    <button class="btn-main" onclick="submitGroup()">Simpan</button>
     <button class="btn-outline" style="color:#666; border-color:#ccc;" onclick="closeAll()">Batal</button>
 </div>
 
-<script type="module" src="app.js"></script>
-       
-<script>
-    // FUNGSI GLOBAL
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        if (sidebar && overlay) {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, collection, onSnapshot, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo",
+        authDomain: "hmi-app-ac76d.firebaseapp.com",
+        projectId: "hmi-app-ac76d"
     };
 
-    window.closeAll = function() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const modal = document.getElementById('groupModal');
-        
-        if (sidebar) sidebar.classList.remove('active');
-        if (overlay) overlay.classList.remove('active');
-        if (modal) modal.style.display = 'none';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentGroupId = null;
+    let chatListener = null;
+
+    // --- AUTH ---
+    window.handleLogin = async () => {
+        try {
+            await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+        } catch (e) { alert("Login Gagal"); }
     };
 
-    window.openModal = function(id) {
-        const modal = document.getElementById(id);
-        const overlay = document.getElementById('overlay');
-        if (modal) modal.style.display = 'block';
-        if (overlay) overlay.classList.add('active');
+    window.handleGoogleLogin = async () => {
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { alert("Google Gagal"); }
     };
 
-    window.scrollToView = function(id) {
-        const el = document.getElementById(id);
-        if(el) {
-            el.scrollIntoView({ behavior: 'smooth' });
-            window.closeAll();
-        }
-    };
+    window.logout = () => signOut(auth);
 
-    // Event Listener Hamburger - SUDAH DIPERBAIKI (TIDAK TERPUTUS)
-    window.addEventListener('DOMContentLoaded', () => {
-        const burger = document.getElementById('burgerBtn');
-        const overlay = document.getElementById('overlay');
-        
-        if (burger) {
-            // Pastikan addEventListener tertulis menyambung
-            burger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.toggleSidebar();
+    // --- MONITOR USER & ROLE ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+
+            onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('userNameDisplay').innerText = data.nama || data.email;
+                    
+                    const role = (data.role || data.Role || "anggota").toLowerCase().trim();
+                    const isOwner = role === "owner";
+                    const isAdmin = role === "admin";
+
+                    document.getElementById('adminMenuSection').style.display = (isOwner || isAdmin) ? 'block' : 'none';
+                    document.getElementById('adminBadge').style.display = (isOwner || isAdmin) ? 'block' : 'none';
+                    document.getElementById('adminBadge').innerText = role.toUpperCase();
+                    
+                    if(isOwner) {
+                        document.getElementById('adminPanel').style.display = 'block';
+                        loadUserManagement();
+                    }
+                }
             });
-        }
-        
-        if (overlay) {
-            overlay.addEventListener('click', window.closeAll);
+            loadGroupList();
+        } else {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('app').style.display = 'none';
         }
     });
-</script>
 
+    // --- GRUP & CHAT ---
+    function loadGroupList() {
+        onSnapshot(collection(db, "groups"), (snap) => {
+            const container = document.getElementById('groupContainer');
+            container.innerHTML = "";
+            snap.forEach(g => {
+                const div = document.createElement('div');
+                div.style = "padding:12px; border:1px solid #eee; border-radius:10px; margin-bottom:8px; cursor:pointer; color:black;";
+                div.innerHTML = `<b>📂 ${g.data().namaGrup}</b><br><small>Klik untuk chat</small>`;
+                div.onclick = () => openChat(g.id, g.data().namaGrup);
+                container.appendChild(div);
+            });
+        });
+    }
+
+    window.openChat = (id, name) => {
+        currentGroupId = id;
+        document.getElementById('groupListView').style.display = 'none';
+        document.getElementById('chatView').style.display = 'flex';
+        document.getElementById('chatGroupName').innerText = name;
+        loadMessages(id);
+    };
+
+    window.backToGroups = () => {
+        document.getElementById('groupListView').style.display = 'block';
+        document.getElementById('chatView').style.display = 'none';
+        if(chatListener) chatListener();
+    };
+
+    function loadMessages(id) {
+        const container = document.getElementById('messagesContainer');
+        chatListener = onSnapshot(collection(db, "groups", id, "messages"), (snap) => {
+            container.innerHTML = "";
+            const sorted = snap.docs.sort((a,b) => (a.data().time || 0) - (b.data().time || 0));
+            sorted.forEach(m => {
+                const d = m.data();
+                const isMe = d.senderId === auth.currentUser.uid;
+                const div = document.createElement('div');
+                div.className = `msg ${isMe ? 'msg-me' : 'msg-them'}`;
+                div.innerHTML = `<small style="font-size:9px; display:block;">${d.senderName}</small>${d.text}`;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        });
+    }
+
+    window.sendMessage = async () => {
+        const input = document.getElementById('chatInput');
+        if(!input.value || !currentGroupId) return;
+        await addDoc(collection(db, "groups", currentGroupId, "messages"), {
+            text: input.value,
+            senderId: auth.currentUser.uid,
+            senderName: document.getElementById('userNameDisplay').innerText,
+            time: Date.now()
+        });
+        input.value = "";
+    };
+
+    window.submitGroup = async () => {
+        const name = document.getElementById('newGroupName').value;
+        if(!name) return;
+        await addDoc(collection(db, "groups"), { namaGrup: name, createdAt: serverTimestamp() });
+        closeAll();
+    };
+
+    function loadUserManagement() {
+        onSnapshot(collection(db, "users"), (snap) => {
+            const list = document.getElementById('userList');
+            list.innerHTML = "";
+            snap.forEach(u => {
+                const div = document.createElement('div');
+                div.style = "padding:5px; border-bottom:1px solid #eee; font-size:12px;";
+                div.innerHTML = `${u.data().nama} - <b>${u.data().role}</b>`;
+                list.appendChild(div);
+            });
+        });
+    }
+
+    // --- UI HELPERS ---
+    window.closeAll = () => {
+        document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('groupModal').style.display = 'none';
+    };
+    window.openModal = (id) => { document.getElementById(id).style.display = 'block'; };
+    document.getElementById('burgerBtn').onclick = () => {
+        document.getElementById('sidebar').classList.add('active');
+        document.getElementById('overlay').style.display = 'block';
+    };
+    document.getElementById('overlay').onclick = closeAll;
+</script>
 </body>
-            </html>
+</html>
