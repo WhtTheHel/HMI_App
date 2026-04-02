@@ -2,275 +2,281 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V34 Integrated</title>
+    <title>HMI Connect - V38 Final Edition</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --hmi-green: #084d1e; --hmi-gold: #d4af37; --bg: #f8fafc; }
-        body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; }
-        * { box-sizing: border-box; }
+        :root { --hmi-green: #084d1e; --hmi-black: #1a1a1a; --hmi-gold: #d4af37; --bg: #f0f2f5; }
+        body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* AUTH SCREEN */
-        #authScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: white; }
-        .auth-card { width: 100%; max-width: 350px; text-align: center; }
-
-        /* MAIN APP (Hidden by default) */
-        #mainApp { display: none; }
-        .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 3px solid var(--hmi-gold); z-index: 1000; }
-        .view-content { padding: 15px; display: none; min-height: 100vh; padding-bottom: 120px; }
-        .view-content.active { display: block; }
+        /* AUTH INTERFACE */
+        #authLayer { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px; background: #fff; }
+        .auth-card { width: 100%; max-width: 360px; text-align: center; }
         
-        /* UI COMPONENTS */
-        .card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #edf2f7; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 15px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-hmi:disabled { opacity: 0.5; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; }
+        /* APP INTERFACE */
+        #appLayer { display: none; }
+        .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
+        .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #333; cursor: pointer; z-index: 10000; }
 
-        /* SIDEBAR */
-        #sidebar { position: fixed; left: -320px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 9999; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-        #sidebar.active { left: 0; }
-        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9000; }
-        .avatar-nav { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #eee; }
+        /* CARDS & POSTS */
+        .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-hmi:active { transform: scale(0.98); background: var(--hmi-black); }
+        .btn-google { background: #fff; color: #444; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-size: 14px; background: #fafafa; }
+        input:focus { border-color: var(--hmi-green); }
+
+        .post-media { width: 100%; border-radius: 12px; margin-top: 12px; display: block; background: #eee; min-height: 180px; object-fit: cover; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="authScreen">
+<div id="authLayer">
     <div class="auth-card">
-        <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="80" style="margin-bottom:20px;">
-        <h2 style="color:var(--hmi-green); margin-bottom:5px;">HMI CONNECT</h2>
-        <p style="font-size:12px; color:gray; margin-bottom:20px;">Silakan Masuk untuk Melanjutkan</p>
-        
-        <div id="loginForm">
-            <input type="email" id="emailIn" placeholder="Email Kader">
-            <input type="password" id="passIn" placeholder="Password">
-            <button class="btn-hmi" id="btnLoginAction">MASUK</button>
-            <p style="font-size:12px; margin-top:15px;">Belum punya akun? <a href="#" onclick="toggleAuth(false)" style="color:var(--hmi-green); font-weight:bold;">Daftar Disini</a></p>
+        <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="90" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+        <h2 style="color:var(--hmi-green); margin: 10px 0 5px 0; letter-spacing: -1px;">HMI CONNECT</h2>
+        <p style="font-size:12px; color:#666; margin-bottom:30px; font-weight: 600;">Bahagia HMI, Jayalah Indonesia!</p>
+
+        <div id="loginBox">
+            <input type="email" id="logEmail" placeholder="Email Kader">
+            <input type="password" id="logPass" placeholder="Password">
+            <button class="btn-hmi" id="btnSignIn">MASUK SEKARANG</button>
+            <div style="margin: 15px 0; font-size: 12px; color: #aaa;">ATAU</div>
+            <button class="btn-hmi btn-google" id="btnGoogleAuth">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18"> Lanjutkan dengan Google
+            </button>
+            <p style="font-size:13px; margin-top:25px;">Kader baru? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar Akun</b></p>
         </div>
 
-        <div id="regForm" style="display:none;">
-            <input type="text" id="nameReg" placeholder="Nama Lengkap">
-            <input type="email" id="emailReg" placeholder="Email">
-            <input type="password" id="passReg" placeholder="Password Baru">
-            <button class="btn-hmi" id="btnRegAction">DAFTAR KADER</button>
-            <p style="font-size:12px; margin-top:15px;">Sudah punya akun? <a href="#" onclick="toggleAuth(true)" style="color:var(--hmi-green); font-weight:bold;">Login</a></p>
+        <div id="regBox" style="display:none;">
+            <input type="text" id="regName" placeholder="Nama Lengkap">
+            <input type="email" id="regEmail" placeholder="Email Baru">
+            <input type="password" id="regPass" placeholder="Password (Min. 6 Karakter)">
+            <button class="btn-hmi" id="btnSignUp">DAFTAR KADER</button>
+            <p style="font-size:13px; margin-top:25px;">Sudah ada akun? <b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Kembali Login</b></p>
         </div>
     </div>
 </div>
 
-<div id="mainApp">
-    <div id="overlay" onclick="window.toggleSidebar()"></div>
-    
+<div id="appLayer">
     <div class="topbar">
-        <div onclick="window.toggleSidebar()" style="font-size:24px; cursor:pointer;">☰</div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="30">
-            <b id="vTitle">BERANDA</b>
+        <div style="font-size:24px; color: var(--hmi-gold);">☰</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="32">
+            <b style="font-weight: 800; letter-spacing: 1px;">BERANDA</b>
         </div>
-        <img id="navAva" onclick="document.getElementById('profileModal').style.display='flex'" class="avatar-nav">
+        <img id="navAva" class="nav-ava" onclick="openProfile()">
     </div>
 
-    <div id="sidebar">
-        <div style="text-align:center; padding-bottom:20px; border-bottom:1px solid #eee;">
-            <img id="sideAva" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--hmi-gold); object-fit:cover; margin-bottom:10px;">
-            <h4 id="sideName" style="margin:0;">Kader HMI</h4>
-        </div>
-        <div style="margin-top:20px;">
-            <div style="padding:15px; font-weight:700; cursor:pointer;" onclick="window.showView('homeView', 'BERANDA')">🏠 Beranda</div>
-            <div style="padding:15px; font-weight:700; cursor:pointer;" onclick="window.showView('groupView', 'GRUP DISKUSI')">👥 Grup Diskusi</div>
-            <div style="padding:15px; font-weight:700; cursor:pointer; color:red; margin-top:50px;" id="btnLogout">🚪 Keluar</div>
-        </div>
-    </div>
-
-    <div id="homeView" class="view-content active">
-        <div class="card" style="border: 2px solid var(--hmi-green);">
-            <textarea id="pInput" placeholder="Bagikan instruksi perjuangan..."></textarea>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label for="pFile" style="background:#f1f5f9; padding:10px 15px; border-radius:10px; font-weight:bold; font-size:12px; cursor:pointer;">🖼️ Media</label>
-                <input type="file" id="pFile" accept="image/*,video/*" style="display:none;" onchange="window.handlePostMedia(this)">
+    <div style="padding:15px; padding-bottom:100px;">
+        <div class="card" style="border-left: 5px solid var(--hmi-green);">
+            <textarea id="pInput" placeholder="Tuliskan gagasan perjuangan..." style="border:none; background:transparent; font-size:16px;"></textarea>
+            <div id="previewArea" style="display:none; position:relative;">
+                <img id="imgPrev" class="post-media" style="min-height: 50px; margin-bottom:10px;">
+                <b onclick="resetMedia()" style="position:absolute; top:20px; right:10px; background:red; color:white; padding:5px 10px; border-radius:50%; cursor:pointer;">✕</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #eee; padding-top: 10px;">
+                <label for="pFile" style="background:#f1f5f9; padding:10px 15px; border-radius:10px; font-weight:bold; font-size:12px; cursor:pointer; color:var(--hmi-green);">📷 Lampirkan Foto</label>
+                <input type="file" id="pFile" accept="image/*" style="display:none;">
                 <button class="btn-hmi" id="btnPost" style="width:auto; padding:10px 25px; margin:0;">POSTING</button>
             </div>
-            <div id="pNotify" style="display:none; color:green; font-size:11px; margin-top:8px; font-weight:bold;">✅ Media siap!</div>
         </div>
-        <div id="feed"></div>
-    </div>
 
-    <div id="groupView" class="view-content">
-        <div id="chatBox" class="card" style="height:65vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
-        <div style="display:flex; gap:8px; background:white; padding:10px; border-radius:20px; border:1px solid #ddd;">
-            <input type="text" id="cInput" placeholder="Ketik pesan..." style="border:none; margin:0; flex:1;">
-            <button id="btnChat" class="btn-hmi" style="width:auto; padding:8px 20px; margin:0;">KIRIM</button>
-        </div>
+        <div id="feed"></div>
     </div>
 </div>
 
 <div id="profileModal" class="modal">
     <div class="modal-body">
-        <h3>Edit Profil</h3>
-        <input type="file" id="upAvatar" accept="image/*" style="display:none;" onchange="window.handleAvatarPreview(this)">
-        <img id="viewAvatar" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--hmi-gold); cursor:pointer;" onclick="document.getElementById('upAvatar').click()">
+        <h3 style="color:var(--hmi-green)">Profil Kader</h3>
+        <input type="file" id="upAvaFile" accept="image/*" style="display:none;">
+        <div style="position:relative; display:inline-block;">
+            <img id="viewAva" src="" style="width:110px; height:110px; border-radius:50%; object-fit:cover; border:4px solid var(--hmi-green); cursor:pointer;" onclick="document.getElementById('upAvaFile').click()">
+            <div style="position:absolute; bottom:5px; right:5px; background:var(--hmi-gold); padding:5px; border-radius:50%; font-size:10px;">✏️</div>
+        </div>
         <input type="text" id="upNama" placeholder="Nama Lengkap">
         <button class="btn-hmi" id="btnSaveProfile">SIMPAN PERUBAHAN</button>
-        <button onclick="document.getElementById('profileModal').style.display='none'" style="border:none; background:none; color:red; margin-top:15px; font-weight:bold;">BATAL</button>
+        <button onclick="closeProfile()" style="border:none; background:none; color:red; margin-top:15px; font-weight:800; cursor:pointer; font-size:13px;">TUTUP</button>
+        <hr style="margin:20px 0; opacity:0.1;">
+        <button onclick="doLogout()" style="color:#999; border:none; background:none; cursor:pointer; font-size:12px; font-weight:600;">LOGOUT AKUN</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-    import { getFirestore, doc, onSnapshot, collection, query, orderBy, addDoc, deleteDoc, updateDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, onSnapshot, collection, query, orderBy, addDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = { apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo", authDomain: "hmi-app-ac76d.firebaseapp.com", projectId: "hmi-app-ac76d" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-    let postMedia = "", tempAva = "";
+    let userSekarang = null;
+    let base64Image = "";
 
-    // --- AUTH UI TOGGLE ---
-    window.toggleAuth = (isLogin) => {
-        document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
-        document.getElementById('regForm').style.display = isLogin ? 'none' : 'block';
+    // --- COMPRESSION ENGINE (Fix Gambar Putih) ---
+    const processImage = (file, callback) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX = 700; // Ukuran optimal
+                let w = img.width, h = img.height;
+                if(w > MAX) { h *= MAX/w; w = MAX; }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                callback(canvas.toDataURL('image/jpeg', 0.6));
+            };
+        };
     };
 
-    // --- AUTH OBSERVER (THE GATEKEEPER) ---
+    // --- AUTH LOGIC ---
+    window.toggleAuth = (isLogin) => {
+        document.getElementById('loginBox').style.display = isLogin ? 'block' : 'none';
+        document.getElementById('regBox').style.display = isLogin ? 'none' : 'block';
+    };
+
     onAuthStateChanged(auth, (user) => {
         if(user) {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            
-            // Real-time Sync Profile
-            onSnapshot(doc(db, "users", user.uid), (s) => {
-                if(s.exists()){
-                    const d = s.data();
-                    const name = d.nama || user.displayName || "Kader HMI";
-                    const ava = d.photoURL || `https://ui-avatars.com/api/?name=${name}&background=084d1e&color=fff`;
-                    document.getElementById('sideName').innerText = name;
-                    document.getElementById('navAva').src = document.getElementById('sideAva').src = document.getElementById('viewAvatar').src = ava;
-                    document.getElementById('upNama').value = name;
-                }
-            });
+            userSekarang = user;
+            document.getElementById('authLayer').style.display = 'none';
+            document.getElementById('appLayer').style.display = 'block';
+            syncData(user);
             loadFeed();
         } else {
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
+            userSekarang = null;
+            document.getElementById('authLayer').style.display = 'flex';
+            document.getElementById('appLayer').style.display = 'none';
         }
     });
 
-    // --- LOGIN & REGISTER ACTIONS ---
-    document.getElementById('btnLoginAction').onclick = async () => {
-        const e = document.getElementById('emailIn').value;
-        const p = document.getElementById('passIn').value;
-        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Login Gagal: " + err.message); }
+    // Login Google
+    document.getElementById('btnGoogleAuth').onclick = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            await setDoc(doc(db, "users", user.uid), {
+                nama: user.displayName,
+                photoURL: user.photoURL
+            }, { merge: true });
+        } catch (error) { alert("Gagal Login Google"); }
     };
 
-    document.getElementById('btnRegAction').onclick = async () => {
-        const n = document.getElementById('nameReg').value;
-        const e = document.getElementById('emailReg').value;
-        const p = document.getElementById('passReg').value;
-        if(!n) return alert("Nama wajib diisi!");
+    document.getElementById('btnSignIn').onclick = async () => {
+        const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
+        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Email atau Password salah!"); }
+    };
+
+    document.getElementById('btnSignUp').onclick = async () => {
+        const n = document.getElementById('regName').value, e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
+        if(!n || p.length < 6) return alert("Nama lengkap wajib & Password min 6 karakter");
         try {
             const res = await createUserWithEmailAndPassword(auth, e, p);
             await setDoc(doc(db, "users", res.user.uid), { nama: n, photoURL: "" });
             await updateProfile(res.user, { displayName: n });
-            alert("Berhasil Daftar!");
-        } catch(err) { alert("Daftar Gagal: " + err.message); }
+        } catch(err) { alert("Pendaftaran Gagal!"); }
     };
 
-    // --- MAIN APP ACTIONS ---
-    document.getElementById('btnLogout').onclick = () => { if(confirm("Keluar?")) signOut(auth); };
+    window.doLogout = () => { if(confirm("Keluar dari HMI Connect?")) signOut(auth).then(()=>location.reload()); };
 
-    window.toggleSidebar = () => {
-        const a = document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('overlay').style.display = a ? 'block' : 'none';
+    // --- APP FUNCTIONS ---
+    function syncData(user) {
+        onSnapshot(doc(db, "users", user.uid), (s) => {
+            if(s.exists()){
+                const d = s.data();
+                const namaKader = d.nama || user.displayName || "Kader HMI";
+                const fotoKader = d.photoURL || `https://ui-avatars.com/api/?name=${namaKader}&background=084d1e&color=fff`;
+                document.getElementById('navAva').src = document.getElementById('viewAva').src = fotoKader;
+                document.getElementById('upNama').value = namaKader;
+            }
+        });
+    }
+
+    window.openProfile = () => document.getElementById('profileModal').style.display = 'flex';
+    window.closeProfile = () => document.getElementById('profileModal').style.display = 'none';
+
+    document.getElementById('pFile').onchange = (e) => {
+        processImage(e.target.files[0], (res) => {
+            base64Image = res;
+            document.getElementById('imgPrev').src = res;
+            document.getElementById('previewArea').style.display = 'block';
+        });
     };
 
-    window.showView = (id, title) => {
-        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('vTitle').innerText = title;
-        window.toggleSidebar();
-        if(id === 'groupView') loadChat();
-    };
-
-    // --- POST & PROFILE ---
-    window.handlePostMedia = (i) => {
-        const r = new FileReader();
-        r.onload = () => { postMedia = r.result; document.getElementById('pNotify').style.display = 'block'; };
-        r.readAsDataURL(i.files[0]);
+    window.resetMedia = () => {
+        base64Image = ""; document.getElementById('previewArea').style.display = 'none';
+        document.getElementById('pFile').value = "";
     };
 
     document.getElementById('btnPost').onclick = async () => {
         const txt = document.getElementById('pInput').value;
-        if(!txt && !postMedia) return;
-        const btn = document.getElementById('btnPost'); btn.disabled = true;
-        await addDoc(collection(db, "posts"), {
-            uid: auth.currentUser.uid, name: document.getElementById('sideName').innerText,
-            ava: document.getElementById('sideAva').src, text: txt, media: postMedia,
-            likes: [], time: Date.now()
-        });
-        document.getElementById('pInput').value = ""; postMedia = "";
-        document.getElementById('pNotify').style.display = 'none'; btn.disabled = false;
+        if(!txt && !base64Image) return;
+        const btn = document.getElementById('btnPost'); btn.disabled = true; btn.innerText = "MENGIRIM...";
+        
+        try {
+            await addDoc(collection(db, "posts"), {
+                uid: userSekarang.uid,
+                name: document.getElementById('upNama').value,
+                ava: document.getElementById('navAva').src,
+                text: txt,
+                media: base64Image,
+                time: Date.now()
+            });
+            document.getElementById('pInput').value = "";
+            resetMedia();
+        } catch(e) { alert("Gagal mengirim postingan"); }
+        btn.disabled = false; btn.innerText = "POSTING";
+    };
+
+    document.getElementById('upAvaFile').onchange = (e) => {
+        processImage(e.target.files[0], (res) => { document.getElementById('viewAva').src = res; });
     };
 
     document.getElementById('btnSaveProfile').onclick = async () => {
-        const name = document.getElementById('upNama').value;
-        const upData = { nama: name };
-        if(tempAva) upData.photoURL = tempAva;
-        await updateDoc(doc(db, "users", auth.currentUser.uid), upData);
-        await updateProfile(auth.currentUser, { displayName: name, photoURL: tempAva || auth.currentUser.photoURL });
-        alert("Profil diperbarui!");
-        document.getElementById('profileModal').style.display = 'none';
+        const btn = document.getElementById('btnSaveProfile'); btn.innerText = "MENYIMPAN...";
+        await updateDoc(doc(db, "users", userSekarang.uid), { 
+            nama: document.getElementById('upNama').value, 
+            photoURL: document.getElementById('viewAva').src 
+        });
+        btn.innerText = "SIMPAN PERUBAHAN";
+        alert("Profil Kader Berhasil Diperbarui!"); closeProfile();
     };
 
-    window.handleAvatarPreview = (i) => {
-        const r = new FileReader();
-        r.onload = () => { tempAva = r.result; document.getElementById('viewAvatar').src = r.result; };
-        r.readAsDataURL(i.files[0]);
-    };
-
-    // --- RENDER FEED & CHAT ---
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
             sn.forEach(d => {
                 const p = d.data();
-                f.innerHTML += `<div class="card">
-                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                        <img src="${p.ava}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--hmi-gold);">
-                        <b>${p.name}</b>
-                        ${p.uid === auth.currentUser.uid ? `<b onclick="window.delP('${d.id}')" style="margin-left:auto; color:red; cursor:pointer;">✕</b>` : ''}
-                    </div>
-                    <p>${p.text}</p>${p.media ? `<img src="${p.media}" style="width:100%; border-radius:10px;">` : ''}
-                </div>`;
+                f.innerHTML += `
+                    <div class="card">
+                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                            <img src="${p.ava}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ddd;">
+                            <div>
+                                <div style="font-weight:800; font-size:14px;">${p.name}</div>
+                                <div style="font-size:10px; color:#999;">Baru saja</div>
+                            </div>
+                            ${p.uid === userSekarang.uid ? `<div onclick="window.delP('${d.id}')" style="margin-left:auto; color:#ddd; cursor:pointer;">✕</div>` : ''}
+                        </div>
+                        <p style="font-size:15px; line-height:1.5; margin:0;">${p.text}</p>
+                        ${p.media ? `<img src="${p.media}" class="post-media" onerror="this.style.display='none'">` : ''}
+                    </div>`;
             });
         });
     }
 
-    function loadChat() {
-        onSnapshot(query(collection(db, "chats"), orderBy("time", "asc")), (sn) => {
-            const b = document.getElementById('chatBox'); b.innerHTML = "";
-            sn.forEach(d => {
-                const c = d.data(); const isMe = c.uid === auth.currentUser.uid;
-                b.innerHTML += `<div style="max-width:80%; padding:10px; border-radius:12px; align-self:${isMe?'flex-end':'flex-start'}; background:${isMe?'var(--hmi-green)':'#eee'}; color:${isMe?'white':'black'}; margin-bottom:5px;">
-                    <small><b>${isMe?'Anda':c.name}</b></small><br>${c.text||''}
-                </div>`;
-            });
-            b.scrollTop = b.scrollHeight;
-        });
-    }
-
-    document.getElementById('btnChat').onclick = async () => {
-        const txt = document.getElementById('cInput').value;
-        if(!txt) return;
-        await addDoc(collection(db, "chats"), {
-            uid: auth.currentUser.uid, name: document.getElementById('sideName').innerText,
-            text: txt, time: Date.now()
-        });
-        document.getElementById('cInput').value = "";
-    };
-
-    window.delP = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db,"posts",id)); };
+    window.delP = async (id) => { if(confirm("Hapus postingan ini?")) await deleteDoc(doc(db,"posts",id)); };
 </script>
 </body>
-</html>
+    </html>
