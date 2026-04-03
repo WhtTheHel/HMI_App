@@ -2,21 +2,24 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V56 Multi-Access Member Management</title>
+    <title>HMI Connect - V57 Full Restoration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --hmi-green: #084d1e; --hmi-black: #1a1a1a; --hmi-gold: #d4af37; --bg: #f0f2f5; }
-        body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); overflow-x: hidden; }
+        body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        /* HEADER */
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
-        .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #333; cursor: pointer; }
+        .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; cursor: pointer; }
         
+        /* SIDEBAR (HAMBURGER) */
         #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
 
+        /* ELEMENTS */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
         .btn-mini { border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; background: #eee; }
@@ -24,41 +27,41 @@
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
 
         .pos-label { font-size: 10px; color: var(--hmi-green); font-weight: 700; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
-        .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; color: var(--hmi-black); }
+        .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; color: var(--hmi-black); text-decoration: none; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
         .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
         
         .org-item { background: white; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; border-left: 5px solid var(--hmi-green); }
 
+        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
+        
         .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: 800; color: gray; cursor: pointer; }
         .tab-btn.active { color: var(--hmi-green); border-bottom: 3px solid var(--hmi-green); }
-
-        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
     </style>
 </head>
 <body>
 
 <div id="authLayer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px;">
     <div style="text-align:center; width:100%; max-width:360px;">
-        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="70">
+        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="75">
         <h2 style="color:var(--hmi-green)">HMI CONNECT</h2>
         <div id="loginBox">
             <input type="email" id="logEmail" placeholder="Email">
             <input type="password" id="logPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignIn">MASUK</button>
-            <p style="font-size:13px; margin-top:20px;">Belum terdaftar? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar</b></p>
+            <p style="font-size:13px; margin-top:20px;">Belum punya akun? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar</b></p>
         </div>
         <div id="regBox" style="display:none;">
             <input type="text" id="regName" placeholder="Nama Lengkap">
             <input type="email" id="regEmail" placeholder="Email Aktif">
             <input type="password" id="regPass" placeholder="Password">
-            <button class="btn-hmi" id="btnSignUp">BUAT AKUN</button>
-            <p style="font-size:13px; margin-top:20px;"><b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Login</b></p>
+            <button class="btn-hmi" id="btnSignUp">DAFTAR KADER</button>
+            <p style="font-size:13px; margin-top:20px;"><b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Kembali</b></p>
         </div>
     </div>
 </div>
@@ -66,9 +69,9 @@
 <div id="appLayer" style="display:none;">
     <div id="overlay" onclick="toggleSidebar()"></div>
     <div class="topbar">
-        <div style="font-size:28px; cursor:pointer; color:var(--hmi-gold);" onclick="toggleSidebar()">☰</div>
+        <div style="font-size:28px; cursor:pointer;" onclick="toggleSidebar()">☰</div>
         <b id="pageTitle">BERANDA</b>
-        <img id="navAva" class="nav-ava" onclick="openProfile()">
+        <img id="navAva" class="nav-ava">
     </div>
 
     <div id="sidebar">
@@ -80,6 +83,7 @@
         <div style="margin-top:15px;">
             <div class="menu-item" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
             <div class="menu-item" onclick="changeView('memberGlobalView', 'DAFTAR ANGGOTA')">👥 Daftar Anggota</div>
+            <div class="menu-item" onclick="changeView('cabangView', 'DAFTAR CABANG')">🏢 Cabang</div>
             <div class="menu-item" onclick="changeView('komisariatMainView', 'KOMISARIAT')">🏛️ Komisariat</div>
             <div class="menu-item" onclick="changeView('groupView', 'DISKUSI UMUM')">💬 Diskusi Umum</div>
             <div id="adminMenu" style="display:none;" class="menu-item" onclick="changeView('adminPanel', 'PERSETUJUAN')">🛡️ Persetujuan</div>
@@ -89,57 +93,66 @@
 
     <div id="homeView" class="view-content active">
         <div class="card" style="border-left: 5px solid var(--hmi-green);">
-            <textarea id="pInput" placeholder="Posting kegiatan..."></textarea>
+            <textarea id="pInput" placeholder="Posting hari ini..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label for="pFile" style="background:#eee; padding:8px 12px; border-radius:8px; font-size:12px; cursor:pointer;">📷 Foto/Video</label>
+                <label for="pFile" style="background:#eee; padding:8px 12px; border-radius:8px; font-size:12px; cursor:pointer;">📷 Media</label>
                 <input type="file" id="pFile" accept="image/*,video/*" style="display:none;">
                 <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 20px; margin:0;">POSTING</button>
             </div>
-            <div id="mediaPreview" style="display:none; margin-top:10px; font-size:11px; color:var(--hmi-green);">✅ Media Terpilih</div>
+            <div id="mediaPreview" style="display:none; margin-top:10px; font-size:11px; color:var(--hmi-green); font-weight:800;">✅ Media Siap di-Post</div>
         </div>
         <div id="feed"></div>
     </div>
 
-    <div id="memberGlobalView" class="view-content">
-        <input type="text" id="searchMember" placeholder="Cari nama anggota..." oninput="filterGlobalMembers()">
-        <div id="listGlobalMembers"></div>
+    <div id="cabangView" class="view-content">
+        <div id="adminCabangControls" style="display:none;" class="card">
+            <input type="text" id="newCabangName" placeholder="Nama Cabang">
+            <button class="btn-hmi" onclick="addOrg('Cabang', 'newCabangName')">TAMBAH CABANG</button>
+        </div>
+        <div id="cabangList"></div>
     </div>
 
     <div id="komisariatMainView" class="view-content">
-        <div id="adminKomControls" style="display:none; margin-bottom:15px;">
-            <input type="text" id="newKomName" placeholder="Nama Komisariat Baru">
-            <button class="btn-hmi" onclick="addKomisariat()">TAMBAH</button>
+        <div id="adminKomControls" style="display:none;" class="card">
+            <input type="text" id="newKomName" placeholder="Nama Komisariat">
+            <button class="btn-hmi" onclick="addOrg('Komisariat', 'newKomName')">TAMBAH KOMISARIAT</button>
         </div>
         <div id="komisariatList"></div>
     </div>
 
-    <div id="komisariatDetailView" class="view-content">
-        <button class="btn-mini" onclick="changeView('komisariatMainView', 'KOMISARIAT')">⬅️ Kembali</button>
-        <h2 id="detailKomTitle" style="color:var(--hmi-green); margin:15px 0 5px 0;"></h2>
+    <div id="memberGlobalView" class="view-content">
+        <h3>Seluruh Anggota</h3>
+        <input type="text" id="searchMem" placeholder="Cari kader..." oninput="filterMembers('listGlobalMembers', this.value)">
+        <div id="listGlobalMembers"></div>
+    </div>
+
+    <div id="unitDetailView" class="view-content">
+        <button class="btn-mini" onclick="history.back()">⬅️ Kembali</button>
+        <h2 id="detailUnitTitle" style="color:var(--hmi-green); margin:15px 0 5px 0;"></h2>
         <div class="tab-bar">
-            <button id="tabMember" class="tab-btn active" onclick="switchKomTab('members')">ANGGOTA</button>
-            <button id="tabChat" class="tab-btn" onclick="switchKomTab('chat')">CHAT INTERNAL</button>
+            <button id="tabMem" class="tab-btn active" onclick="switchUnitTab('members')">ANGGOTA</button>
+            <button id="tabChat" class="tab-btn" onclick="switchUnitTab('chat')">CHAT</button>
         </div>
-        <div id="komTabMembers">
-            <div id="joinKomBox" style="display:none;" class="card"><button class="btn-hmi" onclick="reqJoinKom()">GABUNG KE UNIT INI</button></div>
-            <div id="listMemberKom"></div>
+        <div id="unitMembers">
+            <div id="joinUnitBox" style="display:none;" class="card"><button class="btn-hmi" onclick="reqJoinUnit()">GABUNG</button></div>
+            <div id="listMemberUnit"></div>
         </div>
-        <div id="komTabChat" style="display:none;">
-            <div id="komChatBox" style="height:40vh; overflow-y:auto; border:1px solid #eee; padding:10px; background:#fff; border-radius:12px; display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="unitChat" style="display:none;">
+            <div id="unitChatBox" style="height:45vh; overflow-y:auto; padding:10px; background:#fff; border-radius:12px; border:1px solid #eee; display:flex; flex-direction:column; gap:8px;"></div>
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <input type="text" id="komChatInput" placeholder="Pesan..." style="margin:0;">
-                <button class="btn-hmi" onclick="sendKomChat()" style="width:auto; margin:0;">KIRIM</button>
+                <input type="text" id="unitChatInput" placeholder="Pesan..." style="margin:0;">
+                <button class="btn-hmi" onclick="sendUnitChat()" style="width:auto; margin:0;">KIRIM</button>
             </div>
         </div>
     </div>
 
     <div id="adminPanel" class="view-content">
-        <h3>Permintaan Bergabung</h3>
+        <h3>Permintaan Masuk</h3>
         <div id="listPendingUsers"></div>
     </div>
 
     <div id="groupView" class="view-content">
-        <div id="chatBoxGeneral" style="height:60vh; overflow-y:auto; background:white; padding:15px; border-radius:15px; border:1px solid #ddd; display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="chatBoxGeneral" style="height:65vh; overflow-y:auto; background:white; padding:15px; border-radius:15px; border:1px solid #ddd; display:flex; flex-direction:column; gap:10px;"></div>
         <div style="display:flex; gap:10px; margin-top:10px;">
             <input type="text" id="genChatInput" placeholder="Diskusi umum..." style="margin:0;">
             <button class="btn-hmi" onclick="sendGenChat()" style="width:auto; margin:0;">KIRIM</button>
@@ -150,8 +163,8 @@
 <div id="manageModal" class="modal">
     <div class="modal-body">
         <h3 id="manageTitle">Kelola Kader</h3>
-        <input type="text" id="editJabatan" placeholder="Jabatan (Ketua/Sekretaris/Anggota)">
-        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN</button>
+        <input type="text" id="editJabatan" placeholder="Jabatan (Ketum/Sekum/Bendahara)">
+        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN JABATAN</button>
         <button class="btn-danger" id="btnKickKader" style="width:100%; margin-top:10px;">KELUARKAN</button>
         <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:gray;">BATAL</button>
     </div>
@@ -167,9 +180,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let me = null, myData = null, selectedKom = "", targetKaderId = "", unsubChat = null, mediaData = "", mediaType = "";
+    let me = null, myData = null, selectedUnit = "", targetKaderId = "", mediaData = "", mediaType = "";
 
-    // --- NAVIGATION ---
     window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
@@ -181,12 +193,12 @@
         document.getElementById('pageTitle').innerText = title;
         if(window.innerWidth < 768) toggleSidebar();
         if(id === 'memberGlobalView') loadGlobalMembers();
-        if(id === 'komisariatMainView') loadKomList();
+        if(id === 'cabangView') loadOrg('Cabang', 'cabangList');
+        if(id === 'komisariatMainView') loadOrg('Komisariat', 'komisariatList');
         if(id === 'adminPanel') loadPending();
         if(id === 'groupView') loadGenChat();
     };
 
-    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if(user) {
             me = user;
@@ -194,12 +206,13 @@
             document.getElementById('appLayer').style.display = 'block';
             onSnapshot(doc(db, "users", user.uid), (s) => {
                 myData = s.data();
-                document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
                 document.getElementById('sideName').innerText = myData.nama;
+                document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
                 if(myData.role === 'admin') {
                     document.getElementById('adminMenu').style.display = 'block';
                     document.getElementById('adminKomControls').style.display = 'block';
-                    document.getElementById('roleBadge').innerHTML = '<span style="background:var(--hmi-gold); padding:2px 8px; border-radius:20px; font-size:10px; font-weight:800;">OWNER</span>';
+                    document.getElementById('adminCabangControls').style.display = 'block';
+                    document.getElementById('roleBadge').innerHTML = '<span style="background:var(--hmi-gold); padding:2px 8px; border-radius:15px; font-size:10px; font-weight:800;">OWNER</span>';
                 }
             });
             loadFeed();
@@ -209,84 +222,62 @@
         }
     });
 
-    // --- MEMBER MANAGEMENT (UNIVERSAL) ---
-    async function loadGlobalMembers() {
-        const sn = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
-        renderMemberList(sn, 'listGlobalMembers');
-    }
+    // --- ORG MANAGEMENT ---
+    window.addOrg = async (type, inputId) => {
+        const val = document.getElementById(inputId).value;
+        if(val) { await addDoc(collection(db, "org_units"), { name: val, type: type }); document.getElementById(inputId).value = ""; loadOrg(type, type==='Cabang'?'cabangList':'komisariatList'); }
+    };
 
-    async function loadKomMembers() {
-        const q = query(collection(db, "users"), where("komisariat_name", "==", selectedKom), where("status", "==", "approved"));
-        const sn = await getDocs(q);
-        document.getElementById('joinKomBox').style.display = (myData?.komisariat_name !== selectedKom) ? 'block' : 'none';
-        renderMemberList(sn, 'listMemberKom');
-    }
-
-    function renderMemberList(sn, targetId) {
-        const div = document.getElementById(targetId);
-        div.innerHTML = "";
-        sn.forEach(u => {
-            const user = u.data();
-            div.innerHTML += `
-                <div class="card">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-                            <div>
-                                <b style="font-size:15px;">${user.nama}</b><br>
-                                <span class="pos-label">${user.jabatan || 'Kader'}</span>
-                                <div style="font-size:10px; color:gray;">${user.komisariat_name || 'Tanpa Komisariat'}</div>
-                            </div>
-                        </div>
-                        ${(myData?.role === 'admin' && u.id !== me.uid) ? `<button class="btn-mini" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}')">KELOLA</button>` : ''}
-                    </div>
-                </div>`;
+    async function loadOrg(type, divId) {
+        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", type)));
+        const div = document.getElementById(divId); div.innerHTML = "";
+        sn.forEach(d => {
+            div.innerHTML += `<div class="org-item" onclick="openUnitDetail('${d.data().name}')"><b>${d.data().name}</b> <span>➡️</span></div>`;
         });
     }
 
-    window.openManage = (uid, nama, jab) => {
-        targetKaderId = uid;
-        document.getElementById('manageTitle').innerText = nama;
-        document.getElementById('editJabatan').value = jab || "";
-        document.getElementById('manageModal').style.display = 'flex';
+    window.openUnitDetail = (name) => {
+        selectedUnit = name; document.getElementById('detailUnitTitle').innerText = name;
+        switchUnitTab('members'); changeView('unitDetailView', 'DETAIL UNIT'); loadUnitMembers();
     };
 
+    // --- MEMBER LOGIC ---
+    async function loadGlobalMembers() {
+        const sn = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
+        renderMembers(sn, 'listGlobalMembers');
+    }
+
+    async function loadUnitMembers() {
+        const q = query(collection(db, "users"), where("komisariat_name", "==", selectedUnit), where("status", "==", "approved"));
+        const sn = await getDocs(q);
+        document.getElementById('joinUnitBox').style.display = (myData?.komisariat_name !== selectedUnit) ? 'block' : 'none';
+        renderMembers(sn, 'listMemberUnit');
+    }
+
+    function renderMembers(sn, targetId) {
+        const div = document.getElementById(targetId); div.innerHTML = "";
+        sn.forEach(u => {
+            const user = u.data();
+            div.innerHTML += `<div class="card">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                        <div>
+                            <b>${user.nama}</b><br><span class="pos-label">${user.jabatan || 'Kader'}</span>
+                        </div>
+                    </div>
+                    ${(myData?.role === 'admin' && u.id !== me.uid) ? `<button class="btn-mini" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}')">KELOLA</button>` : ''}
+                </div>
+            </div>`;
+        });
+    }
+
+    window.openManage = (uid, n, j) => { targetKaderId = uid; document.getElementById('manageTitle').innerText = n; document.getElementById('editJabatan').value = j || ""; document.getElementById('manageModal').style.display = 'flex'; };
+    
     document.getElementById('btnSaveJabatan').onclick = async () => {
         await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
         document.getElementById('manageModal').style.display = 'none';
-        loadGlobalMembers(); if(selectedKom) loadKomMembers();
-    };
-
-    // --- CUMULATIVE STABLE FEATURES ---
-    window.openKomDetail = (name) => {
-        selectedKom = name;
-        document.getElementById('detailKomTitle').innerText = name;
-        switchKomTab('members');
-        changeView('komisariatDetailView', 'DETAIL UNIT');
-        loadKomMembers();
-    };
-
-    async function loadKomList() {
-        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", "Komisariat")));
-        const div = document.getElementById('komisariatList'); div.innerHTML = "";
-        sn.forEach(d => {
-            div.innerHTML += `<div class="org-item" onclick="openKomDetail('${d.data().name}')"><b>${d.data().name}</b><span>➡️</span></div>`;
-        });
-    }
-
-    window.addKomisariat = async () => {
-        const n = document.getElementById('newKomName').value;
-        if(n) { await addDoc(collection(db, "org_units"), { name: n, type: "Komisariat" }); loadKomList(); }
-    };
-
-    window.reqJoinKom = async () => {
-        if(myData.role === 'admin') {
-            await updateDoc(doc(db, "users", me.uid), { komisariat_name: selectedKom, status: "approved" });
-            loadKomMembers();
-        } else {
-            await updateDoc(doc(db, "users", me.uid), { pending_kom: selectedKom, status: "pending" });
-            alert("Menunggu persetujuan Owner.");
-        }
+        loadGlobalMembers(); if(selectedUnit) loadUnitMembers();
     };
 
     // --- FEED & MEDIA ---
@@ -295,22 +286,15 @@
             const f = document.getElementById('feed'); f.innerHTML = "";
             sn.forEach(d => {
                 const p = d.data();
+                const canDel = (myData?.role === 'admin' || p.uid === me.uid);
                 f.innerHTML += `<div class="card">
-                    <div style="display:flex; justify-content:space-between;"><b>${p.name}</b></div>
+                    <div style="display:flex; justify-content:space-between;"><b>${p.name}</b> ${canDel ? `<span onclick="deleteDoc(doc(db, 'posts', '${d.id}'))" style="color:red; cursor:pointer;">Hapus</span>` : ''}</div>
                     <p>${p.text}</p>
                     ${p.media ? (p.type==='video'?`<video src="${p.media}" class="post-media" controls></video>`:`<img src="${p.media}" class="post-media">`) : ''}
                 </div>`;
             });
         });
     }
-
-    document.getElementById('btnPost').onclick = async () => {
-        const val = document.getElementById('pInput').value;
-        if(val || mediaData) {
-            await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: val, media: mediaData, type: mediaType, time: Date.now() });
-            document.getElementById('pInput').value = ""; mediaData = ""; document.getElementById('mediaPreview').style.display='none';
-        }
-    };
 
     document.getElementById('pFile').onchange = (e) => {
         const file = e.target.files[0]; if(!file) return;
@@ -320,11 +304,20 @@
         reader.readAsDataURL(file);
     };
 
+    document.getElementById('btnPost').onclick = async () => {
+        const val = document.getElementById('pInput').value;
+        if(val || mediaData) {
+            await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: val, media: mediaData, type: mediaType, time: Date.now() });
+            document.getElementById('pInput').value = ""; mediaData = ""; document.getElementById('mediaPreview').style.display='none';
+        }
+    };
+
     // --- SYSTEM ---
-    window.switchKomTab = (t) => {
-        document.getElementById('komTabMembers').style.display = t === 'members' ? 'block' : 'none';
-        document.getElementById('komTabChat').style.display = t === 'chat' ? 'block' : 'none';
-        if(t === 'chat') loadKomChat();
+    window.switchUnitTab = (t) => {
+        document.getElementById('unitMembers').style.display = t === 'members' ? 'block' : 'none';
+        document.getElementById('unitChat').style.display = t === 'chat' ? 'block' : 'none';
+        document.getElementById('tabMem').classList.toggle('active', t === 'members');
+        document.getElementById('tabChat').classList.toggle('active', t === 'chat');
     };
 
     window.doLogout = () => signOut(auth).then(()=>location.reload());
@@ -336,4 +329,4 @@
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
 </script>
 </body>
-</html>
+            </html>
