@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V54 Full Cumulative Features</title>
+    <title>HMI Connect - V56 Multi-Access Member Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -10,7 +10,6 @@
         body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); overflow-x: hidden; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* HEADER & NAV */
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
         .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #333; cursor: pointer; }
         
@@ -18,52 +17,48 @@
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
 
-        /* COMPONENTS */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
-        .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn-hmi:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-mini { border: none; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
-        .btn-danger { background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: 800; padding: 10px; cursor: pointer; }
+        .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-mini { border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; background: #eee; }
+        .btn-danger { background: #ff4d4d; color: white; border: none; border-radius: 10px; font-weight: 800; padding: 12px; cursor: pointer; }
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
-        .post-media { width: 100%; border-radius: 12px; margin-top: 12px; display: block; background: #000; max-height: 400px; object-fit: contain; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; font-size: 14px; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
 
-        .pos-label { font-size: 10px; color: var(--hmi-green); font-weight: 700; background: #e8f5e9; padding: 2px 6px; border-radius: 4px; display: inline-block; }
-        .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; color: var(--hmi-black); text-decoration: none; }
-        .menu-item:hover { background: #f5f5f5; }
+        .pos-label { font-size: 10px; color: var(--hmi-green); font-weight: 700; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+        .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; color: var(--hmi-black); }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; max-height: 90vh; overflow-y: auto; }
+        .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
         
-        .org-item { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 4px solid var(--hmi-gold); }
+        .org-item { background: white; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; border-left: 5px solid var(--hmi-green); }
 
         .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: none; font-weight: 800; color: gray; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: 800; color: gray; cursor: pointer; }
         .tab-btn.active { color: var(--hmi-green); border-bottom: 3px solid var(--hmi-green); }
 
-        #komChatBox, #chatBoxGeneral { height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #fcfcfc; border-radius: 12px; border: 1px solid #eee; }
+        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
     </style>
 </head>
 <body>
 
 <div id="authLayer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px;">
     <div style="text-align:center; width:100%; max-width:360px;">
-        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="80" alt="Logo HMI">
-        <h2 style="color:var(--hmi-green); margin-top:15px;">HMI CONNECT</h2>
+        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="70">
+        <h2 style="color:var(--hmi-green)">HMI CONNECT</h2>
         <div id="loginBox">
             <input type="email" id="logEmail" placeholder="Email">
             <input type="password" id="logPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignIn">MASUK</button>
-            <p style="font-size:13px; margin-top:20px;">Belum terdaftar? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Buat Akun</b></p>
+            <p style="font-size:13px; margin-top:20px;">Belum terdaftar? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar</b></p>
         </div>
         <div id="regBox" style="display:none;">
             <input type="text" id="regName" placeholder="Nama Lengkap">
             <input type="email" id="regEmail" placeholder="Email Aktif">
             <input type="password" id="regPass" placeholder="Password">
-            <button class="btn-hmi" id="btnSignUp">DAFTAR KADER</button>
-            <p style="font-size:13px; margin-top:20px;"><b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Kembali Login</b></p>
+            <button class="btn-hmi" id="btnSignUp">BUAT AKUN</button>
+            <p style="font-size:13px; margin-top:20px;"><b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Login</b></p>
         </div>
     </div>
 </div>
@@ -79,69 +74,61 @@
     <div id="sidebar">
         <div style="text-align:center; padding-bottom:15px; border-bottom:2px solid #eee;">
             <img id="sideAva" style="width:65px; height:65px; border-radius:50%; border:3px solid var(--hmi-green); object-fit:cover;">
-            <h4 id="sideName" style="margin:8px 0 0 0;">Kader</h4>
+            <h4 id="sideName" style="margin:8px 0 0 0;">...</h4>
             <div id="roleBadge"></div>
         </div>
         <div style="margin-top:15px;">
             <div class="menu-item" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
-            <div class="menu-item" onclick="changeView('cabangView', 'DAFTAR CABANG')">🏢 Cabang</div>
+            <div class="menu-item" onclick="changeView('memberGlobalView', 'DAFTAR ANGGOTA')">👥 Daftar Anggota</div>
             <div class="menu-item" onclick="changeView('komisariatMainView', 'KOMISARIAT')">🏛️ Komisariat</div>
             <div class="menu-item" onclick="changeView('groupView', 'DISKUSI UMUM')">💬 Diskusi Umum</div>
-            <div id="adminMenu" style="display:none;" class="menu-item" onclick="changeView('adminPanel', 'ADMIN PANEL')">🛡️ Persetujuan</div>
+            <div id="adminMenu" style="display:none;" class="menu-item" onclick="changeView('adminPanel', 'PERSETUJUAN')">🛡️ Persetujuan</div>
             <div class="menu-item" style="color:red; margin-top:25px;" onclick="doLogout()">🚪 Keluar</div>
         </div>
     </div>
 
     <div id="homeView" class="view-content active">
         <div class="card" style="border-left: 5px solid var(--hmi-green);">
-            <textarea id="pInput" placeholder="Bagikan instruksi atau kegiatan..."></textarea>
+            <textarea id="pInput" placeholder="Posting kegiatan..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <label for="pFile" style="background:#eee; padding:8px 12px; border-radius:8px; font-size:12px; cursor:pointer;">📷 Foto/Video</label>
                 <input type="file" id="pFile" accept="image/*,video/*" style="display:none;">
                 <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 20px; margin:0;">POSTING</button>
             </div>
-            <div id="mediaPreview" style="display:none; margin-top:10px;">
-                <span id="previewName" style="font-size:11px; font-weight:bold; color:var(--hmi-green);"></span>
-                <button onclick="resetMedia()" style="background:none; border:none; color:red; font-size:11px; cursor:pointer;">[Hapus]</button>
-            </div>
+            <div id="mediaPreview" style="display:none; margin-top:10px; font-size:11px; color:var(--hmi-green);">✅ Media Terpilih</div>
         </div>
         <div id="feed"></div>
     </div>
 
-    <div id="cabangView" class="view-content">
-        <div id="listCabang"></div>
+    <div id="memberGlobalView" class="view-content">
+        <input type="text" id="searchMember" placeholder="Cari nama anggota..." oninput="filterGlobalMembers()">
+        <div id="listGlobalMembers"></div>
     </div>
 
     <div id="komisariatMainView" class="view-content">
-        <div id="adminKomControls" style="display:none;" class="card">
+        <div id="adminKomControls" style="display:none; margin-bottom:15px;">
             <input type="text" id="newKomName" placeholder="Nama Komisariat Baru">
-            <button class="btn-hmi" onclick="addKomisariat()">TAMBAH KOMISARIAT</button>
+            <button class="btn-hmi" onclick="addKomisariat()">TAMBAH</button>
         </div>
         <div id="komisariatList"></div>
     </div>
 
     <div id="komisariatDetailView" class="view-content">
-        <button class="btn-mini" onclick="changeView('komisariatMainView', 'KOMISARIAT')" style="margin-bottom:15px;">⬅️ Kembali</button>
-        <h2 id="detailKomTitle" style="color:var(--hmi-green); margin:0;"></h2>
-        
+        <button class="btn-mini" onclick="changeView('komisariatMainView', 'KOMISARIAT')">⬅️ Kembali</button>
+        <h2 id="detailKomTitle" style="color:var(--hmi-green); margin:15px 0 5px 0;"></h2>
         <div class="tab-bar">
             <button id="tabMember" class="tab-btn active" onclick="switchKomTab('members')">ANGGOTA</button>
-            <button id="tabChat" class="tab-btn" onclick="switchKomTab('chat')">OBROLAN INTERNAL</button>
+            <button id="tabChat" class="tab-btn" onclick="switchKomTab('chat')">CHAT INTERNAL</button>
         </div>
-
         <div id="komTabMembers">
-            <div id="joinKomBox" style="display:none;" class="card">
-                <p>Ingin bergabung ke komisariat ini?</p>
-                <button class="btn-hmi" onclick="reqJoinKom()">GABUNG</button>
-            </div>
+            <div id="joinKomBox" style="display:none;" class="card"><button class="btn-hmi" onclick="reqJoinKom()">GABUNG KE UNIT INI</button></div>
             <div id="listMemberKom"></div>
         </div>
-
         <div id="komTabChat" style="display:none;">
-            <div id="komChatBox"></div>
+            <div id="komChatBox" style="height:40vh; overflow-y:auto; border:1px solid #eee; padding:10px; background:#fff; border-radius:12px; display:flex; flex-direction:column; gap:8px;"></div>
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <input type="text" id="komChatInput" placeholder="Pesan untuk internal..." style="margin:0;">
-                <button class="btn-hmi" onclick="sendKomChat()" style="width:auto; margin:0; padding:0 20px;">KIRIM</button>
+                <input type="text" id="komChatInput" placeholder="Pesan..." style="margin:0;">
+                <button class="btn-hmi" onclick="sendKomChat()" style="width:auto; margin:0;">KIRIM</button>
             </div>
         </div>
     </div>
@@ -152,38 +139,28 @@
     </div>
 
     <div id="groupView" class="view-content">
-        <div id="chatBoxGeneral"></div>
+        <div id="chatBoxGeneral" style="height:60vh; overflow-y:auto; background:white; padding:15px; border-radius:15px; border:1px solid #ddd; display:flex; flex-direction:column; gap:10px;"></div>
         <div style="display:flex; gap:10px; margin-top:10px;">
-            <input type="text" id="genChatInput" placeholder="Ketik pesan diskusi..." style="margin:0;">
+            <input type="text" id="genChatInput" placeholder="Diskusi umum..." style="margin:0;">
             <button class="btn-hmi" onclick="sendGenChat()" style="width:auto; margin:0;">KIRIM</button>
         </div>
     </div>
 </div>
 
-<div id="profileModal" class="modal">
-    <div class="modal-body">
-        <h3>Profil Saya</h3>
-        <img id="viewAva" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--hmi-green);">
-        <input type="text" id="upNama" placeholder="Nama Lengkap">
-        <button class="btn-hmi" id="btnSaveProfile">SIMPAN PERUBAHAN</button>
-        <button onclick="document.getElementById('profileModal').style.display='none'" style="color:red; background:none; border:none; margin-top:15px; cursor:pointer;">TUTUP</button>
-    </div>
-</div>
-
 <div id="manageModal" class="modal">
     <div class="modal-body">
-        <h3 id="manageTitle">Kelola Jabatan</h3>
-        <input type="text" id="editJabatan" placeholder="Jabatan (Ketua Umum/Sekum/dll)">
-        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN JABATAN</button>
-        <button class="btn-danger" id="btnKickKader" style="width:100%; margin-top:10px;">KELUARKAN KADER</button>
-        <button onclick="document.getElementById('manageModal').style.display='none'" style="color:gray; background:none; border:none; margin-top:15px; cursor:pointer;">BATAL</button>
+        <h3 id="manageTitle">Kelola Kader</h3>
+        <input type="text" id="editJabatan" placeholder="Jabatan (Ketua/Sekretaris/Anggota)">
+        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN</button>
+        <button class="btn-danger" id="btnKickKader" style="width:100%; margin-top:10px;">KELUARKAN</button>
+        <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:gray;">BATAL</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-    import { getFirestore, doc, onSnapshot, collection, query, orderBy, where, addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getFirestore, doc, onSnapshot, collection, query, orderBy, where, addDoc, setDoc, updateDoc, deleteDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = { apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo", authDomain: "hmi-app-ac76d.firebaseapp.com", projectId: "hmi-app-ac76d" };
     const app = initializeApp(firebaseConfig);
@@ -192,7 +169,7 @@
 
     let me = null, myData = null, selectedKom = "", targetKaderId = "", unsubChat = null, mediaData = "", mediaType = "";
 
-    // --- CORE NAVIGATION ---
+    // --- NAVIGATION ---
     window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
@@ -203,45 +180,108 @@
         document.getElementById(id).classList.add('active');
         document.getElementById('pageTitle').innerText = title;
         if(window.innerWidth < 768) toggleSidebar();
+        if(id === 'memberGlobalView') loadGlobalMembers();
         if(id === 'komisariatMainView') loadKomList();
         if(id === 'adminPanel') loadPending();
         if(id === 'groupView') loadGenChat();
-        if(id !== 'komisariatDetailView' && unsubChat) { unsubChat(); unsubChat = null; }
     };
 
-    // --- AUTHENTICATION ---
+    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if(user) {
             me = user;
             document.getElementById('authLayer').style.display = 'none';
             document.getElementById('appLayer').style.display = 'block';
-            sync(user); loadFeed();
+            onSnapshot(doc(db, "users", user.uid), (s) => {
+                myData = s.data();
+                document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
+                document.getElementById('sideName').innerText = myData.nama;
+                if(myData.role === 'admin') {
+                    document.getElementById('adminMenu').style.display = 'block';
+                    document.getElementById('adminKomControls').style.display = 'block';
+                    document.getElementById('roleBadge').innerHTML = '<span style="background:var(--hmi-gold); padding:2px 8px; border-radius:20px; font-size:10px; font-weight:800;">OWNER</span>';
+                }
+            });
+            loadFeed();
         } else {
             document.getElementById('authLayer').style.display = 'flex';
             document.getElementById('appLayer').style.display = 'none';
         }
     });
 
-    function sync(user) {
-        onSnapshot(doc(db, "users", user.uid), (s) => {
-            if(s.exists()){
-                myData = s.data();
-                document.getElementById('navAva').src = document.getElementById('sideAva').src = document.getElementById('viewAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
-                document.getElementById('sideName').innerText = myData.nama;
-                if(myData.role === 'admin') {
-                    document.getElementById('adminMenu').style.display = 'block';
-                    document.getElementById('adminKomControls').style.display = 'block';
-                    document.getElementById('roleBadge').innerHTML = '<span style="background:var(--hmi-gold); color:black; font-size:10px; padding:2px 8px; border-radius:20px; font-weight:800;">OWNER</span>';
-                }
-            }
+    // --- MEMBER MANAGEMENT (UNIVERSAL) ---
+    async function loadGlobalMembers() {
+        const sn = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
+        renderMemberList(sn, 'listGlobalMembers');
+    }
+
+    async function loadKomMembers() {
+        const q = query(collection(db, "users"), where("komisariat_name", "==", selectedKom), where("status", "==", "approved"));
+        const sn = await getDocs(q);
+        document.getElementById('joinKomBox').style.display = (myData?.komisariat_name !== selectedKom) ? 'block' : 'none';
+        renderMemberList(sn, 'listMemberKom');
+    }
+
+    function renderMemberList(sn, targetId) {
+        const div = document.getElementById(targetId);
+        div.innerHTML = "";
+        sn.forEach(u => {
+            const user = u.data();
+            div.innerHTML += `
+                <div class="card">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                            <div>
+                                <b style="font-size:15px;">${user.nama}</b><br>
+                                <span class="pos-label">${user.jabatan || 'Kader'}</span>
+                                <div style="font-size:10px; color:gray;">${user.komisariat_name || 'Tanpa Komisariat'}</div>
+                            </div>
+                        </div>
+                        ${(myData?.role === 'admin' && u.id !== me.uid) ? `<button class="btn-mini" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}')">KELOLA</button>` : ''}
+                    </div>
+                </div>`;
         });
     }
 
-    // --- ORGANIZATIONAL LOGIC ---
+    window.openManage = (uid, nama, jab) => {
+        targetKaderId = uid;
+        document.getElementById('manageTitle').innerText = nama;
+        document.getElementById('editJabatan').value = jab || "";
+        document.getElementById('manageModal').style.display = 'flex';
+    };
+
+    document.getElementById('btnSaveJabatan').onclick = async () => {
+        await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
+        document.getElementById('manageModal').style.display = 'none';
+        loadGlobalMembers(); if(selectedKom) loadKomMembers();
+    };
+
+    // --- CUMULATIVE STABLE FEATURES ---
+    window.openKomDetail = (name) => {
+        selectedKom = name;
+        document.getElementById('detailKomTitle').innerText = name;
+        switchKomTab('members');
+        changeView('komisariatDetailView', 'DETAIL UNIT');
+        loadKomMembers();
+    };
+
+    async function loadKomList() {
+        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", "Komisariat")));
+        const div = document.getElementById('komisariatList'); div.innerHTML = "";
+        sn.forEach(d => {
+            div.innerHTML += `<div class="org-item" onclick="openKomDetail('${d.data().name}')"><b>${d.data().name}</b><span>➡️</span></div>`;
+        });
+    }
+
+    window.addKomisariat = async () => {
+        const n = document.getElementById('newKomName').value;
+        if(n) { await addDoc(collection(db, "org_units"), { name: n, type: "Komisariat" }); loadKomList(); }
+    };
+
     window.reqJoinKom = async () => {
         if(myData.role === 'admin') {
             await updateDoc(doc(db, "users", me.uid), { komisariat_name: selectedKom, status: "approved" });
-            alert("Owner otomatis bergabung!");
             loadKomMembers();
         } else {
             await updateDoc(doc(db, "users", me.uid), { pending_kom: selectedKom, status: "pending" });
@@ -249,98 +289,14 @@
         }
     };
 
-    window.openKomDetail = (name) => {
-        selectedKom = name;
-        document.getElementById('detailKomTitle').innerText = name;
-        switchKomTab('members');
-        changeView('komisariatDetailView', 'KOMISARIAT');
-        loadKomMembers();
-    };
-
-    async function loadKomMembers() {
-        const q = query(collection(db, "users"), where("komisariat_name", "==", selectedKom), where("status", "==", "approved"));
-        const sn = await getDocs(q);
-        const div = document.getElementById('listMemberKom');
-        document.getElementById('joinKomBox').style.display = (myData?.komisariat_name !== selectedKom) ? 'block' : 'none';
-        div.innerHTML = "";
-        sn.forEach(u => {
-            const user = u.data();
-            div.innerHTML += `
-                <div class="card">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:40px; height:40px; border-radius:50%;">
-                            <div>
-                                <b>${user.nama}</b><br>
-                                <span class="pos-label">${user.jabatan || 'Anggota'}</span>
-                            </div>
-                        </div>
-                        ${(myData?.role === 'admin' && u.id !== me.uid) ? `<button class="btn-mini" style="background:#eee" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}')">KELOLA</button>` : ''}
-                    </div>
-                </div>`;
-        });
-    }
-
-    // --- CHAT SYSTEMS (LOCAL & GENERAL) ---
-    function loadKomChat() {
-        if(unsubChat) unsubChat();
-        const q = query(collection(db, "kom_chats"), where("kom_name", "==", selectedKom), orderBy("time", "asc"));
-        unsubChat = onSnapshot(q, (sn) => {
-            const b = document.getElementById('komChatBox'); b.innerHTML = "";
-            sn.forEach(d => {
-                const c = d.data(); const isMe = c.uid === me.uid;
-                b.innerHTML += `
-                <div style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe?'var(--hmi-green)':'white'}; color:${isMe?'white':'black'}; padding:10px; border-radius:12px; max-width:85%; border:1px solid #eee; margin-bottom:5px;">
-                    <b style="font-size:11px;">${c.name}</b> <small style="font-size:9px; opacity:0.8;">(${c.jabatan || 'Kader'})</small><br>
-                    <span>${c.text}</span>
-                </div>`;
-            });
-            b.scrollTop = b.scrollHeight;
-        });
-    }
-
-    window.sendKomChat = async () => {
-        const val = document.getElementById('komChatInput').value;
-        if(!val) return;
-        if(myData.komisariat_name !== selectedKom && myData.role !== 'admin') { alert("Akses terbatas untuk anggota."); return; }
-        await addDoc(collection(db, "kom_chats"), {
-            uid: me.uid, name: myData.nama, jabatan: myData.jabatan || (myData.role === 'admin' ? 'Owner' : 'Kader'),
-            text: val, kom_name: selectedKom, time: Date.now()
-        });
-        document.getElementById('komChatInput').value = "";
-    };
-
-    function loadGenChat() {
-        onSnapshot(query(collection(db, "chats"), orderBy("time", "asc")), (sn) => {
-            const b = document.getElementById('chatBoxGeneral'); b.innerHTML = "";
-            sn.forEach(d => {
-                const c = d.data(); const isMe = c.uid === me.uid;
-                b.innerHTML += `<div style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe?'var(--hmi-green)':'white'}; color:${isMe?'white':'black'}; padding:10px; border-radius:12px; max-width:80%; border:1px solid #eee; margin-bottom:5px;">
-                    <b style="font-size:11px;">${c.name}</b><br>${c.text}
-                </div>`;
-            });
-            b.scrollTop = b.scrollHeight;
-        });
-    }
-
-    window.sendGenChat = async () => {
-        const val = document.getElementById('genChatInput').value;
-        if(val) { await addDoc(collection(db, "chats"), { uid: me.uid, name: myData.nama, text: val, time: Date.now() }); document.getElementById('genChatInput').value = ""; }
-    };
-
-    // --- FEED & MEDIA LOGIC ---
+    // --- FEED & MEDIA ---
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
             sn.forEach(d => {
                 const p = d.data();
-                const canDel = (myData?.role === 'admin' || p.uid === me.uid);
                 f.innerHTML += `<div class="card">
-                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                        <img src="${p.ava}" style="width:35px; height:35px; border-radius:50%;">
-                        <b>${p.name}</b>
-                        ${canDel ? `<button onclick="delDoc('posts', '${d.id}')" style="margin-left:auto; border:none; background:none; color:red; cursor:pointer;">Hapus</button>` : ''}
-                    </div>
+                    <div style="display:flex; justify-content:space-between;"><b>${p.name}</b></div>
                     <p>${p.text}</p>
                     ${p.media ? (p.type==='video'?`<video src="${p.media}" class="post-media" controls></video>`:`<img src="${p.media}" class="post-media">`) : ''}
                 </div>`;
@@ -349,84 +305,35 @@
     }
 
     document.getElementById('btnPost').onclick = async () => {
-        const text = document.getElementById('pInput').value;
-        if(!text && !mediaData) return;
-        await addDoc(collection(db, "posts"), { 
-            uid: me.uid, name: myData.nama, ava: myData.photoURL || '', 
-            text: text, media: mediaData, type: mediaType, time: Date.now() 
-        });
-        document.getElementById('pInput').value = ""; resetMedia();
-    };
-
-    // --- UTILITIES & ADMIN TOOLS ---
-    window.addKomisariat = async () => {
-        const name = document.getElementById('newKomName').value;
-        if(name) { await addDoc(collection(db, "org_units"), { name: name, type: "Komisariat" }); loadKomList(); document.getElementById('newKomName').value = ""; }
-    };
-
-    async function loadKomList() {
-        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", "Komisariat")));
-        const div = document.getElementById('komisariatList'); div.innerHTML = "";
-        sn.forEach(d => {
-            const k = d.data();
-            div.innerHTML += `<div class="org-item" onclick="openKomDetail('${k.name}')">
-                <b>${k.name}</b> 
-                ${myData?.role === 'admin' ? `<button class="btn-mini" style="background:red; color:white;" onclick="event.stopPropagation(); delDoc('org_units', '${d.id}'); loadKomList();">Hapus</button>` : '<span>➡️</span>'}
-            </div>`;
-        });
-    }
-
-    async function loadPending() {
-        const q = query(collection(db, "users"), where("status", "==", "pending"));
-        const sn = await getDocs(q);
-        const div = document.getElementById('listPendingUsers');
-        div.innerHTML = sn.empty ? "<p>Tidak ada permintaan baru.</p>" : "";
-        sn.forEach(u => {
-            const user = u.data();
-            div.innerHTML += `<div class="card">
-                <p><b>${user.nama}</b> ingin masuk <b>${user.pending_kom}</b></p>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-mini" style="background:var(--hmi-green); color:white; flex:1;" onclick="approveKader('${u.id}', '${user.pending_kom}')">SETUJUI</button>
-                    <button class="btn-mini" style="background:red; color:white;" onclick="rejectKader('${u.id}')">TOLAK</button>
-                </div>
-            </div>`;
-        });
-    }
-
-    window.approveKader = async (uid, kom) => { await updateDoc(doc(db, "users", uid), { komisariat_name: kom, status: "approved", pending_kom: null }); loadPending(); };
-    window.rejectKader = async (uid) => { await updateDoc(doc(db, "users", uid), { status: "rejected", pending_kom: null }); loadPending(); };
-
-    window.openManage = (uid, n, j) => { targetKaderId = uid; document.getElementById('manageTitle').innerText = n; document.getElementById('editJabatan').value = j || ""; document.getElementById('manageModal').style.display = 'flex'; };
-    document.getElementById('btnSaveJabatan').onclick = async () => { await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value }); document.getElementById('manageModal').style.display = 'none'; loadKomMembers(); };
-    document.getElementById('btnKickKader').onclick = async () => { if(confirm("Keluarkan?")) { await updateDoc(doc(db, "users", targetKaderId), { komisariat_name: null, status: "new", jabatan: null }); document.getElementById('manageModal').style.display = 'none'; loadKomMembers(); } };
-
-    // --- SYSTEM UTILS ---
-    window.delDoc = async (c, i) => { if(confirm("Hapus data ini?")) await deleteDoc(doc(db, c, i)); };
-    window.switchKomTab = (type) => { 
-        document.getElementById('komTabMembers').style.display = type === 'members' ? 'block' : 'none'; 
-        document.getElementById('komTabChat').style.display = type === 'chat' ? 'block' : 'none'; 
-        document.getElementById('tabMember').classList.toggle('active', type === 'members'); 
-        document.getElementById('tabChat').classList.toggle('active', type === 'chat'); 
-        if(type === 'chat') loadKomChat();
+        const val = document.getElementById('pInput').value;
+        if(val || mediaData) {
+            await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: val, media: mediaData, type: mediaType, time: Date.now() });
+            document.getElementById('pInput').value = ""; mediaData = ""; document.getElementById('mediaPreview').style.display='none';
+        }
     };
 
     document.getElementById('pFile').onchange = (e) => {
         const file = e.target.files[0]; if(!file) return;
         mediaType = file.type.split('/')[0];
         const reader = new FileReader();
-        reader.onload = (res) => { mediaData = res.target.result; document.getElementById('mediaPreview').style.display = 'block'; document.getElementById('previewName').innerText = "✅ Media siap diupload"; };
+        reader.onload = (r) => { mediaData = r.target.result; document.getElementById('mediaPreview').style.display='block'; };
         reader.readAsDataURL(file);
     };
-    window.resetMedia = () => { mediaData = ""; document.getElementById('mediaPreview').style.display = 'none'; };
-    window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
-    window.doLogout = () => signOut(auth).then(()=>location.reload());
-    window.openProfile = () => { document.getElementById('upNama').value = myData.nama; document.getElementById('profileModal').style.display = 'flex'; };
 
-    document.getElementById('btnSignIn').onclick = async () => { await signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value); };
-    document.getElementById('btnSignUp').onclick = async () => {
-        const res = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
-        await setDoc(doc(db, "users", res.user.uid), { nama: document.getElementById('regName').value, role: "kader", status: "new" });
+    // --- SYSTEM ---
+    window.switchKomTab = (t) => {
+        document.getElementById('komTabMembers').style.display = t === 'members' ? 'block' : 'none';
+        document.getElementById('komTabChat').style.display = t === 'chat' ? 'block' : 'none';
+        if(t === 'chat') loadKomChat();
     };
+
+    window.doLogout = () => signOut(auth).then(()=>location.reload());
+    document.getElementById('btnSignIn').onclick = async () => signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value);
+    document.getElementById('btnSignUp').onclick = async () => {
+        const r = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
+        await setDoc(doc(db, "users", r.user.uid), { nama: document.getElementById('regName').value, role: "kader", status: "new" });
+    };
+    window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
 </script>
 </body>
-                </html>
+</html>
