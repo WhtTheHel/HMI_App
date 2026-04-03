@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V41 Full Integrated</title>
+    <title>HMI Connect - V42 Members List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -10,22 +10,21 @@
         body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); overflow-x: hidden; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* AUTH LAYER */
+        /* AUTH & TOPBAR */
         #authLayer { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px; background: #fff; }
         #appLayer { display: none; }
-
-        /* TOPBAR & SIDEBAR */
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
         .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #333; cursor: pointer; }
         
-        #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+        /* SIDEBAR */
+        #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
 
         /* UI COMPONENTS */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-hmi:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-hmi:disabled { background: #ccc; }
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
@@ -33,7 +32,8 @@
         .post-media { width: 100%; border-radius: 12px; margin-top: 12px; display: block; background: #000; }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; }
 
-        .badge-admin { background: var(--hmi-gold); color: black; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 800; margin-top: 5px; display: inline-block; }
+        .badge-admin { background: var(--hmi-gold); color: black; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 800; display: inline-block; }
+        .member-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
         
         /* MODAL */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
@@ -50,15 +50,13 @@
             <input type="email" id="logEmail" placeholder="Email Kader">
             <input type="password" id="logPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignIn">MASUK</button>
-            <button class="btn-hmi" style="background:#fff; color:#444; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px;" id="btnGoogleAuth">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18"> Google Login
-            </button>
+            <button class="btn-hmi" style="background:#fff; color:#444; border:1px solid #ddd;" id="btnGoogleAuth">Google Login</button>
             <p style="font-size:13px; margin-top:20px;">Belum ada akun? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar</b></p>
         </div>
         <div id="regBox" style="display:none;">
             <input type="text" id="regName" placeholder="Nama Lengkap">
             <input type="email" id="regEmail" placeholder="Email">
-            <input type="password" id="regPass" placeholder="Password (Min 6)">
+            <input type="password" id="regPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignUp">BUAT AKUN</button>
             <p style="font-size:13px; margin-top:20px;"><b onclick="toggleAuth(true)" style="color:var(--hmi-green); cursor:pointer;">Kembali Login</b></p>
         </div>
@@ -69,19 +67,20 @@
     <div id="overlay" onclick="toggleSidebar()"></div>
     <div class="topbar">
         <div style="font-size:28px; cursor:pointer; color:var(--hmi-gold);" onclick="toggleSidebar()">☰</div>
-        <div style="display:flex; align-items:center; gap:8px;"><b>BERANDA</b></div>
+        <b id="pageTitle">BERANDA</b>
         <img id="navAva" class="nav-ava" onclick="openProfile()">
     </div>
 
     <div id="sidebar">
         <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #eee;">
             <img id="sideAva" style="width:70px; height:70px; border-radius:50%; border:3px solid var(--hmi-green); object-fit:cover;">
-            <h4 id="sideName" style="margin:10px 0 0 0;">Kader HMI</h4>
+            <h4 id="sideName" style="margin:10px 0 0 0;">Kader</h4>
             <div id="roleBadge"></div>
         </div>
         <div style="margin-top:25px;">
             <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
             <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('groupView', 'GRUP DISKUSI')">👥 Grup Diskusi</div>
+            <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('memberView', 'DAFTAR ANGGOTA')">📖 Daftar Anggota</div>
             <div id="adminMenu" style="display:none; padding:15px; font-weight:800; cursor:pointer; color:var(--hmi-gold);" onclick="changeView('adminPanel', 'ADMIN PANEL')">🛡️ Persetujuan Kader</div>
             <div style="padding:15px; font-weight:800; cursor:pointer; color:red; margin-top:40px;" onclick="doLogout()">🚪 Keluar</div>
         </div>
@@ -92,10 +91,10 @@
             <textarea id="pInput" placeholder="Tulis instruksi atau posting video..."></textarea>
             <div id="prevArea" style="display:none; margin-bottom:10px;">
                 <p id="fileTypeNote" style="font-size:10px; font-weight:bold; color:var(--hmi-green);"></p>
-                <button onclick="resetMedia()" style="background:red; color:white; border:none; border-radius:5px; padding:2px 10px;">Batal</button>
+                <button onclick="resetMedia()" style="background:red; color:white; border:none; padding:2px 10px;">Batal</button>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label for="pFile" style="background:#eee; padding:10px; border-radius:10px; font-size:12px; cursor:pointer; font-weight:bold;">📷 Foto / 🎥 Video</label>
+                <label for="pFile" style="background:#eee; padding:10px; border-radius:10px; font-size:12px; cursor:pointer;">📷 Media</label>
                 <input type="file" id="pFile" accept="image/*,video/*" style="display:none;">
                 <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 20px; margin:0;">KIRIM</button>
             </div>
@@ -106,7 +105,6 @@
     <div id="groupView" class="view-content">
         <div id="chatLocked" style="display:none; text-align:center; padding:50px 20px;">
             <h3>Akses Terbatas</h3>
-            <p>Anda belum memiliki izin akses grup diskusi.</p>
             <button class="btn-hmi" id="btnRequestJoin">MINTA AKSES</button>
         </div>
         <div id="chatActive" style="display:none;">
@@ -122,6 +120,14 @@
         </div>
     </div>
 
+    <div id="memberView" class="view-content">
+        <h3 style="color:var(--hmi-green)">Daftar Admin & Owner</h3>
+        <div id="listAdmin" class="card"></div>
+        
+        <h3 style="color:var(--hmi-green); margin-top:20px;">Daftar Anggota / Kader</h3>
+        <div id="listKader" class="card"></div>
+    </div>
+
     <div id="adminPanel" class="view-content">
         <h3>Persetujuan Kader</h3>
         <div id="listPendingUsers"></div>
@@ -133,10 +139,9 @@
         <h3>Profil Kader</h3>
         <input type="file" id="upAvaFile" accept="image/*" style="display:none;">
         <img id="viewAva" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--hmi-green); cursor:pointer;" onclick="document.getElementById('upAvaFile').click()">
-        <p style="font-size:10px; color:gray;">Klik gambar untuk ganti foto</p>
         <input type="text" id="upNama" placeholder="Nama Lengkap">
         <button class="btn-hmi" id="btnSaveProfile">SIMPAN</button>
-        <button onclick="closeProfile()" style="border:none; background:none; color:red; margin-top:15px;">TUTUP</button>
+        <button onclick="closeProfile()" style="color:red; background:none; border:none; margin-top:10px;">TUTUP</button>
     </div>
 </div>
 
@@ -155,17 +160,18 @@
 
     // --- NAVIGATION ---
     window.toggleSidebar = () => {
-        const s = document.getElementById('sidebar'), o = document.getElementById('overlay');
-        s.classList.toggle('active');
-        o.style.display = s.classList.contains('active') ? 'block' : 'none';
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
     };
 
     window.changeView = (id, title) => {
         document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        document.getElementById('pageTitle').innerText = title;
         if(window.innerWidth < 768) toggleSidebar();
         if(id === 'groupView') checkAccess();
         if(id === 'adminPanel') loadPending();
+        if(id === 'memberView') loadMembers();
     };
 
     // --- AUTH ---
@@ -188,7 +194,6 @@
                 const ava = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}&background=084d1e&color=fff`;
                 document.getElementById('navAva').src = document.getElementById('sideAva').src = document.getElementById('viewAva').src = ava;
                 document.getElementById('sideName').innerText = myData.nama;
-                document.getElementById('upNama').value = myData.nama;
                 if(myData.role === 'admin') {
                     document.getElementById('adminMenu').style.display = 'block';
                     document.getElementById('roleBadge').innerHTML = '<span class="badge-admin">OWNER</span>';
@@ -197,37 +202,53 @@
         });
     }
 
-    // --- PROFILE PHOTO FIX ---
+    // --- MEMBER LIST SYSTEM ---
+    async function loadMembers() {
+        const sn = await getDocs(collection(db, "users"));
+        const adminDiv = document.getElementById('listAdmin');
+        const kaderDiv = document.getElementById('listKader');
+        adminDiv.innerHTML = ""; kaderDiv.innerHTML = "";
+
+        sn.forEach(u => {
+            const user = u.data();
+            const ava = user.photoURL || `https://ui-avatars.com/api/?name=${user.nama}&background=084d1e&color=fff`;
+            const html = `
+                <div class="member-item">
+                    <img src="${ava}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    <div>
+                        <b style="font-size:14px;">${user.nama}</b><br>
+                        <small style="color:gray;">${user.role === 'admin' ? '🛡️ Administrator' : '👤 Anggota'}</small>
+                    </div>
+                </div>`;
+            if(user.role === 'admin') adminDiv.innerHTML += html;
+            else kaderDiv.innerHTML += html;
+        });
+    }
+
+    // --- MEDIA & POSTING ---
     document.getElementById('upAvaFile').onchange = (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
         const reader = new FileReader();
         reader.onload = (res) => document.getElementById('viewAva').src = res.target.result;
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(e.target.files[0]);
     };
 
     document.getElementById('btnSaveProfile').onclick = async () => {
-        const btn = document.getElementById('btnSaveProfile');
-        btn.disabled = true; btn.innerText = "Saving...";
         await updateDoc(doc(db, "users", me.uid), { 
             nama: document.getElementById('upNama').value, 
             photoURL: document.getElementById('viewAva').src 
         });
-        btn.disabled = false; btn.innerText = "SIMPAN";
         closeProfile();
     };
 
-    // --- MEDIA HANDLER ---
     function handleFile(e, prefix) {
         const file = e.target.files[0];
-        if(!file) return;
         mediaType = file.type.split('/')[0];
         const reader = new FileReader();
         reader.onload = (res) => {
             mediaData = res.target.result;
             if(prefix === 'p') {
                 document.getElementById('prevArea').style.display = 'block';
-                document.getElementById('fileTypeNote').innerText = `✅ ${mediaType.toUpperCase()} TERPILIH`;
+                document.getElementById('fileTypeNote').innerText = `✅ ${mediaType.toUpperCase()} SIAP`;
             }
         };
         reader.readAsDataURL(file);
@@ -236,9 +257,7 @@
     document.getElementById('cFile').onchange = (e) => handleFile(e, 'c');
     window.resetMedia = () => { mediaData = ""; document.getElementById('prevArea').style.display = 'none'; };
 
-    // --- FEED ---
     document.getElementById('btnPost').onclick = async () => {
-        if(!document.getElementById('pInput').value && !mediaData) return;
         await addDoc(collection(db, "posts"), {
             uid: me.uid, name: myData.nama, ava: document.getElementById('sideAva').src,
             text: document.getElementById('pInput').value, media: mediaData, type: mediaType, time: Date.now()
@@ -275,13 +294,12 @@
         } else {
             document.getElementById('chatLocked').style.display = 'block';
             document.getElementById('chatActive').style.display = 'none';
-            if(ud.statusJoin === 'pending') document.getElementById('btnRequestJoin').innerText = "MENUNGGU...";
         }
     }
 
     document.getElementById('btnRequestJoin').onclick = async () => {
         await updateDoc(doc(db, "users", me.uid), { statusJoin: "pending" });
-        checkAccess();
+        alert("Permintaan dikirim!");
     };
 
     function loadChat() {
@@ -300,7 +318,6 @@
     }
 
     document.getElementById('btnChat').onclick = async () => {
-        if(!document.getElementById('cInput').value && !mediaData) return;
         await addDoc(collection(db, "chats"), { uid: me.uid, name: myData.nama, text: document.getElementById('cInput').value, media: mediaData, type: mediaType, time: Date.now() });
         document.getElementById('cInput').value = ""; mediaData = "";
     };
@@ -324,7 +341,7 @@
 
     // --- OTHER AUTH ---
     document.getElementById('btnSignIn').onclick = async () => {
-        try { await signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value); } catch(e) { alert("Login Error"); }
+        try { await signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value); } catch(e) { alert("Gagal Login"); }
     };
     document.getElementById('btnSignUp').onclick = async () => {
         const res = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
@@ -339,8 +356,8 @@
     // --- UTILS ---
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
     window.delDoc = async (c, i) => { if(confirm("Hapus?")) await deleteDoc(doc(db, c, i)); };
-    window.openProfile = () => document.getElementById('profileModal').style.display = 'flex';
-    window.closeProfile = () => document.getElementById('profileModal').style.display = 'none';
+    window.openProfile = () => { document.getElementById('profileModal').style.display = 'flex'; };
+    window.closeProfile = () => { document.getElementById('profileModal').style.display = 'none'; };
     window.doLogout = () => signOut(auth).then(()=>location.reload());
 </script>
 </body>
