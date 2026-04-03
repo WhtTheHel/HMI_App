@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V42 Members List</title>
+    <title>HMI Connect - V49 Member Removal Feature</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -10,39 +10,38 @@
         body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); overflow-x: hidden; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* AUTH & TOPBAR */
-        #authLayer { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px; background: #fff; }
-        #appLayer { display: none; }
+        /* TOPBAR & SIDEBAR */
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
         .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; background: #333; cursor: pointer; }
-        
-        /* SIDEBAR */
-        #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+        #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
 
-        /* UI COMPONENTS */
+        /* CARDS & UI */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-hmi:disabled { background: #ccc; }
+        .btn-mini { border: none; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
+        .btn-edit { background: #eee; color: #444; }
+        .btn-danger { background: #ff4d4d; color: white; margin-top: 20px; width: 100%; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; }
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
-        
         .post-media { width: 100%; border-radius: 12px; margin-top: 12px; display: block; background: #000; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
 
         .badge-admin { background: var(--hmi-gold); color: black; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 800; display: inline-block; }
-        .member-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .member-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .pos-label { font-size: 11px; color: var(--hmi-green); font-weight: 700; display: block; margin-top: 2px; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; width: fit-content; }
         
-        /* MODAL */
+        .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
+        .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div id="authLayer">
+<div id="authLayer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px;">
     <div style="text-align:center; width:100%; max-width:360px;">
         <img src="pngtree-hmi-organization-shield-logo-png-image_7307707.png" width="90">
         <h2 style="color:var(--hmi-green)">HMI CONNECT</h2>
@@ -50,11 +49,14 @@
             <input type="email" id="logEmail" placeholder="Email Kader">
             <input type="password" id="logPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignIn">MASUK</button>
-            <button class="btn-hmi" style="background:#fff; color:#444; border:1px solid #ddd;" id="btnGoogleAuth">Google Login</button>
             <p style="font-size:13px; margin-top:20px;">Belum ada akun? <b onclick="toggleAuth(false)" style="color:var(--hmi-green); cursor:pointer;">Daftar</b></p>
         </div>
         <div id="regBox" style="display:none;">
             <input type="text" id="regName" placeholder="Nama Lengkap">
+            <select id="regLevel">
+                <option value="Cabang">Tingkat Cabang</option>
+                <option value="Komisariat">Tingkat Komisariat</option>
+            </select>
             <input type="email" id="regEmail" placeholder="Email">
             <input type="password" id="regPass" placeholder="Password">
             <button class="btn-hmi" id="btnSignUp">BUAT AKUN</button>
@@ -63,7 +65,7 @@
     </div>
 </div>
 
-<div id="appLayer">
+<div id="appLayer" style="display:none;">
     <div id="overlay" onclick="toggleSidebar()"></div>
     <div class="topbar">
         <div style="font-size:28px; cursor:pointer; color:var(--hmi-gold);" onclick="toggleSidebar()">☰</div>
@@ -77,18 +79,19 @@
             <h4 id="sideName" style="margin:10px 0 0 0;">Kader</h4>
             <div id="roleBadge"></div>
         </div>
-        <div style="margin-top:25px;">
-            <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
-            <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('groupView', 'GRUP DISKUSI')">👥 Grup Diskusi</div>
-            <div style="padding:15px; font-weight:800; cursor:pointer;" onclick="changeView('memberView', 'DAFTAR ANGGOTA')">📖 Daftar Anggota</div>
-            <div id="adminMenu" style="display:none; padding:15px; font-weight:800; cursor:pointer; color:var(--hmi-gold);" onclick="changeView('adminPanel', 'ADMIN PANEL')">🛡️ Persetujuan Kader</div>
-            <div style="padding:15px; font-weight:800; cursor:pointer; color:red; margin-top:40px;" onclick="doLogout()">🚪 Keluar</div>
+        <div style="margin-top:20px;">
+            <div class="menu-item" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
+            <div class="menu-item" onclick="changeView('groupView', 'GRUP DISKUSI')">👥 Grup Diskusi</div>
+            <div class="menu-item" onclick="changeView('cabangView', 'KADER CABANG')">🏢 Daftar Cabang</div>
+            <div class="menu-item" onclick="changeView('komisariatView', 'KADER KOMISARIAT')">🏛️ Daftar Komisariat</div>
+            <div id="adminMenu" style="display:none;" class="menu-item" onclick="changeView('adminPanel', 'ADMIN PANEL')">🛡️ Persetujuan Kader</div>
+            <div class="menu-item" style="color:red; margin-top:30px;" onclick="doLogout()">🚪 Keluar</div>
         </div>
     </div>
 
     <div id="homeView" class="view-content active">
         <div class="card" style="border-left: 5px solid var(--hmi-green);">
-            <textarea id="pInput" placeholder="Tulis instruksi atau posting video..."></textarea>
+            <textarea id="pInput" placeholder="Tulis sesuatu..."></textarea>
             <div id="prevArea" style="display:none; margin-bottom:10px;">
                 <p id="fileTypeNote" style="font-size:10px; font-weight:bold; color:var(--hmi-green);"></p>
                 <button onclick="resetMedia()" style="background:red; color:white; border:none; padding:2px 10px;">Batal</button>
@@ -102,6 +105,16 @@
         <div id="feed"></div>
     </div>
 
+    <div id="cabangView" class="view-content">
+        <h3 style="color:var(--hmi-green)">Kader Tingkat Cabang</h3>
+        <div id="listCabang"></div>
+    </div>
+
+    <div id="komisariatView" class="view-content">
+        <h3 style="color:var(--hmi-green)">Kader Tingkat Komisariat</h3>
+        <div id="listKomisariat"></div>
+    </div>
+
     <div id="groupView" class="view-content">
         <div id="chatLocked" style="display:none; text-align:center; padding:50px 20px;">
             <h3>Akses Terbatas</h3>
@@ -111,21 +124,9 @@
             <div id="chatBox" style="height:60vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:15px; background:white; padding:10px; border-radius:15px;"></div>
             <div class="card" style="margin:0; padding:10px;">
                 <input type="text" id="cInput" placeholder="Ketik pesan...">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label for="cFile" style="cursor:pointer; font-size:18px;">📎</label>
-                    <input type="file" id="cFile" accept="image/*,video/*" style="display:none;">
-                    <button id="btnChat" class="btn-hmi" style="width:auto; padding:5px 20px;">KIRIM</button>
-                </div>
+                <button id="btnChat" class="btn-hmi" style="width:auto; padding:5px 20px;">KIRIM</button>
             </div>
         </div>
-    </div>
-
-    <div id="memberView" class="view-content">
-        <h3 style="color:var(--hmi-green)">Daftar Admin & Owner</h3>
-        <div id="listAdmin" class="card"></div>
-        
-        <h3 style="color:var(--hmi-green); margin-top:20px;">Daftar Anggota / Kader</h3>
-        <div id="listKader" class="card"></div>
     </div>
 
     <div id="adminPanel" class="view-content">
@@ -134,11 +135,27 @@
     </div>
 </div>
 
+<div id="adminEditModal" class="modal">
+    <div class="modal-body">
+        <h3 id="editMemberTitle">Kelola Kader</h3>
+        <input type="text" id="editPos" placeholder="Jabatan">
+        <select id="editLevel">
+            <option value="Cabang">Tingkat Cabang</option>
+            <option value="Komisariat">Tingkat Komisariat</option>
+        </select>
+        <div id="roleToggleArea" style="margin-top:10px;"></div>
+        <button class="btn-hmi" id="btnSaveEditMember">SIMPAN PERUBAHAN</button>
+        <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+        <button class="btn-danger" id="btnKickMember">KELUARKAN DARI ORGANISASI</button>
+        <button onclick="document.getElementById('adminEditModal').style.display='none'" style="color:gray; background:none; border:none; margin-top:15px;">BATAL</button>
+    </div>
+</div>
+
 <div id="profileModal" class="modal">
     <div class="modal-body">
-        <h3>Profil Kader</h3>
+        <h3>Profil Saya</h3>
+        <img id="viewAva" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--hmi-green); cursor:pointer;" onclick="document.getElementById('upAvaFile').click()">
         <input type="file" id="upAvaFile" accept="image/*" style="display:none;">
-        <img id="viewAva" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--hmi-green); cursor:pointer;" onclick="document.getElementById('upAvaFile').click()">
         <input type="text" id="upNama" placeholder="Nama Lengkap">
         <button class="btn-hmi" id="btnSaveProfile">SIMPAN</button>
         <button onclick="closeProfile()" style="color:red; background:none; border:none; margin-top:10px;">TUTUP</button>
@@ -147,16 +164,15 @@
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
     import { getFirestore, doc, onSnapshot, collection, query, orderBy, where, addDoc, setDoc, updateDoc, deleteDoc, getDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = { apiKey: "AIzaSyA_SW13O3EPp6L6TGT3UV5B2ADzwCV_Owo", authDomain: "hmi-app-ac76d.firebaseapp.com", projectId: "hmi-app-ac76d" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
 
-    let me = null, myData = null, mediaData = "", mediaType = "";
+    let me = null, myData = null, mediaData = "", mediaType = "", targetEditId = "";
 
     // --- NAVIGATION ---
     window.toggleSidebar = () => {
@@ -171,7 +187,8 @@
         if(window.innerWidth < 768) toggleSidebar();
         if(id === 'groupView') checkAccess();
         if(id === 'adminPanel') loadPending();
-        if(id === 'memberView') loadMembers();
+        if(id === 'cabangView') loadOrgMembers('Cabang', 'listCabang');
+        if(id === 'komisariatView') loadOrgMembers('Komisariat', 'listKomisariat');
     };
 
     // --- AUTH ---
@@ -194,6 +211,7 @@
                 const ava = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}&background=084d1e&color=fff`;
                 document.getElementById('navAva').src = document.getElementById('sideAva').src = document.getElementById('viewAva').src = ava;
                 document.getElementById('sideName').innerText = myData.nama;
+                document.getElementById('upNama').value = myData.nama;
                 if(myData.role === 'admin') {
                     document.getElementById('adminMenu').style.display = 'block';
                     document.getElementById('roleBadge').innerHTML = '<span class="badge-admin">OWNER</span>';
@@ -202,69 +220,75 @@
         });
     }
 
-    // --- MEMBER LIST SYSTEM ---
-    async function loadMembers() {
-        const sn = await getDocs(collection(db, "users"));
-        const adminDiv = document.getElementById('listAdmin');
-        const kaderDiv = document.getElementById('listKader');
-        adminDiv.innerHTML = ""; kaderDiv.innerHTML = "";
+    // --- MEMBER MANAGEMENT ---
+    async function loadOrgMembers(level, elementId) {
+        const q = query(collection(db, "users"), where("level", "==", level));
+        const sn = await getDocs(q);
+        const div = document.getElementById(elementId);
+        div.innerHTML = sn.empty ? `<p style="text-align:center; padding:20px; color:gray;">Belum ada kader di ${level}</p>` : "";
 
         sn.forEach(u => {
             const user = u.data();
+            const uid = u.id;
             const ava = user.photoURL || `https://ui-avatars.com/api/?name=${user.nama}&background=084d1e&color=fff`;
-            const html = `
-                <div class="member-item">
-                    <img src="${ava}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-                    <div>
-                        <b style="font-size:14px;">${user.nama}</b><br>
-                        <small style="color:gray;">${user.role === 'admin' ? '🛡️ Administrator' : '👤 Anggota'}</small>
+            
+            div.innerHTML += `
+                <div class="card">
+                    <div class="member-item">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${ava}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                            <div>
+                                <b style="font-size:14px;">${user.nama}</b>
+                                <span class="pos-label">${user.jabatan || 'Anggota'}</span>
+                                <small style="color:gray; font-size:10px;">${user.role === 'admin' ? '🛡️ Admin' : '👤 Kader'}</small>
+                            </div>
+                        </div>
+                        ${(myData?.role === 'admin' && uid !== me.uid) ? 
+                          `<button class="btn-mini btn-edit" onclick="window.openAdminEdit('${uid}')">KELOLA</button>` : ''}
                     </div>
                 </div>`;
-            if(user.role === 'admin') adminDiv.innerHTML += html;
-            else kaderDiv.innerHTML += html;
         });
     }
 
-    // --- MEDIA & POSTING ---
-    document.getElementById('upAvaFile').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (res) => document.getElementById('viewAva').src = res.target.result;
-        reader.readAsDataURL(e.target.files[0]);
+    window.openAdminEdit = async (uid) => {
+        targetEditId = uid;
+        const s = await getDoc(doc(db, "users", uid));
+        const u = s.data();
+        document.getElementById('editMemberTitle').innerText = `Kelola: ${u.nama}`;
+        document.getElementById('editPos').value = u.jabatan || "";
+        document.getElementById('editLevel').value = u.level || "Cabang";
+        document.getElementById('roleToggleArea').innerHTML = u.role === 'admin' ? 
+            `<button class="btn-mini btn-demote" onclick="window.quickRole('${uid}', 'kader')">TURUNKAN DARI ADMIN</button>` :
+            `<button class="btn-mini btn-promote" onclick="window.quickRole('${uid}', 'admin')">JADIKAN ADMIN</button>`;
+        document.getElementById('adminEditModal').style.display = 'flex';
     };
 
-    document.getElementById('btnSaveProfile').onclick = async () => {
-        await updateDoc(doc(db, "users", me.uid), { 
-            nama: document.getElementById('upNama').value, 
-            photoURL: document.getElementById('viewAva').src 
+    // KICK / DELETE MEMBER
+    document.getElementById('btnKickMember').onclick = async () => {
+        if(confirm("PERINGATAN: Kader ini akan dikeluarkan secara permanen dari sistem. Lanjutkan?")) {
+            await deleteDoc(doc(db, "users", targetEditId));
+            alert("Kader telah berhasil dikeluarkan.");
+            document.getElementById('adminEditModal').style.display = 'none';
+            location.reload();
+        }
+    };
+
+    window.quickRole = async (uid, role) => {
+        await updateDoc(doc(db, "users", uid), { role: role });
+        document.getElementById('adminEditModal').style.display = 'none';
+        location.reload();
+    };
+
+    document.getElementById('btnSaveEditMember').onclick = async () => {
+        await updateDoc(doc(db, "users", targetEditId), {
+            jabatan: document.getElementById('editPos').value,
+            level: document.getElementById('editLevel').value
         });
-        closeProfile();
+        document.getElementById('adminEditModal').style.display = 'none';
+        location.reload();
     };
 
-    function handleFile(e, prefix) {
-        const file = e.target.files[0];
-        mediaType = file.type.split('/')[0];
-        const reader = new FileReader();
-        reader.onload = (res) => {
-            mediaData = res.target.result;
-            if(prefix === 'p') {
-                document.getElementById('prevArea').style.display = 'block';
-                document.getElementById('fileTypeNote').innerText = `✅ ${mediaType.toUpperCase()} SIAP`;
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-    document.getElementById('pFile').onchange = (e) => handleFile(e, 'p');
-    document.getElementById('cFile').onchange = (e) => handleFile(e, 'c');
-    window.resetMedia = () => { mediaData = ""; document.getElementById('prevArea').style.display = 'none'; };
-
-    document.getElementById('btnPost').onclick = async () => {
-        await addDoc(collection(db, "posts"), {
-            uid: me.uid, name: myData.nama, ava: document.getElementById('sideAva').src,
-            text: document.getElementById('pInput').value, media: mediaData, type: mediaType, time: Date.now()
-        });
-        document.getElementById('pInput').value = ""; resetMedia();
-    };
-
+    // --- FEED ---
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
@@ -284,7 +308,24 @@
         });
     }
 
-    // --- GROUP & ADMIN LOGIC ---
+    // --- STABLE LOGIC ---
+    document.getElementById('btnPost').onclick = async () => {
+        if(!document.getElementById('pInput').value && !mediaData) return;
+        await addDoc(collection(db, "posts"), {
+            uid: me.uid, name: myData.nama, ava: document.getElementById('sideAva').src,
+            text: document.getElementById('pInput').value, media: mediaData, type: mediaType, time: Date.now()
+        });
+        document.getElementById('pInput').value = ""; resetMedia();
+    };
+
+    document.getElementById('btnSaveProfile').onclick = async () => {
+        await updateDoc(doc(db, "users", me.uid), { 
+            nama: document.getElementById('upNama').value, 
+            photoURL: document.getElementById('viewAva').src 
+        });
+        closeProfile();
+    };
+
     async function checkAccess() {
         const ud = (await getDoc(doc(db, "users", me.uid))).data();
         if(ud.groupAccess || ud.role === 'admin') {
@@ -297,11 +338,6 @@
         }
     }
 
-    document.getElementById('btnRequestJoin').onclick = async () => {
-        await updateDoc(doc(db, "users", me.uid), { statusJoin: "pending" });
-        alert("Permintaan dikirim!");
-    };
-
     function loadChat() {
         onSnapshot(query(collection(db, "chats"), orderBy("time", "asc")), (sn) => {
             const b = document.getElementById('chatBox'); b.innerHTML = "";
@@ -310,7 +346,6 @@
                 b.innerHTML += `<div style="max-width:80%; padding:10px; border-radius:12px; align-self:${isMe?'flex-end':'flex-start'}; background:${isMe?'var(--hmi-green)':'#eee'}; color:${isMe?'white':'black'}; position:relative; margin-bottom:5px;">
                     ${(isMe || myData?.role === 'admin') ? `<small onclick="window.delDoc('chats','${d.id}')" style="position:absolute; top:-5px; right:-5px; color:red; cursor:pointer;">✕</small>` : ''}
                     <small><b>${c.name}</b></small><br>${c.text||''}
-                    ${c.media ? (c.type === 'video' ? `<video src="${c.media}" style="width:100%;" controls></video>` : `<img src="${c.media}" style="width:100%;">`) : ''}
                 </div>`;
             });
             b.scrollTop = b.scrollHeight;
@@ -318,47 +353,38 @@
     }
 
     document.getElementById('btnChat').onclick = async () => {
-        await addDoc(collection(db, "chats"), { uid: me.uid, name: myData.nama, text: document.getElementById('cInput').value, media: mediaData, type: mediaType, time: Date.now() });
-        document.getElementById('cInput').value = ""; mediaData = "";
+        if(!document.getElementById('cInput').value) return;
+        await addDoc(collection(db, "chats"), { uid: me.uid, name: myData.nama, text: document.getElementById('cInput').value, time: Date.now() });
+        document.getElementById('cInput').value = "";
     };
 
-    async function loadPending() {
-        const sn = await getDocs(query(collection(db, "users"), where("statusJoin", "==", "pending")));
-        const list = document.getElementById('listPendingUsers');
-        list.innerHTML = sn.empty ? "Kosong." : "";
-        sn.forEach(u => {
-            list.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <b>${u.data().nama}</b>
-                <button class="btn-hmi" style="width:auto; padding:5px 15px;" onclick="window.approve('${u.id}')">SETUJU</button>
-            </div>`;
-        });
-    }
-
-    window.approve = async (id) => {
-        await updateDoc(doc(db, "users", id), { groupAccess: true, statusJoin: "approved" });
-        loadPending();
-    };
-
-    // --- OTHER AUTH ---
     document.getElementById('btnSignIn').onclick = async () => {
-        try { await signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value); } catch(e) { alert("Gagal Login"); }
+        await signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value);
     };
+    
     document.getElementById('btnSignUp').onclick = async () => {
         const res = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
-        await setDoc(doc(db, "users", res.user.uid), { nama: document.getElementById('regName').value, role: "kader", groupAccess: false });
-    };
-    document.getElementById('btnGoogleAuth').onclick = async () => {
-        const res = await signInWithPopup(auth, provider);
-        const uDoc = await getDoc(doc(db, "users", res.user.uid));
-        if(!uDoc.exists()) await setDoc(doc(db, "users", res.user.uid), { nama: res.user.displayName, photoURL: res.user.photoURL, role: "kader", groupAccess: false });
+        await setDoc(doc(db, "users", res.user.uid), { 
+            nama: document.getElementById('regName').value, 
+            level: document.getElementById('regLevel').value,
+            role: "kader", jabatan: "Anggota",
+            groupAccess: false 
+        });
     };
 
-    // --- UTILS ---
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
     window.delDoc = async (c, i) => { if(confirm("Hapus?")) await deleteDoc(doc(db, c, i)); };
     window.openProfile = () => { document.getElementById('profileModal').style.display = 'flex'; };
     window.closeProfile = () => { document.getElementById('profileModal').style.display = 'none'; };
     window.doLogout = () => signOut(auth).then(()=>location.reload());
+    window.resetMedia = () => { mediaData = ""; document.getElementById('prevArea').style.display = 'none'; };
+    document.getElementById('pFile').onchange = (e) => {
+        const file = e.target.files[0];
+        mediaType = file.type.split('/')[0];
+        const reader = new FileReader();
+        reader.onload = (res) => { mediaData = res.target.result; document.getElementById('prevArea').style.display = 'block'; document.getElementById('fileTypeNote').innerText = `✅ MEDIA TERPILIH`; };
+        reader.readAsDataURL(file);
+    };
 </script>
 </body>
-</html>
+        </html>
