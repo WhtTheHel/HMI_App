@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V57 Full Restoration</title>
+    <title>HMI Connect - V62 Integrated Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -14,7 +14,6 @@
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
         .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; cursor: pointer; }
         
-        /* SIDEBAR (HAMBURGER) */
         #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
@@ -22,23 +21,26 @@
         /* ELEMENTS */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .btn-mini { border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; background: #eee; }
-        .btn-danger { background: #ff4d4d; color: white; border: none; border-radius: 10px; font-weight: 800; padding: 12px; cursor: pointer; }
+        
+        /* MODERN THREE DOTS */
+        .action-dots { font-size: 24px; color: #888; cursor: pointer; padding: 0 10px; border-radius: 50%; line-height: 1; }
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
 
-        .pos-label { font-size: 10px; color: var(--hmi-green); font-weight: 700; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+        /* BADGES */
+        .pos-label { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+        .label-kader { color: var(--hmi-green); background: #e8f5e9; }
+        .label-admin { color: white; background: #007bff; }
+        .label-owner { color: #000; background: var(--hmi-gold); border: 1px solid #b3922d; }
+
         .menu-item { padding: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; color: var(--hmi-black); text-decoration: none; }
-
+        
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
         .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
         
-        .org-item { background: white; padding: 18px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; border-left: 5px solid var(--hmi-green); }
-
         .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
-        
         .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: 800; color: gray; cursor: pointer; }
         .tab-btn.active { color: var(--hmi-green); border-bottom: 3px solid var(--hmi-green); }
@@ -99,44 +101,25 @@
                 <input type="file" id="pFile" accept="image/*,video/*" style="display:none;">
                 <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 20px; margin:0;">POSTING</button>
             </div>
-            <div id="mediaPreview" style="display:none; margin-top:10px; font-size:11px; color:var(--hmi-green); font-weight:800;">✅ Media Siap di-Post</div>
+            <div id="mediaPreview" style="display:none; margin-top:10px; font-size:11px; color:var(--hmi-green); font-weight:800;">✅ Media Siap</div>
         </div>
         <div id="feed"></div>
     </div>
 
-    <div id="cabangView" class="view-content">
-        <div id="adminCabangControls" style="display:none;" class="card">
-            <input type="text" id="newCabangName" placeholder="Nama Cabang">
-            <button class="btn-hmi" onclick="addOrg('Cabang', 'newCabangName')">TAMBAH CABANG</button>
-        </div>
-        <div id="cabangList"></div>
-    </div>
-
-    <div id="komisariatMainView" class="view-content">
-        <div id="adminKomControls" style="display:none;" class="card">
-            <input type="text" id="newKomName" placeholder="Nama Komisariat">
-            <button class="btn-hmi" onclick="addOrg('Komisariat', 'newKomName')">TAMBAH KOMISARIAT</button>
-        </div>
-        <div id="komisariatList"></div>
-    </div>
-
     <div id="memberGlobalView" class="view-content">
         <h3>Seluruh Anggota</h3>
-        <input type="text" id="searchMem" placeholder="Cari kader..." oninput="filterMembers('listGlobalMembers', this.value)">
+        <input type="text" id="searchMem" placeholder="Cari kader..." oninput="loadGlobalMembers(this.value)">
         <div id="listGlobalMembers"></div>
     </div>
 
     <div id="unitDetailView" class="view-content">
-        <button class="btn-mini" onclick="history.back()">⬅️ Kembali</button>
+        <button class="btn-mini" onclick="history.back()" style="background:#ddd; padding:10px;">⬅️ Kembali</button>
         <h2 id="detailUnitTitle" style="color:var(--hmi-green); margin:15px 0 5px 0;"></h2>
         <div class="tab-bar">
             <button id="tabMem" class="tab-btn active" onclick="switchUnitTab('members')">ANGGOTA</button>
             <button id="tabChat" class="tab-btn" onclick="switchUnitTab('chat')">CHAT</button>
         </div>
-        <div id="unitMembers">
-            <div id="joinUnitBox" style="display:none;" class="card"><button class="btn-hmi" onclick="reqJoinUnit()">GABUNG</button></div>
-            <div id="listMemberUnit"></div>
-        </div>
+        <div id="unitMembers"><div id="listMemberUnit"></div></div>
         <div id="unitChat" style="display:none;">
             <div id="unitChatBox" style="height:45vh; overflow-y:auto; padding:10px; background:#fff; border-radius:12px; border:1px solid #eee; display:flex; flex-direction:column; gap:8px;"></div>
             <div style="display:flex; gap:10px; margin-top:10px;">
@@ -151,22 +134,37 @@
         <div id="listPendingUsers"></div>
     </div>
 
-    <div id="groupView" class="view-content">
-        <div id="chatBoxGeneral" style="height:65vh; overflow-y:auto; background:white; padding:15px; border-radius:15px; border:1px solid #ddd; display:flex; flex-direction:column; gap:10px;"></div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <input type="text" id="genChatInput" placeholder="Diskusi umum..." style="margin:0;">
-            <button class="btn-hmi" onclick="sendGenChat()" style="width:auto; margin:0;">KIRIM</button>
+    <div id="cabangView" class="view-content">
+        <div id="adminCabangControls" style="display:none;" class="card">
+            <input type="text" id="newCabangName" placeholder="Nama Cabang">
+            <button class="btn-hmi" onclick="addOrg('Cabang', 'newCabangName')">TAMBAH</button>
         </div>
+        <div id="cabangList"></div>
+    </div>
+
+    <div id="komisariatMainView" class="view-content">
+        <div id="adminKomControls" style="display:none;" class="card">
+            <input type="text" id="newKomName" placeholder="Nama Komisariat">
+            <button class="btn-hmi" onclick="addOrg('Komisariat', 'newKomName')">TAMBAH</button>
+        </div>
+        <div id="komisariatList"></div>
     </div>
 </div>
 
 <div id="manageModal" class="modal">
     <div class="modal-body">
-        <h3 id="manageTitle">Kelola Kader</h3>
-        <input type="text" id="editJabatan" placeholder="Jabatan (Ketum/Sekum/Bendahara)">
+        <h3 id="manageTitle">...</h3>
+        <p style="font-size:12px; color:gray; text-align:left;">Struktural (Ketum/Sekum/dll)</p>
+        <input type="text" id="editJabatan">
         <button class="btn-hmi" id="btnSaveJabatan">SIMPAN JABATAN</button>
-        <button class="btn-danger" id="btnKickKader" style="width:100%; margin-top:10px;">KELUARKAN</button>
-        <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:gray;">BATAL</button>
+        
+        <div id="ownerSection" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px; display:none;">
+            <p style="font-size:12px; color:gray; text-align:left;">Hak Akses Sistem</p>
+            <button id="btnAdminToggle" class="btn-hmi" style="background:#007bff; margin-bottom:10px;">JADIKAN ADMIN</button>
+            <button id="btnKickKader" class="btn-hmi" style="background:#ff4d4d;">KELUARKAN</button>
+        </div>
+
+        <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:20px; color:gray; font-weight:800; cursor:pointer;">BATAL</button>
     </div>
 </div>
 
@@ -196,7 +194,6 @@
         if(id === 'cabangView') loadOrg('Cabang', 'cabangList');
         if(id === 'komisariatMainView') loadOrg('Komisariat', 'komisariatList');
         if(id === 'adminPanel') loadPending();
-        if(id === 'groupView') loadGenChat();
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -208,11 +205,12 @@
                 myData = s.data();
                 document.getElementById('sideName').innerText = myData.nama;
                 document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
-                if(myData.role === 'admin') {
+                if(myData.role === 'admin' || myData.role === 'owner') {
                     document.getElementById('adminMenu').style.display = 'block';
                     document.getElementById('adminKomControls').style.display = 'block';
                     document.getElementById('adminCabangControls').style.display = 'block';
-                    document.getElementById('roleBadge').innerHTML = '<span style="background:var(--hmi-gold); padding:2px 8px; border-radius:15px; font-size:10px; font-weight:800;">OWNER</span>';
+                    const isOwner = myData.role === 'owner';
+                    document.getElementById('roleBadge').innerHTML = `<span class="pos-label ${isOwner?'label-owner':'label-admin'}">${isOwner?'OWNER':'ADMIN'}</span>`;
                 }
             });
             loadFeed();
@@ -222,74 +220,80 @@
         }
     });
 
-    // --- ORG MANAGEMENT ---
-    window.addOrg = async (type, inputId) => {
-        const val = document.getElementById(inputId).value;
-        if(val) { await addDoc(collection(db, "org_units"), { name: val, type: type }); document.getElementById(inputId).value = ""; loadOrg(type, type==='Cabang'?'cabangList':'komisariatList'); }
-    };
-
-    async function loadOrg(type, divId) {
-        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", type)));
-        const div = document.getElementById(divId); div.innerHTML = "";
-        sn.forEach(d => {
-            div.innerHTML += `<div class="org-item" onclick="openUnitDetail('${d.data().name}')"><b>${d.data().name}</b> <span>➡️</span></div>`;
-        });
-    }
-
-    window.openUnitDetail = (name) => {
-        selectedUnit = name; document.getElementById('detailUnitTitle').innerText = name;
-        switchUnitTab('members'); changeView('unitDetailView', 'DETAIL UNIT'); loadUnitMembers();
-    };
-
-    // --- MEMBER LOGIC ---
-    async function loadGlobalMembers() {
+    // --- MEMBER RENDER WITH DOTS ⋮ ---
+    async function loadGlobalMembers(search = "") {
         const sn = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
-        renderMembers(sn, 'listGlobalMembers');
+        renderMembers(sn, 'listGlobalMembers', search);
     }
 
-    async function loadUnitMembers() {
-        const q = query(collection(db, "users"), where("komisariat_name", "==", selectedUnit), where("status", "==", "approved"));
-        const sn = await getDocs(q);
-        document.getElementById('joinUnitBox').style.display = (myData?.komisariat_name !== selectedUnit) ? 'block' : 'none';
-        renderMembers(sn, 'listMemberUnit');
-    }
-
-    function renderMembers(sn, targetId) {
+    function renderMembers(sn, targetId, search = "") {
         const div = document.getElementById(targetId); div.innerHTML = "";
         sn.forEach(u => {
             const user = u.data();
+            if(search && !user.nama.toLowerCase().includes(search.toLowerCase())) return;
+            
+            const isOwner = user.role === 'owner';
+            const isAdmin = user.role === 'admin';
+            
             div.innerHTML += `<div class="card">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
                         <div>
-                            <b>${user.nama}</b><br><span class="pos-label">${user.jabatan || 'Kader'}</span>
+                            <b>${user.nama}</b><br>
+                            <span class="pos-label ${isOwner?'label-owner':(isAdmin?'label-admin':'label-kader')}">${isOwner?'OWNER':(isAdmin?'ADMIN':(user.jabatan || 'Kader'))}</span>
                         </div>
                     </div>
-                    ${(myData?.role === 'admin' && u.id !== me.uid) ? `<button class="btn-mini" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}')">KELOLA</button>` : ''}
+                    ${(myData?.role === 'owner' && !isOwner) || (myData?.role === 'admin' && !isOwner && !isAdmin) ? 
+                    `<div class="action-dots" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}', '${user.role}')">⋮</div>` : ''}
                 </div>
             </div>`;
         });
     }
 
-    window.openManage = (uid, n, j) => { targetKaderId = uid; document.getElementById('manageTitle').innerText = n; document.getElementById('editJabatan').value = j || ""; document.getElementById('manageModal').style.display = 'flex'; };
-    
-    document.getElementById('btnSaveJabatan').onclick = async () => {
-        await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
-        document.getElementById('manageModal').style.display = 'none';
-        loadGlobalMembers(); if(selectedUnit) loadUnitMembers();
+    window.openManage = (uid, nama, jab, role) => {
+        targetKaderId = uid;
+        document.getElementById('manageTitle').innerText = nama;
+        document.getElementById('editJabatan').value = jab || "";
+        
+        // Privilege Check: Hanya Owner yang bisa akses kontrol Admin/Kick
+        document.getElementById('ownerSection').style.display = (myData?.role === 'owner') ? 'block' : 'none';
+        document.getElementById('btnAdminToggle').innerText = (role === 'admin') ? 'CABUT HAK ADMIN' : 'JADIKAN ADMIN';
+        
+        document.getElementById('manageModal').style.display = 'flex';
     };
 
-    // --- FEED & MEDIA ---
+    document.getElementById('btnSaveJabatan').onclick = async () => {
+        await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
+        alert("Jabatan disimpan");
+        document.getElementById('manageModal').style.display = 'none';
+        loadGlobalMembers();
+    };
+
+    document.getElementById('btnAdminToggle').onclick = async () => {
+        const isCurrentAdmin = document.getElementById('btnAdminToggle').innerText.includes('CABUT');
+        await updateDoc(doc(db, "users", targetKaderId), { role: isCurrentAdmin ? 'kader' : 'admin' });
+        alert("Akses sistem diperbarui");
+        document.getElementById('manageModal').style.display = 'none';
+        loadGlobalMembers();
+    };
+
+    document.getElementById('btnKickKader').onclick = async () => {
+        if(confirm("Hapus anggota ini?")) {
+            await deleteDoc(doc(db, "users", targetKaderId));
+            document.getElementById('manageModal').style.display = 'none';
+            loadGlobalMembers();
+        }
+    };
+
+    // --- RE-IMPLEMENT FEED & ORG ---
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
             sn.forEach(d => {
                 const p = d.data();
-                const canDel = (myData?.role === 'admin' || p.uid === me.uid);
                 f.innerHTML += `<div class="card">
-                    <div style="display:flex; justify-content:space-between;"><b>${p.name}</b> ${canDel ? `<span onclick="deleteDoc(doc(db, 'posts', '${d.id}'))" style="color:red; cursor:pointer;">Hapus</span>` : ''}</div>
-                    <p>${p.text}</p>
+                    <b>${p.name}</b><p>${p.text}</p>
                     ${p.media ? (p.type==='video'?`<video src="${p.media}" class="post-media" controls></video>`:`<img src="${p.media}" class="post-media">`) : ''}
                 </div>`;
             });
@@ -312,7 +316,22 @@
         }
     };
 
-    // --- SYSTEM ---
+    async function loadOrg(type, divId) {
+        const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", type)));
+        const div = document.getElementById(divId); div.innerHTML = "";
+        sn.forEach(d => div.innerHTML += `<div class="org-item" onclick="openUnitDetail('${d.data().name}')"><b>${d.data().name}</b> <span>➡️</span></div>`);
+    }
+
+    window.addOrg = async (type, inputId) => {
+        const val = document.getElementById(inputId).value;
+        if(val) { await addDoc(collection(db, "org_units"), { name: val, type: type }); document.getElementById(inputId).value = ""; loadOrg(type, type==='Cabang'?'cabangList':'komisariatList'); }
+    };
+
+    window.openUnitDetail = (name) => {
+        selectedUnit = name; document.getElementById('detailUnitTitle').innerText = name;
+        changeView('unitDetailView', 'UNIT DETAIL');
+    };
+
     window.switchUnitTab = (t) => {
         document.getElementById('unitMembers').style.display = t === 'members' ? 'block' : 'none';
         document.getElementById('unitChat').style.display = t === 'chat' ? 'block' : 'none';
@@ -329,4 +348,4 @@
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
 </script>
 </body>
-            </html>
+</html>
