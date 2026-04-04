@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V62 Integrated Management</title>
+    <title>HMI Connect - V64 Absolute Restoration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -14,6 +14,7 @@
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
         .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; cursor: pointer; }
         
+        /* SIDEBAR */
         #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
@@ -21,9 +22,9 @@
         /* ELEMENTS */
         .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-mini { border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; background: #eee; }
         
-        /* MODERN THREE DOTS */
-        .action-dots { font-size: 24px; color: #888; cursor: pointer; padding: 0 10px; border-radius: 50%; line-height: 1; }
+        .action-dots { font-size: 28px; color: var(--hmi-green); cursor: pointer; padding: 0 10px; font-weight: bold; line-height: 1; }
         
         .view-content { display: none; padding: 15px; padding-bottom: 100px; }
         .view-content.active { display: block; }
@@ -41,6 +42,7 @@
         .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
         
         .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
+        
         .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: 800; color: gray; cursor: pointer; }
         .tab-btn.active { color: var(--hmi-green); border-bottom: 3px solid var(--hmi-green); }
@@ -107,8 +109,8 @@
     </div>
 
     <div id="memberGlobalView" class="view-content">
-        <h3>Seluruh Anggota</h3>
-        <input type="text" id="searchMem" placeholder="Cari kader..." oninput="loadGlobalMembers(this.value)">
+        <h3>Database Seluruh Kader</h3>
+        <input type="text" id="searchMem" placeholder="Cari nama kader..." oninput="loadGlobalMembers(this.value)">
         <div id="listGlobalMembers"></div>
     </div>
 
@@ -130,7 +132,7 @@
     </div>
 
     <div id="adminPanel" class="view-content">
-        <h3>Permintaan Masuk</h3>
+        <h3>Persetujuan Kader Baru</h3>
         <div id="listPendingUsers"></div>
     </div>
 
@@ -149,21 +151,27 @@
         </div>
         <div id="komisariatList"></div>
     </div>
+
+    <div id="groupView" class="view-content">
+        <div id="chatBoxGeneral" style="height:65vh; overflow-y:auto; background:white; padding:15px; border-radius:15px; border:1px solid #ddd; display:flex; flex-direction:column; gap:10px;"></div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <input type="text" id="genChatInput" placeholder="Diskusi umum..." style="margin:0;">
+            <button class="btn-hmi" onclick="sendGenChat()" style="width:auto; margin:0;">KIRIM</button>
+        </div>
+    </div>
 </div>
 
 <div id="manageModal" class="modal">
     <div class="modal-body">
         <h3 id="manageTitle">...</h3>
-        <p style="font-size:12px; color:gray; text-align:left;">Struktural (Ketum/Sekum/dll)</p>
+        <p style="font-size:12px; color:gray; text-align:left;">Ubah Jabatan Struktural</p>
         <input type="text" id="editJabatan">
         <button class="btn-hmi" id="btnSaveJabatan">SIMPAN JABATAN</button>
         
         <div id="ownerSection" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px; display:none;">
-            <p style="font-size:12px; color:gray; text-align:left;">Hak Akses Sistem</p>
             <button id="btnAdminToggle" class="btn-hmi" style="background:#007bff; margin-bottom:10px;">JADIKAN ADMIN</button>
             <button id="btnKickKader" class="btn-hmi" style="background:#ff4d4d;">KELUARKAN</button>
         </div>
-
         <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:20px; color:gray; font-weight:800; cursor:pointer;">BATAL</button>
     </div>
 </div>
@@ -178,7 +186,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let me = null, myData = null, selectedUnit = "", targetKaderId = "", mediaData = "", mediaType = "";
+    let me = null, myData = null, targetKaderId = "", mediaData = "", mediaType = "";
 
     window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('active');
@@ -194,6 +202,7 @@
         if(id === 'cabangView') loadOrg('Cabang', 'cabangList');
         if(id === 'komisariatMainView') loadOrg('Komisariat', 'komisariatList');
         if(id === 'adminPanel') loadPending();
+        if(id === 'groupView') loadGenChat();
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -220,73 +229,57 @@
         }
     });
 
-    // --- MEMBER RENDER WITH DOTS ⋮ ---
+    // --- MEMBER LOGIC (ALL DETECTED) ---
     async function loadGlobalMembers(search = "") {
-        const sn = await getDocs(query(collection(db, "users"), where("status", "==", "approved")));
-        renderMembers(sn, 'listGlobalMembers', search);
-    }
-
-    function renderMembers(sn, targetId, search = "") {
-        const div = document.getElementById(targetId); div.innerHTML = "";
+        // Mengambil semua user tanpa filter status agar semua pendaftar terdeteksi
+        const sn = await getDocs(collection(db, "users"));
+        const div = document.getElementById('listGlobalMembers'); div.innerHTML = "";
         sn.forEach(u => {
             const user = u.data();
             if(search && !user.nama.toLowerCase().includes(search.toLowerCase())) return;
-            
             const isOwner = user.role === 'owner';
             const isAdmin = user.role === 'admin';
-            
+            const showDots = (myData?.role === 'owner' && u.id !== me.uid) || (myData?.role === 'admin' && !isOwner && !isAdmin && u.id !== me.uid);
+
             div.innerHTML += `<div class="card">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
                         <div>
-                            <b>${user.nama}</b><br>
+                            <b style="font-size:16px;">${user.nama}</b><br>
                             <span class="pos-label ${isOwner?'label-owner':(isAdmin?'label-admin':'label-kader')}">${isOwner?'OWNER':(isAdmin?'ADMIN':(user.jabatan || 'Kader'))}</span>
                         </div>
                     </div>
-                    ${(myData?.role === 'owner' && !isOwner) || (myData?.role === 'admin' && !isOwner && !isAdmin) ? 
-                    `<div class="action-dots" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}', '${user.role}')">⋮</div>` : ''}
+                    ${showDots ? `<div class="action-dots" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}', '${user.role}')">⋮</div>` : ''}
                 </div>
             </div>`;
         });
     }
 
-    window.openManage = (uid, nama, jab, role) => {
-        targetKaderId = uid;
-        document.getElementById('manageTitle').innerText = nama;
-        document.getElementById('editJabatan').value = jab || "";
-        
-        // Privilege Check: Hanya Owner yang bisa akses kontrol Admin/Kick
+    window.openManage = (uid, n, j, r) => {
+        targetKaderId = uid; document.getElementById('manageTitle').innerText = n;
+        document.getElementById('editJabatan').value = j || "";
         document.getElementById('ownerSection').style.display = (myData?.role === 'owner') ? 'block' : 'none';
-        document.getElementById('btnAdminToggle').innerText = (role === 'admin') ? 'CABUT HAK ADMIN' : 'JADIKAN ADMIN';
-        
+        document.getElementById('btnAdminToggle').innerText = (r === 'admin') ? 'CABUT ADMIN' : 'JADIKAN ADMIN';
         document.getElementById('manageModal').style.display = 'flex';
     };
 
     document.getElementById('btnSaveJabatan').onclick = async () => {
         await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
-        alert("Jabatan disimpan");
-        document.getElementById('manageModal').style.display = 'none';
-        loadGlobalMembers();
+        alert("Berhasil!"); document.getElementById('manageModal').style.display = 'none'; loadGlobalMembers();
     };
 
     document.getElementById('btnAdminToggle').onclick = async () => {
-        const isCurrentAdmin = document.getElementById('btnAdminToggle').innerText.includes('CABUT');
-        await updateDoc(doc(db, "users", targetKaderId), { role: isCurrentAdmin ? 'kader' : 'admin' });
-        alert("Akses sistem diperbarui");
-        document.getElementById('manageModal').style.display = 'none';
-        loadGlobalMembers();
+        const isCurrent = document.getElementById('btnAdminToggle').innerText.includes('CABUT');
+        await updateDoc(doc(db, "users", targetKaderId), { role: isCurrent ? 'kader' : 'admin' });
+        document.getElementById('manageModal').style.display = 'none'; loadGlobalMembers();
     };
 
     document.getElementById('btnKickKader').onclick = async () => {
-        if(confirm("Hapus anggota ini?")) {
-            await deleteDoc(doc(db, "users", targetKaderId));
-            document.getElementById('manageModal').style.display = 'none';
-            loadGlobalMembers();
-        }
+        if(confirm("Hapus?")) { await deleteDoc(doc(db, "users", targetKaderId)); document.getElementById('manageModal').style.display = 'none'; loadGlobalMembers(); }
     };
 
-    // --- RE-IMPLEMENT FEED & ORG ---
+    // --- RE-RESTORE ALL OTHER CORE FUNCTIONS ---
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
@@ -309,9 +302,9 @@
     };
 
     document.getElementById('btnPost').onclick = async () => {
-        const val = document.getElementById('pInput').value;
-        if(val || mediaData) {
-            await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: val, media: mediaData, type: mediaType, time: Date.now() });
+        const v = document.getElementById('pInput').value;
+        if(v || mediaData) {
+            await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: v, media: mediaData, type: mediaType, time: Date.now() });
             document.getElementById('pInput').value = ""; mediaData = ""; document.getElementById('mediaPreview').style.display='none';
         }
     };
@@ -319,7 +312,7 @@
     async function loadOrg(type, divId) {
         const sn = await getDocs(query(collection(db, "org_units"), where("type", "==", type)));
         const div = document.getElementById(divId); div.innerHTML = "";
-        sn.forEach(d => div.innerHTML += `<div class="org-item" onclick="openUnitDetail('${d.data().name}')"><b>${d.data().name}</b> <span>➡️</span></div>`);
+        sn.forEach(d => div.innerHTML += `<div class="org-item" onclick="alert('Unit: '+d.data().name)"><b>${d.data().name}</b> <span>➡️</span></div>`);
     }
 
     window.addOrg = async (type, inputId) => {
@@ -327,23 +320,12 @@
         if(val) { await addDoc(collection(db, "org_units"), { name: val, type: type }); document.getElementById(inputId).value = ""; loadOrg(type, type==='Cabang'?'cabangList':'komisariatList'); }
     };
 
-    window.openUnitDetail = (name) => {
-        selectedUnit = name; document.getElementById('detailUnitTitle').innerText = name;
-        changeView('unitDetailView', 'UNIT DETAIL');
-    };
-
-    window.switchUnitTab = (t) => {
-        document.getElementById('unitMembers').style.display = t === 'members' ? 'block' : 'none';
-        document.getElementById('unitChat').style.display = t === 'chat' ? 'block' : 'none';
-        document.getElementById('tabMem').classList.toggle('active', t === 'members');
-        document.getElementById('tabChat').classList.toggle('active', t === 'chat');
-    };
-
     window.doLogout = () => signOut(auth).then(()=>location.reload());
     document.getElementById('btnSignIn').onclick = async () => signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value);
     document.getElementById('btnSignUp').onclick = async () => {
         const r = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
         await setDoc(doc(db, "users", r.user.uid), { nama: document.getElementById('regName').value, role: "kader", status: "new" });
+        alert("Pendaftaran Berhasil!");
     };
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
 </script>
