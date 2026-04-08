@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>HMI Connect - V65 Premium</title>
+    <title>HMI Connect - V67 Absolute</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -10,51 +10,49 @@
         body { margin: 0; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--hmi-black); overflow-x: hidden; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* ANIMATIONS */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .view-content.active { display: block; animation: fadeIn 0.4s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .view-content { display: none; padding: 15px; padding-bottom: 100px; }
+        .view-content.active { display: block; animation: slideUp 0.4s ease; }
         
         .topbar { position: sticky; top: 0; background: var(--hmi-green); color: white; display: flex; justify-content: space-between; align-items: center; height: 65px; padding: 0 20px; border-bottom: 4px solid var(--hmi-black); z-index: 9999; }
-        .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; }
+        .nav-ava { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--hmi-gold); object-fit: cover; cursor: pointer; }
 
         #sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: white; transition: 0.3s; z-index: 10001; padding: 25px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
         #sidebar.active { left: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(2px); }
 
-        .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; transition: 0.3s; }
-        .card:active { transform: scale(0.98); }
+        .card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; position: relative; }
         .btn-hmi { background: var(--hmi-green); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
         
-        .action-dots { font-size: 28px; color: var(--hmi-green); cursor: pointer; padding: 0 10px; }
-        .view-content { display: none; padding: 15px; padding-bottom: 100px; }
-
-        /* LOGIN HISTORY STYLE */
-        .history-box { background: #f9f9f9; padding: 15px; border-radius: 12px; font-size: 12px; line-height: 1.6; text-align: justify; margin: 15px 0; border: 1px dashed var(--hmi-green); max-height: 150px; overflow-y: auto; }
+        .history-box { background: #f9f9f9; padding: 15px; border-radius: 12px; font-size: 11px; line-height: 1.6; text-align: justify; border: 1px dashed var(--hmi-green); margin: 15px 0; max-height: 120px; overflow-y: auto; }
 
         .pos-label { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
         .label-kader { color: var(--hmi-green); background: #e8f5e9; }
         .label-admin { color: white; background: #007bff; }
-        .label-owner { color: #000; background: var(--hmi-gold); }
+        .label-owner { color: #000; background: var(--hmi-gold); border: 1px solid #b3922d; }
 
-        .org-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid #eee; font-weight: 700; }
-        .org-item:hover { background: #f0f7f1; }
+        .org-item { display: flex; justify-content: space-between; align-items: center; padding: 18px; background: white; border-radius: 15px; margin-bottom: 10px; cursor: pointer; border: 1px solid #eee; font-weight: 800; transition: 0.2s; }
+        .org-item:active { background: #f0f7f1; transform: scale(0.97); }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
         .modal-body { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 380px; text-align: center; }
 
-        #chatBox { height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: #fff; border-radius: 15px; }
+        #chatBox { height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8f9fa; border-radius: 20px; border: 1px solid #eee; margin-bottom: 15px; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1.5px solid #eee; outline: none; font-family: inherit; }
+        .menu-item { padding: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 10px; color: var(--hmi-black); }
+        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; max-height: 400px; object-fit: contain; background: #000; }
     </style>
 </head>
 <body>
 
-<div id="authLayer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px; background: white;">
+<div id="authLayer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 25px;">
     <div style="text-align:center; width:100%; max-width:360px;">
-        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="80" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
-        <h2 style="color:var(--hmi-green); margin:10px 0 5px 0;">HMI CONNECT</h2>
+        <img src="https://upload.wikimedia.org/wikipedia/id/0/00/Lambang_Himpunan_Mahasiswa_Islam.png" width="80">
+        <h2 style="color:var(--hmi-green); margin-top:10px;">HMI CONNECT</h2>
         
         <div class="history-box">
             <b>Sejarah Singkat HMI:</b><br>
-            Himpunan Mahasiswa Islam (HMI) didirikan di Yogyakarta pada tanggal 14 Rabiul Awwal 1366 H yang bertepatan dengan tanggal 5 Februari 1947. Organisasi ini diprakarsai oleh Lafran Pane beserta 14 orang mahasiswa Sekolah Tinggi Islam (sekarang UII). HMI lahir sebagai respon atas kondisi umat Islam di Indonesia dan demi mempertahankan kemerdekaan Indonesia.
+            Didirikan di Yogyakarta pada 5 Februari 1947 oleh Lafran Pane. HMI bertujuan membina insan akademis, pencipta, pengabdi yang bernafaskan Islam untuk mewujudkan masyarakat adil makmur yang diridhoi Allah SWT.
         </div>
 
         <div id="loginBox">
@@ -78,7 +76,7 @@
     <div class="topbar">
         <div style="font-size:28px; cursor:pointer;" onclick="toggleSidebar()">☰</div>
         <b id="pageTitle">BERANDA</b>
-        <img id="navAva" class="nav-ava">
+        <img id="navAva" class="nav-ava" onclick="changeView('memberGlobalView', 'DAFTAR ANGGOTA')">
     </div>
 
     <div id="sidebar">
@@ -90,47 +88,47 @@
         <div style="margin-top:15px;">
             <div class="menu-item" onclick="changeView('homeView', 'BERANDA')">🏠 Beranda</div>
             <div class="menu-item" onclick="changeView('memberGlobalView', 'DAFTAR ANGGOTA')">👥 Daftar Anggota</div>
-            <div class="menu-item" onclick="changeView('cabangView', 'DAFTAR CABANG')">🏢 Cabang & Komisariat</div>
+            <div class="menu-item" onclick="changeView('cabangView', 'ORGANISASI')">🏢 Cabang & Komisariat</div>
             <div id="adminMenu" style="display:none;" class="menu-item" onclick="changeView('adminPanel', 'PERSETUJUAN')">🛡️ Persetujuan</div>
-            <div class="menu-item" style="color:red; margin-top:25px;" onclick="doLogout()">🚪 Keluar</div>
+            <div class="menu-item" style="color:red; margin-top:30px;" onclick="doLogout()">🚪 Keluar</div>
         </div>
     </div>
 
     <div id="homeView" class="view-content active">
         <div class="card" style="border-left: 5px solid var(--hmi-green);">
-            <textarea id="pInput" placeholder="Apa kabar perjuangan hari ini?"></textarea>
+            <textarea id="pInput" placeholder="Tuliskan gagasan perjuangan..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label for="pFile" style="background:#eee; padding:8px 12px; border-radius:8px; font-size:12px; cursor:pointer;">📷 Media</label>
+                <label for="pFile" style="background:#eee; padding:8px 15px; border-radius:10px; font-size:12px; cursor:pointer; font-weight:700;">📷 Foto / Video</label>
                 <input type="file" id="pFile" accept="image/*,video/*" style="display:none;">
-                <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 20px; margin:0;">POSTING</button>
+                <button class="btn-hmi" id="btnPost" style="width:auto; padding:8px 25px; margin:0;">POSTING</button>
             </div>
-            <div id="mediaPreview" style="display:none; color:var(--hmi-green); font-weight:bold; font-size:12px; margin-top:5px;">✅ Media terpilih</div>
+            <div id="mediaPreview" style="display:none; color:var(--hmi-green); font-weight:bold; font-size:12px; margin-top:10px;">✅ Media siap diunggah</div>
         </div>
         <div id="feed"></div>
     </div>
 
     <div id="memberGlobalView" class="view-content">
-        <input type="text" id="searchMem" placeholder="Cari Kader..." oninput="loadGlobalMembers(this.value)">
-        <div id="listGlobalMembers" style="margin-top:15px;"></div>
+        <input type="text" id="searchMem" placeholder="Cari nama kader..." oninput="loadGlobalMembers(this.value)">
+        <div id="listGlobalMembers" style="margin-top:10px;"></div>
     </div>
 
     <div id="cabangView" class="view-content">
-        <h3 id="orgPath">Pilih Cabang</h3>
+        <h3 id="orgPath">Struktur Organisasi</h3>
         <div id="orgContainer"></div>
     </div>
 
     <div id="chatGroupView" class="view-content">
-        <button onclick="changeView('cabangView', 'DAFTAR CABANG')" class="btn-mini" style="margin-bottom:10px;">⬅️ Kembali</button>
-        <h3 id="chatTitle">Grup Chat</h3>
+        <button onclick="changeView('cabangView', 'ORGANISASI')" style="border:none; background:#eee; padding:8px 15px; border-radius:8px; font-weight:800; cursor:pointer; margin-bottom:15px;">⬅️ KEMBALI</button>
+        <h3 id="chatTitle" style="margin:0 0 10px 0; color:var(--hmi-green);">Grup Diskusi</h3>
         <div id="chatBox"></div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <input type="text" id="chatMsg" placeholder="Tulis pesan..." style="margin:0;">
-            <button class="btn-hmi" onclick="sendGroupChat()" style="width:auto; margin:0;">KIRIM</button>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="chatMsg" placeholder="Ketik pesan..." style="margin:0;">
+            <button class="btn-hmi" onclick="sendGroupChat()" style="width:auto; margin:0; padding:10px 20px;">KIRIM</button>
         </div>
     </div>
 
     <div id="adminPanel" class="view-content">
-        <h3>Permintaan Bergabung</h3>
+        <h3>Persetujuan Akun</h3>
         <div id="listPendingUsers"></div>
     </div>
 </div>
@@ -138,13 +136,14 @@
 <div id="manageModal" class="modal">
     <div class="modal-body">
         <h3 id="manageTitle">...</h3>
-        <input type="text" id="editJabatan" placeholder="Jabatan Struktural">
-        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN JABATAN</button>
-        <div id="ownerSection" style="display:none; margin-top:15px;">
-            <button id="btnAdminToggle" class="btn-hmi" style="background:#007bff;">JADIKAN ADMIN</button>
-            <button id="btnKickKader" class="btn-hmi" style="background:#ff4d4d;">KELUARKAN</button>
+        <p style="font-size:12px; color:gray; text-align:left;">Update Jabatan Struktural:</p>
+        <input type="text" id="editJabatan">
+        <button class="btn-hmi" id="btnSaveJabatan">SIMPAN PERUBAHAN</button>
+        <div id="ownerSection" style="display:none; margin-top:20px; border-top:2px solid #eee; padding-top:15px;">
+            <button id="btnAdminToggle" class="btn-hmi" style="background:#007bff;"></button>
+            <button id="btnKickKader" class="btn-hmi" style="background:#ff4d4d;">HAPUS KADER</button>
         </div>
-        <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:gray;">BATAL</button>
+        <button onclick="document.getElementById('manageModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:gray; font-weight:bold;">BATAL</button>
     </div>
 </div>
 
@@ -160,69 +159,51 @@
 
     let me = null, myData = null, currentGroup = "", targetKaderId = "", mediaData = "", mediaType = "";
 
-    window.toggleSidebar = () => {
-        const s = document.getElementById('sidebar');
-        s.classList.toggle('active');
-        document.getElementById('overlay').style.display = s.classList.contains('active') ? 'block' : 'none';
-    };
-
-    window.changeView = (id, title) => {
-        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('pageTitle').innerText = title;
-        if(window.innerWidth < 768) toggleSidebar();
-        if(id === 'cabangView') loadOrg('Cabang');
-        if(id === 'memberGlobalView') loadGlobalMembers();
-    };
-
+    // --- AUTH CORE ---
     onAuthStateChanged(auth, (user) => {
         if(user) {
             me = user;
-            document.getElementById('authLayer').style.display = 'none';
-            document.getElementById('appLayer').style.display = 'block';
             onSnapshot(doc(db, "users", user.uid), (s) => {
-                myData = s.data();
-                document.getElementById('sideName').innerText = myData.nama;
-                document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
-                if(myData.role === 'admin' || myData.role === 'owner') {
-                    document.getElementById('adminMenu').style.display = 'block';
+                if(s.exists()){
+                    myData = s.data();
+                    document.getElementById('authLayer').style.display = 'none';
+                    document.getElementById('appLayer').style.display = 'block';
+                    document.getElementById('sideName').innerText = myData.nama;
+                    document.getElementById('navAva').src = document.getElementById('sideAva').src = myData.photoURL || `https://ui-avatars.com/api/?name=${myData.nama}`;
+                    if(myData.role === 'admin' || myData.role === 'owner') document.getElementById('adminMenu').style.display = 'block';
+                    document.getElementById('roleBadge').innerHTML = `<span class="pos-label ${myData.role==='owner'?'label-owner':'label-admin'}">${myData.role.toUpperCase()}</span>`;
+                    loadFeed();
                 }
-                const badge = document.getElementById('roleBadge');
-                badge.innerHTML = `<span class="pos-label ${myData.role==='owner'?'label-owner':'label-admin'}">${myData.role.toUpperCase()}</span>`;
             });
-            loadFeed();
         } else {
             document.getElementById('authLayer').style.display = 'flex';
             document.getElementById('appLayer').style.display = 'none';
         }
     });
 
-    // --- LOGIKA DAFTAR ANGGOTA & OWNER PRIVILEGE ---
-    async function loadGlobalMembers(search = "") {
+    // --- GLOBAL MEMBER & OWNER SECURITY ---
+    window.loadGlobalMembers = async (search = "") => {
         const sn = await getDocs(collection(db, "users"));
         const div = document.getElementById('listGlobalMembers'); div.innerHTML = "";
         sn.forEach(u => {
             const user = u.data();
             if(search && !user.nama.toLowerCase().includes(search.toLowerCase())) return;
-            
-            // PROTEKSI OWNER: Owner tidak bisa mengedit dirinya sendiri di daftar (mencegah salah pencet cabut akses)
             const isMe = u.id === me.uid;
+            // OWNER bisa manage siapapun kecuali dirinya sendiri. ADMIN hanya bisa manage KADER.
             const canManage = (myData.role === 'owner' && !isMe) || (myData.role === 'admin' && user.role === 'kader');
 
-            div.innerHTML += `<div class="card">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:45px; height:45px; border-radius:50%;">
-                        <div>
-                            <b>${user.nama} ${isMe ? '(Anda)' : ''}</b><br>
-                            <span class="pos-label ${user.role==='owner'?'label-owner':(user.role==='admin'?'label-admin':'label-kader')}">${user.jabatan || user.role}</span>
-                        </div>
+            div.innerHTML += `<div class="card" style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.nama}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--hmi-green);">
+                    <div>
+                        <b style="font-size:15px;">${user.nama} ${isMe ? '(Anda)' : ''}</b><br>
+                        <span class="pos-label ${user.role==='owner'?'label-owner':(user.role==='admin'?'label-admin':'label-kader')}">${user.jabatan || user.role}</span>
                     </div>
-                    ${canManage ? `<div class="action-dots" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}', '${user.role}')">⋮</div>` : ''}
                 </div>
+                ${canManage ? `<div style="font-size:28px; cursor:pointer; color:var(--hmi-green); font-weight:bold;" onclick="openManage('${u.id}', '${user.nama}', '${user.jabatan}', '${user.role}')">⋮</div>` : ''}
             </div>`;
         });
-    }
+    };
 
     window.openManage = (uid, n, j, r) => {
         targetKaderId = uid;
@@ -233,29 +214,28 @@
         document.getElementById('manageModal').style.display = 'flex';
     };
 
-    // --- LOGIKA CABANG & KOMISARIAT (Sabilillah Fix) ---
-    async function loadOrg(type, parent = null) {
-        const div = document.getElementById('orgContainer'); div.innerHTML = "Memuat...";
-        document.getElementById('orgPath').innerText = parent ? `Komisariat di ${parent}` : "Pilih Cabang";
+    // --- ORG & GROUP CHAT ---
+    window.loadOrg = async (type, parent = null) => {
+        const div = document.getElementById('orgContainer'); div.innerHTML = "<p>Mencari data...</p>";
+        document.getElementById('orgPath').innerText = parent ? `Komisariat di ${parent}` : "Daftar Cabang";
         
-        let qry = query(collection(db, "org_units"), where("type", "==", type));
-        if(parent) qry = query(collection(db, "org_units"), where("type", "==", type), where("parent", "==", parent));
+        let q = query(collection(db, "org_units"), where("type", "==", type));
+        if(parent) q = query(collection(db, "org_units"), where("type", "==", type), where("parent", "==", parent));
         
-        const sn = await getDocs(qry);
-        div.innerHTML = "";
+        const sn = await getDocs(q); div.innerHTML = "";
         
-        // Manual Add for Sabilillah if not in DB yet (Demo purposes)
-        if(parent === "Cabang Contoh" && sn.empty) {
-            div.innerHTML += `<div class="org-item" onclick="enterChat('Komisariat Sabilillah')">Komisariat Sabilillah <span>💬</span></div>`;
+        // Sabilillah Fallback (Jika DB kosong, tetap bisa masuk)
+        if(parent === "Cabang" || sn.empty) {
+             div.innerHTML += `<div class="org-item" onclick="enterChat('Sabilillah')">🏛️ Komisariat Sabilillah <span>💬</span></div>`;
         }
 
         sn.forEach(d => {
             const data = d.data();
             div.innerHTML += `<div class="org-item" onclick="${type==='Cabang' ? `loadOrg('Komisariat', '${data.name}')` : `enterChat('${data.name}')`}">
-                ${data.name} <span>${type==='Cabang' ? '➡️' : '💬'}</span>
+                ${type==='Cabang' ? '🏢' : '🏛️'} ${data.name} <span>${type==='Cabang' ? '➡️' : '💬'}</span>
             </div>`;
         });
-    }
+    };
 
     window.enterChat = (name) => {
         currentGroup = name;
@@ -264,15 +244,15 @@
         loadChat(name);
     };
 
-    function loadChat(group) {
-        const q = query(collection(db, "chats"), where("group", "==", group), orderBy("time", "asc"));
+    function loadChat(groupName) {
+        const q = query(collection(db, "chats"), where("group", "==", groupName), orderBy("time", "asc"));
         onSnapshot(q, (sn) => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             sn.forEach(d => {
                 const c = d.data();
                 const isMe = c.uid === me.uid;
-                box.innerHTML += `<div style="align-self: ${isMe?'flex-end':'flex-start'}; background: ${isMe?var(--hmi-green):'#eee'}; color: ${isMe?'white':'black'}; padding: 10px; border-radius: 12px; max-width: 80%;">
-                    <small style="font-size:9px; opacity:0.8;">${c.name}</small><br>${c.msg}
+                box.innerHTML += `<div style="align-self: ${isMe?'flex-end':'flex-start'}; background: ${isMe? 'var(--hmi-green)' : '#fff'}; color: ${isMe?'#fff':'#000'}; padding: 12px 18px; border-radius: 18px; max-width: 80%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <small style="font-size:9px; opacity:0.8; font-weight:800;">${c.name}</small><br>${c.msg}
                 </div>`;
             });
             box.scrollTop = box.scrollHeight;
@@ -281,49 +261,73 @@
 
     window.sendGroupChat = async () => {
         const m = document.getElementById('chatMsg').value;
-        if(m) {
-            await addDoc(collection(db, "chats"), { group: currentGroup, uid: me.uid, name: myData.nama, msg: m, time: Date.now() });
-            document.getElementById('chatMsg').value = "";
-        }
+        if(!m) return;
+        await addDoc(collection(db, "chats"), { group: currentGroup, uid: me.uid, name: myData.nama, msg: m, time: Date.now() });
+        document.getElementById('chatMsg').value = "";
     };
 
-    // --- FUNGSI DASAR (POSTING/AUTH) ---
+    // --- FEED & MEDIA ---
+    document.getElementById('pFile').onchange = (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        mediaType = file.type.split('/')[0];
+        const reader = new FileReader();
+        reader.onload = (r) => { 
+            mediaData = r.target.result; 
+            document.getElementById('mediaPreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    };
+
+    document.getElementById('btnPost').onclick = async () => {
+        const txt = document.getElementById('pInput').value;
+        if(!txt && !mediaData) return alert("Konten kosong!");
+        await addDoc(collection(db, "posts"), { uid: me.uid, name: myData.nama, text: txt, media: mediaData, type: mediaType, time: Date.now() });
+        document.getElementById('pInput').value = ""; mediaData = ""; 
+        document.getElementById('mediaPreview').style.display = 'none';
+    };
+
     function loadFeed() {
         onSnapshot(query(collection(db, "posts"), orderBy("time", "desc")), (sn) => {
             const f = document.getElementById('feed'); f.innerHTML = "";
             sn.forEach(d => {
                 const p = d.data();
-                f.innerHTML += `<div class="card" style="animation: fadeIn 0.5s;">
-                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                        <img src="https://ui-avatars.com/api/?name=${p.name}" style="width:35px; border-radius:50%;">
+                f.innerHTML += `<div class="card">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <img src="https://ui-avatars.com/api/?name=${p.name}&background=084d1e&color=fff" style="width:38px; border-radius:50%;">
                         <b>${p.name}</b>
                     </div>
-                    <p style="margin:0;">${p.text}</p>
+                    <p style="white-space: pre-wrap; margin:0;">${p.text}</p>
                     ${p.media ? (p.type==='video' ? `<video src="${p.media}" class="post-media" controls></video>` : `<img src="${p.media}" class="post-media">`) : ''}
                 </div>`;
             });
         });
     }
 
-    document.getElementById('btnSaveJabatan').onclick = async () => {
-        await updateDoc(doc(db, "users", targetKaderId), { jabatan: document.getElementById('editJabatan').value });
-        alert("Berhasil!"); document.getElementById('manageModal').style.display='none'; loadGlobalMembers();
+    // --- NAVIGATION & ACTIONS ---
+    window.changeView = (id, title) => {
+        document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('pageTitle').innerText = title;
+        if(window.innerWidth < 768) toggleSidebar();
+        if(id === 'cabangView') loadOrg('Cabang');
+        if(id === 'memberGlobalView') loadGlobalMembers();
     };
 
-    document.getElementById('btnAdminToggle').onclick = async () => {
-        const isCurrentlyAdmin = document.getElementById('btnAdminToggle').innerText.includes('CABUT');
-        await updateDoc(doc(db, "users", targetKaderId), { role: isCurrentlyAdmin ? 'kader' : 'admin' });
-        document.getElementById('manageModal').style.display='none'; loadGlobalMembers();
+    window.toggleSidebar = () => {
+        const s = document.getElementById('sidebar');
+        s.classList.toggle('active');
+        document.getElementById('overlay').style.display = s.classList.contains('active') ? 'block' : 'none';
     };
 
-    window.doLogout = () => signOut(auth).then(()=>location.reload());
-    document.getElementById('btnSignIn').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('logEmail').value, document.getElementById('logPass').value);
-    document.getElementById('btnSignUp').onclick = async () => {
-        const r = await createUserWithEmailAndPassword(auth, document.getElementById('regEmail').value, document.getElementById('regPass').value);
-        await setDoc(doc(db, "users", r.user.uid), { nama: document.getElementById('regName').value, role: "kader", status: "new" });
-        alert("Pendaftaran Berhasil!");
+    document.getElementById('btnSignIn').onclick = () => {
+        const e = document.getElementById('logEmail').value;
+        const p = document.getElementById('logPass').value;
+        signInWithEmailAndPassword(auth, e, p).catch(err => alert("Gagal: " + err.message));
     };
+
+    window.doLogout = () => signOut(auth).then(() => location.reload());
     window.toggleAuth = (l) => { document.getElementById('loginBox').style.display=l?'block':'none'; document.getElementById('regBox').style.display=l?'none':'block'; };
 </script>
 </body>
-</html>
+            </html>
