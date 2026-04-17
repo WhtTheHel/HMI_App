@@ -7,36 +7,48 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 window.doLogout = () => signOut(auth);
 
-document.getElementById("btnSignIn").onclick = () => {
-  signInWithEmailAndPassword(
-    auth,
-    logEmail.value,
-    logPass.value
-  );
+btnSignIn.onclick = () => {
+  signInWithEmailAndPassword(auth, logEmail.value, logPass.value);
 };
 
-document.getElementById("btnGoogle").onclick = async () => {
+btnGoogle.onclick = async () => {
   const res = await signInWithPopup(auth, new GoogleAuthProvider());
   const user = res.user;
 
-  const ref = doc(db, "users", user.uid);
+  const ref = doc(db,"users",user.uid);
   const snap = await getDoc(ref);
 
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      nama: user.displayName,
-      email: user.email
+  if(!snap.exists()){
+    await setDoc(ref,{
+      nama:user.displayName,
+      email:user.email
     });
   }
 };
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authLayer.style.display = "none";
-    appLayer.style.display = "block";
+let interval;
+
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    authLayer.style.display="none";
+    appLayer.style.display="block";
+
+    interval = setInterval(()=>{
+      updateDoc(doc(db,"users",user.uid),{
+        online:true,
+        lastActive:Date.now()
+      });
+    },5000);
+
+    window.addEventListener("beforeunload",()=>{
+      updateDoc(doc(db,"users",user.uid),{online:false});
+    });
+
+  } else {
+    if(interval) clearInterval(interval);
   }
 });
