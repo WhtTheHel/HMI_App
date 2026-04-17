@@ -18,17 +18,13 @@ btnPost.onclick = async ()=>{
     time:Date.now()
   });
 
-  showToast("Posting berhasil");
+  pInput.value="";
 };
 
 onSnapshot(query(collection(db,"posts"),orderBy("time","desc")),snap=>{
   feed.innerHTML="";
   snap.forEach(d=>{
     const p=d.data();
-    feed.innerHTML+=`
-    <div class="card">
-      ${p.text}
-      ${p.media?`<img src="${p.media}" width="100%">`:""}
-    </div>`;
+    feed.innerHTML+=`<div class="card">${p.text}</div>`;
   });
 });
