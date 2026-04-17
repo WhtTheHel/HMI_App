@@ -2,11 +2,10 @@ body {
   margin:0;
   font-family:'Plus Jakarta Sans', sans-serif;
   background:#f5f7fb;
-  transition:0.3s;
 }
 
 .topbar {
-  background:#084d1e;
+  background:rgba(8,77,30,0.9);
   color:white;
   padding:12px;
   display:flex;
@@ -19,12 +18,10 @@ body {
   top:0;
   width:220px;
   height:100%;
-  background:white;
+  background:#fff;
   padding:15px;
   transition:0.3s;
-  z-index:1000;
 }
-
 #sidebar.active { left:0; }
 
 #overlay {
@@ -40,9 +37,9 @@ body {
 .card {
   background:white;
   padding:15px;
-  margin:10px 0;
-  border-radius:15px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+  margin:10px;
+  border-radius:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.05);
 }
 
 .grid {
@@ -57,41 +54,10 @@ body {
   text-align:center;
 }
 
-/* DARK MODE */
 .dark {
   background:#121212;
   color:white;
 }
-
-.dark .card {
-  background:#1e1e1e;
-}
-
-.dark input,
-.dark textarea {
-  background:#2a2a2a;
-  color:white;
-}
-
-/* TOAST */
-#toast {
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#084d1e;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-  opacity:0;
-  transition:0.3s;
-}
-
-#toast.show {
-  opacity:1;
-}
-
-/* CHAT */
-#chatBox {
-  height:60vh;
-  overflow:auto;
+.dark #sidebar {
+  background:#1a1a1a;
 }
